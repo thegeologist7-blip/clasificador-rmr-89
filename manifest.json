@@ -1,0 +1,18 @@
+{
+  "name": "Clasificador RMR 89 Pro",
+  "short_name": "RMR 89",
+  "description": "Calculadora Geomecánica Bieniawski 1989",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#052c52",
+  "theme_color": "#052c52",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3062/3062534.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

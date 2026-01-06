@@ -309,18 +309,24 @@
     <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
         <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP:</span>
         <input type="number" 
-       placeholder="0-90°" 
-       class="in-field j-dip" 
-       oninput="if(value>90)value=90; if(value<0)value=0; runRmr();" 
-       min="0" max="90">
+               placeholder="0-90°" 
+               class="in-field j-dip" 
+               style="height:24px; max-width: 80px;" 
+               oninput="if(value>90)value=90; if(value<0)value=0; runRmr();" 
+               min="0" max="90">
     </div>
+
     <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-                    <span class="input-label" style="margin-bottom: 0; white-space: nowrap;">DIP DIR:</span>
-                    <input type="number" placeholder="0-360°" class="in-field j-dipdir" 
-                           style="height:24px; max-width: 80px;" 
-                           oninput="if(value>360)value=360; if(value<0)value=0; runRmr();">
-                </div>
-                <button onclick="capturarGiroscopio(this)" class="btn-gyro">📐</button>
+        <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP DIR:</span>
+        <input type="number" 
+               placeholder="0-360°" 
+               class="in-field j-dipdir" 
+               style="height:24px; max-width: 80px;" 
+               oninput="if(value>360)value=360; if(value<0)value=0; runRmr();" 
+               min="0" max="360">
+    </div>
+
+    <button onclick="capturarGiroscopio(this)" class="btn-gyro">📐</button>
 				</div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">

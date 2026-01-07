@@ -267,7 +267,7 @@
         </div>
 
         <div class="geo-card">
-            <div><h4 style="margin: 0 0 8px; color: #052c52; font-size: 12px; font-weight: 800;">💎 3. CALIDAD (RQD)</h4>
+            <div><h4 style="margin: 0 0 8px; color: #052c52; font-size: 12px; font-weight: 800;">💎 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)</h4>
                 <div class="input-label">MÉTODO</div>
                 <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52;">
                     <option value="deere">Estimación Visual (Deere 1989)</option>
@@ -308,24 +308,22 @@
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
     <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-        <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP:</span>
-        <input type="number" 
-               placeholder="0-90°" 
-               class="in-field j-dip" 
-               style="height:24px; max-width: 80px;" 
-               oninput="if(value>90)value=90; if(value<0)value=0; runRmr();" 
-               min="0" max="90">
-    </div>
+    <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP:</span>
+    <input type="tel" 
+           placeholder="0-90°" 
+           class="in-field j-dip" 
+           style="height:24px; max-width: 80px;" 
+           oninput="validarAngular(this, 90)">
+</div>
 
-    <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-        <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP DIR:</span>
-        <input type="number" 
-               placeholder="0-360°" 
-               class="in-field j-dipdir" 
-               style="height:24px; max-width: 80px;" 
-               oninput="if(value>360)value=360; if(value<0)value=0; runRmr();" 
-               min="0" max="360">
-    </div>
+<div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
+    <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP DIR:</span>
+    <input type="tel" 
+           placeholder="0-360°" 
+           class="in-field j-dipdir" 
+           style="height:24px; max-width: 80px;" 
+           oninput="validarAngular(this, 360)">
+</div>
 
     <button onclick="capturarGiroscopio(this)" class="btn-gyro">📐</button>
 				</div>
@@ -396,7 +394,7 @@
  <div id="bloque-agua" class="geo-card full-row" style="border-left: 4px solid #3498db; background: #f0f7ff; min-height: auto; padding: 12px 15px;">
     <div style="display:flex; justify-content:space-between; align-items:center; gap: 20px;">
         <div style="flex: 2;">
-            <h4 style="margin: 0 0 4px; color: #052c52; font-size: 12px; font-weight: 800;">💧 5. AGUA SUBTERRÁNEA</h4>
+            <h4 style="margin: 0 0 4px; color: #052c52; font-size: 12px; font-weight: 800;">💧 5. CONDICIÓN </h4>
             <span class="guide-text" style="margin-bottom:0; font-size: 10px; line-height: 1.2;">Identifique el estado de humedad del frente o afloramiento para determinar la presión de poros o el caudal de filtración.</span>
         </div>
         <div style="flex: 1; display:flex; align-items:center; justify-content: flex-end; gap: 20px;">
@@ -813,80 +811,138 @@ function iniciarLecturaEstable(inDip, inDipDir) {
 }
 
     function irAFase2() {
-    // 1. Campos obligatorios de cabecera
+    const esc = document.getElementById('escenario').value;
+    const isT = esc === 'tunel';
+    
+    // 1. Definición de campos obligatorios básicos
     const camposValidar = [
         { id: 'est_id', nombre: 'ID de Estación' },
         { id: 'est_tec', nombre: 'Técnico Responsable' },
         { id: 'est_fecha', nombre: 'Fecha' }
     ];
 
+    // 2. Añadir campos de orientación de estación (según escenario)
+    // El Dip (Inclinación o Azimut Eje) siempre es obligatorio
+    camposValidar.push({ id: 'eje_dip', nombre: document.getElementById('lbl_dip').innerText });
+    
+    // La Dirección solo es obligatoria en modo TALUD
+    if (!isT) {
+        camposValidar.push({ id: 'eje_dir', nombre: 'DIRECCIÓN DEL TALUD' });
+    }
+
     let faltantes = [];
 
-    // 2. Validación de campos con resalte visual
+    // 3. Validación de campos con resalte visual y limpieza de vacuna
     camposValidar.forEach(campo => {
         let el = document.getElementById(campo.id);
-        if (!el.value.trim()) {
+        // "Vacuna": quitamos el símbolo de grado para ver si hay un valor real
+        let valorLimpio = el.value.toString().replace('°', '').trim();
+        
+        if (!valorLimpio) {
             faltantes.push(campo.nombre);
             el.style.border = "2px solid #e74c3c";
-            el.style.backgroundColor = "#fdf2f2"; // Fondo rojizo suave
+            el.style.backgroundColor = "#fdf2f2";
         } else {
             el.style.border = "1px solid #cbd5e1";
             el.style.backgroundColor = "#ffffff";
         }
     });
 
-    // 3. Validación técnica mínima: Al menos una junta medida
-    const j1Dip = document.querySelector('.j-dip').value;
-    const j1Dir = document.querySelector('.j-dipdir').value;
-    if (!j1Dip || !j1Dir) {
-        faltantes.push("Medición Dip/Dir del Sistema #1 (Giroscopio)");
+    // 4. Validación técnica mínima: Sistema #1 de juntas
+    const elJ1Dip = document.querySelector('.j-dip');
+    const elJ1Dir = document.querySelector('.j-dipdir');
+    
+    const valJ1Dip = elJ1Dip.value.toString().replace('°', '').trim();
+    const valJ1Dir = elJ1Dir.value.toString().replace('°', '').trim();
+    
+    if (!valJ1Dip || !valJ1Dir) {
+        faltantes.push("Medición Dip/Dir del Sistema #1 (Juntas)");
+        
+        // PINTAR ROJO SI ESTÁ VACÍO
+        if (!valJ1Dip) {
+            elJ1Dip.style.border = "2px solid #e74c3c";
+            elJ1Dip.style.backgroundColor = "#fdf2f2";
+        }
+        if (!valJ1Dir) {
+            elJ1Dir.style.border = "2px solid #e74c3c";
+            elJ1Dir.style.backgroundColor = "#fdf2f2";
+        }
+    } else {
+        // LIMPIAR COLOR SI YA ESTÁ LLENO
+        elJ1Dip.style.border = "1px solid #cbd5e1";
+        elJ1Dip.style.backgroundColor = "#ffffff";
+        elJ1Dir.style.border = "1px solid #cbd5e1";
+        elJ1Dir.style.backgroundColor = "#ffffff";
     }
 
+    // 5. Bloqueo si hay campos vacíos
     if (faltantes.length > 0) {
         alert("⚠️ ATENCIÓN: Faltan datos críticos para el reporte:\n\n- " + faltantes.join("\n- "));
-        return;
+        return; // Detiene la función aquí
     }
 
-    // 4. Procesamiento Pre-Fase 2
-    runRmr(); // Cálculo del RMR básico (P1 a P5)
+    // 6. Procesamiento y Transición (Si todo está lleno)
+    runRmr(); 
     
-    // Guardado automático silencioso en la base de datos temporal
     if (typeof registrarFichaActual === 'function') {
         registrarFichaActual(true); 
     }
 
-    // 5. Transición de Interfaz
     document.getElementById('main-container').style.display = 'none';
     document.getElementById('fase2-container').style.display = 'block';
     
-    // Inyección de cálculos finales (Ajuste P6, Cohesión, Fricción)
     setTimeout(() => {
         calcularClasificacionFinal();
-        
-        // --- VALIDACIÓN DE RESULTADOS ---
-        const rmrFinalTexto = document.getElementById('res_rmr_final').innerText;
-        if(rmrFinalTexto === "0") {
-            console.warn("RMR en 0. Verifique coherencia de datos de entrada.");
-            // Opcional: Podrías añadir un aviso visual en el reporte aquí
-        }
     }, 50);
 
     window.scrollTo(0,0);
 }
-
     function volverAFase1() {
         document.getElementById('main-container').style.display = 'grid';
         document.getElementById('fase2-container').style.display = 'none';
     }
 
     function updateEscenario() {
-        const esc = document.getElementById('escenario').value;
-        const isT = esc === 'tunel';
-        document.getElementById('lbl_dip').innerText = isT ? "AZIMUT EJE" : "INCL. TALUD";
-        document.getElementById('lbl_dir').innerText = isT ? "DIR. AVANCE" : "DIRECC. TALUD";
-        document.getElementById('lbl_ubi_tec').innerText = isT ? "NIVEL" : "TRAMO";
-    }
+    const esc = document.getElementById('escenario').value;
+    const isT = esc === 'tunel';
+    
+    const inputDip = document.getElementById('eje_dip');
+    const inputDir = document.getElementById('eje_dir');
+    const labelDip = document.getElementById('lbl_dip');
+    const labelDir = document.getElementById('lbl_dir');
+    const labelUbi = document.getElementById('lbl_ubi_tec');
 
+    // Cambiamos los textos de las etiquetas
+    labelDip.innerText = isT ? "AZIMUT EJE" : "INCL. TALUD";
+    labelDir.innerText = isT ? "DIR. AVANCE" : "DIRECC. TALUD";
+    labelUbi.innerText = isT ? "NIVEL" : "TRAMO";
+
+    if (isT) {
+        // --- MODO TÚNEL ---
+        inputDip.placeholder = "0-360\u00B0";
+        // IMPORTANTE: En túnel el Azimut llega a 360
+        inputDip.setAttribute("oninput", "validarAngular(this, 360)");
+        
+        inputDir.value = ""; 
+        inputDir.disabled = true; 
+        inputDir.style.backgroundColor = "#f1f5f9"; 
+        inputDir.style.opacity = "0.6";
+        inputDir.placeholder = "N/A";
+    } else {
+        // --- MODO TALUD ---
+        inputDip.placeholder = "0-90\u00B0";
+        // IMPORTANTE: En talud la inclinación solo llega a 90
+        inputDip.setAttribute("oninput", "validarAngular(this, 90)");
+        
+        inputDir.disabled = false;
+        inputDir.style.backgroundColor = "#ffffff";
+        inputDir.style.opacity = "1";
+        inputDir.placeholder = "0-360\u00B0";
+        // Dirección de talud siempre hasta 360
+        inputDir.setAttribute("oninput", "validarAngular(this, 360)");
+    }
+    runRmr();
+}
     function calcularClasificacionFinal() {
         let p1 = parseInt(document.getElementById('score_p1').innerText.replace('PTS: ', '')) || 0;
         let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
@@ -918,8 +974,8 @@ function iniciarLecturaEstable(inDip, inDipDir) {
 
         let rmrBase = p1 + p2 + minScore + p5;
         const esc = document.getElementById('escenario').value;
-        const oDip = parseFloat(document.getElementById('eje_dip').value) || 0;
-        const oDir = parseFloat(document.getElementById('eje_dir').value) || 0;
+        const oDip = parseFloat(document.getElementById('eje_dip').value.replace('\u00B0', '')) || 0;
+		const oDir = parseFloat(document.getElementById('eje_dir').value.replace('\u00B0', '')) || 0;
         let p6 = 0;
 
         sistemasJuntas.forEach(card => {
@@ -1227,12 +1283,58 @@ function nuevaEstacion() {
     volverAFase1();
     window.scrollTo(0,0);
     alert("✨ Formulario listo para nueva estación.");
-}  
-    window.onload = function() { updateLitologia(); updateEscenario(); toggleRes(); calcJuntas(); };
-  	window.onbeforeunload = function() {
-    return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
-};
+}
+  	
+function validarAngular(input, max) {
+    if (input.disabled) return;
+
+    // 1. Limpiamos: solo permitimos números
+    let v = input.value.replace(/\D/g, '');
+    
+    if (v !== "") {
+        let num = parseInt(v);
+        // 2. Restringimos al máximo permitido
+        if (num > max) num = max;
+        input.value = num; // Mantenemos el número puro mientras escribe
+    }
+    runRmr();
+}
+
+// 3. Función extra para poner el símbolo SOLO al salir del campo
+function formatearAlSalir(input) {
+    if (input.value !== "" && !input.value.includes("°")) {
+        input.value = input.value + "°";
+    }
+}
+
+// 4. Función para limpiar el símbolo al entrar al campo (para poder editar)
+function limpiarAlEntrar(input) {
+    input.value = input.value.replace("°", "");
+}
+    window.onload = function() { 
+        updateLitologia(); 
+        updateEscenario(); 
+        toggleRes(); 
+        calcJuntas(); 
+
+        // AQUÍ VA TU CÓDIGO DE MAYÚSCULAS
+        const inputID = document.getElementById('est_id');
+        if (inputID) {
+            inputID.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+        
+        // OPCIONAL: Pon aquí también la fecha automática si quieres
+        const fechaInput = document.getElementById('est_fecha');
+        if (fechaInput) {
+            fechaInput.value = new Date().toISOString().split('T')[0];
+        }
+    }; // Aquí cierra el onload
+
+    window.onbeforeunload = function() {
+        return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
+    };
 </script>
 </body>
 </html>
-

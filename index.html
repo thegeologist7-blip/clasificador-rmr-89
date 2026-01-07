@@ -1161,9 +1161,9 @@ function registrarFichaActual(silencioso = false) {
     const indexExistente = baseDeDatosFichas.findIndex(f => f.id === idActual);
     if (indexExistente !== -1) baseDeDatosFichas[indexExistente] = ficha;
     else baseDeDatosFichas.push(ficha);
-
+	localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
     document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-    if (!silencioso) alert("✅ Estación registrada.");
+    if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
     return true;
 }
   	
@@ -1245,6 +1245,13 @@ function exportarConsolidado() {
     link.href = url;
     link.download = `Data_RMR_ByronBravo.xls`;
     link.click();
+	// --- LIMPIEZA POST-EXPORTACIÓN ---
+    if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido exportado?")) {
+        baseDeDatosFichas = []; // Limpia la variable en RAM
+        localStorage.removeItem('rmr_backup_geotecnia'); // Borra el respaldo permanente
+        document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
+        alert("🧹 Memoria limpia para una nueva jornada.");
+    }
 }
   
 // --- FUNCION GPS INTELIGENTE 30s ---
@@ -1389,7 +1396,13 @@ function limpiarAlEntrar(input) {
     input.value = input.value.replace("°", "");
 }
     window.onload = function() { 
-        updateLitologia(); 
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+    	if (backup) {
+        baseDeDatosFichas = JSON.parse(backup);
+        const btn = document.getElementById('btn_exportar');
+        if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+   		}
+      	updateLitologia(); 
         updateEscenario(); 
         toggleRes(); 
         calcJuntas(); 
@@ -1412,7 +1425,7 @@ function limpiarAlEntrar(input) {
     window.onbeforeunload = function() {
         return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
     };
-	// REGISTRO DEL SERVICE WORKER (Para Modo Avión)
+  // REGISTRO DEL SERVICE WORKER (Para Modo Avión)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -1423,5 +1436,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-
-

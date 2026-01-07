@@ -1412,12 +1412,16 @@ function limpiarAlEntrar(input) {
     window.onbeforeunload = function() {
         return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
     };
-		if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log("Sistema Offline Preparado"))
-      .catch(err => console.log("Error de registro sw:", err));
-  }
+	// REGISTRO DEL SERVICE WORKER (Para Modo Avión)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log("✅ Sistema Offline Preparado"))
+                .catch(err => console.log("❌ Error de registro sw:", err));
+        });
+    }
 </script>
 </body>
 </html>
+
 

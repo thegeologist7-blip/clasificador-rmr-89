@@ -89,38 +89,88 @@
 }
 .btn-gyro:active { transform: translateY(2px); box-shadow: 0 0 0; }
         @media (max-width: 750px) { .grid-main { grid-template-columns: 1fr; } .full-row { grid-column: 1; } }
+      /* Cajita naranja más delgada */
+.v-box {
+    background: #e67e22;
+    color: white;
+    font-size: 9px;         /* Un punto más pequeña para que no fuerce altura */
+    font-weight: 800;
+    padding: 5px 8px;       /* 2px la hace bajita, 8px mantiene el ancho */
+    border-radius: 3px;     /* Bordes un poco más finos */
+    white-space: nowrap;
+    line-height: 1;         /* Evita espacio extra del texto */
+}
+/* Texto de copyright pequeño debajo del subtítulo */
+.copy-txt {
+    font-size: 8px;
+    opacity: 0.6;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+/* Estilo para las cabeceras de cada tarjeta (Secciones 1-5) */
+.geo-card h4 {
+    background: #f1f5f9 !important;      /* Gris claro profesional */
+    margin: -10px -12px 12px -12px !important; /* Alinea perfectamente al borde del card */
+    padding: 8px 12px;       /* Espacio interno para que respire el texto */
+    border-radius: 8px 8px 0 0; /* Solo bordes redondeados arriba */
+    border-bottom: 2px solid #3498db; /* Línea azul delgada de acento */
+    font-size: 11px;          /* Tamaño legible pero compacto */
+    color: #052c52;           /* Color de fuente oscuro para contraste */
+    text-transform: uppercase;/* Da un aire de importancia técnica */
+    letter-spacing: 0.5px;    /* Mejora la lectura en pantallas pequeñas */
+  	filter: contrast(1.2) drop-shadow(0 1px 1px rgba(0,0,0,0.2)); font-size: 14px;
+}      
     </style>
  	
 </head>
 <body>
 
 <div id="rmr-master-suite">
-    <div style="background: #052c52; padding: 18px 20px; color: white; border-bottom: 4px solid #3498db;">
-        <h1 style="margin:0; font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #ffffff;">
-            CLASIFICADOR RMR <span style="color: #3498db;"><i><b>89</b></i></span>
-        </h1>
-        <p style="margin: 4px 0 0; font-size: 10px; opacity: 0.9; text-transform: uppercase;">Método Geomecánico de Bieniawski</p>
+    <div style="background: #052c52; padding: 18px 20px; color: white; border-bottom: 4px solid #3498db; display: flex; justify-content: space-between; align-items: center;">
+        
+        <div style="display: flex; flex-direction: column;">
+            <h1 style="margin:0; font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #ffffff;">
+                CLASIFICADOR RMR <span style="color: #3498db;"><i><b>89</b></i></span>
+            </h1>
+            <p style="margin: 4px 0 0; font-size: 10px; opacity: 0.9; text-transform: uppercase; font-weight: 600;">
+                Método Geomecánico de Bieniawski
+            </p>
+            <div class="copy-txt" style="font-size: 7px; opacity: 0.8; margin-top: 2px;">
+                © 2026 Byron Bravo • Todos los derechos reservados
+            </div>
+            <p style="margin: 6px 0 0; font-size: 7px; line-height: 1.2; color: #bdc3c7; text-align: justify; font-style: italic; opacity: 0.7; max-width: 400px;">
+                <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
+            </p>
+        </div>
+
+        <div class="v-box">
+            v8.8 PRO
+        </div>
     </div>
 
     <div class="grid-main" id="main-container">
-        <div class="geo-card" style="min-height: auto; padding-bottom: 15px;">
-    <h4 style="margin: 0 0 10px; color: #052c52; font-size: 12px; font-weight: 800; border-bottom: 1px solid #eee; padding-bottom: 5px;">📍 1. DATOS DE ESTACIÓN</h4>
-    <div style="display: flex; flex-direction: column; gap: 8px;">
+    <div class="geo-card" style="min-height: auto; padding: 12px 15px;">
+            <h4 style="margin: 0 0 8px; color: #052c52; font-size: 12px; font-weight: 800;">
+            📋 1. DATOS E INFORMACIÓN GENERAL
+        </h4>
         
-        <div style="display:flex; gap:6px;">
-            <div style="flex:1.8;"><div class="input-label">TÉCNICO RESPONSABLE</div><input type="text" id="est_tec" class="in-field"></div>
-            <div style="flex:1;"><div class="input-label">FECHA</div><input type="date" id="est_fecha" class="in-field"></div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display:flex; gap:6px;">
+                <div style="flex:1.8;"><div class="input-label">TÉCNICO RESPONSABLE</div><input type="text" id="est_tec" class="in-field"></div>
+                <div style="flex:1;"><div class="input-label">FECHA</div><input type="date" id="est_fecha" class="in-field"></div>
         </div>
 
         <div style="width:100%;"><div class="input-label">PROYECTO / OBRA</div><input type="text" id="proy_nom" class="in-field"></div>
 
         <div style="display:flex; gap:6px;">
             <div style="flex: 1.2;">
-                <div class="input-label">FRENTE:</div>
-                <select id="escenario" onchange="updateEscenario(); runRmr();" class="in-field" style="font-weight: 800; color: #3498db;">
-                    <option value="tunel">TÚNEL</option>
-                    <option value="talud">TALUD</option>
-                </select>
+    <div class="input-label">FRENTE:</div>
+    <select id="escenario" onchange="updateEscenario(); runRmr();" class="in-field" 
+            style="font-weight: 800; color: #3498db; font-size: 10px; height: 26px; text-align: center; text-align-last: center; padding: 0;">
+        <option value="tunel">TÚNEL / GALERÍA</option>
+        <option value="talud">TALUD / MACIZO</option>
+    </select>
             </div>
             <div style="flex: 0.9;">
                 <div class="input-label" id="lbl_dip">AZIMUT EJE</div>
@@ -128,7 +178,7 @@
             </div>
             <div style="flex: 1;">
                 <div class="input-label" id="lbl_dir">DIR. AVANCE</div>
-                <input type="text" id="eje_dir" class="in-field" placeholder="N/S/E/O">
+                <input type="text" id="eje_dir" class="in-field" placeholder="">
             </div>
         </div>
 
@@ -191,7 +241,7 @@
 </div>
 
         <div class="geo-card">
-            <div><h4 style="margin: 0 0 8px; color: #052c52; font-size: 12px; font-weight: 800;">🔨 2. RESISTENCIA (UCS)</h4>
+            <div><h4 style="margin: 0 0 8px; color: #052c52; font-size: 12px; font-weight: 800;">🔨 2. RESISTENCIA DE LA ROCA (UCS)</h4>
                 <div class="input-label">Método de estimación</div>
                 <select id="m_res" onchange="toggleRes()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52;">
                     <option value="sch">Uso del Esclerómetro (Schmidt)</option>
@@ -266,45 +316,56 @@
             <div class="note"><b>Ref:</b> Estimación mediante Deere & Miller (1966) / ISRM.</div>
         </div>
 
-        <div class="geo-card">
-            <div><h4 style="margin: 0 0 8px; color: #052c52; font-size: 12px; font-weight: 800;">💎 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)</h4>
-                <div class="input-label">MÉTODO</div>
-                <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52;">
-                    <option value="deere">Estimación Visual (Deere 1989)</option>
-                    <option value="pal">Ecuación de Palmström (Jv)</option>
+        <div class="geo-card" style="display: flex; flex-direction: column; min-height: 100%; padding: 12px 15px;">
+    <div style="flex-grow: 1;">
+        <h4 style="margin: 0 0 8px; color: #052c52; font-size: 12px; font-weight: 800;">✔️ 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)</h4>
+        
+        <div class="input-label">MÉTODO</div>
+        <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52;">
+            <option value="deere">Estimación Visual (Deere 1989)</option>
+            <option value="pal">Ecuación de Palmström (Jv)</option>
+        </select>
+
+        <div class="method-slot">
+            <div id="ui_deere">
+                <div class="input-label">Fracturamiento</div>
+                <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
+                El RQD se estima visualmente en función del grado de fracturamiento observable en el afloramiento.</span>
+                <select id="valDeere" onchange="runRmr()" class="in-field">
+                    <option value="20">Muy Macizo (> 2.0 m)</option>
+                    <option value="17">Levemente Fracturado (0.6 - 2.0 m)</option>
+                    <option value="13">Moderadamente Fracturado (0.2 - 0.6 m)</option>
+                    <option value="8">Muy Fracturado (0.06 - 0.2 m)</option>
+                    <option value="3">Triturado / Suelo (< 0.06 m)</option>
                 </select>
-                <div class="method-slot">
-                    <div id="ui_deere">
-                        <div class="input-label">Fracturamiento</div>
-                        <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
-    					El RQD se estima visualmente en función del grado de fracturamiento observable en el afloramiento.</span>
-                        <select id="valDeere" onchange="runRmr()" class="in-field">
-                            <option value="20">Muy Macizo (> 2.0 m)</option>
-                            <option value="17">Levemente Fracturado (0.6 - 2.0 m)</option>
-                            <option value="13">Moderadamente Fracturado (0.2 - 0.6 m)</option>
-                            <option value="8">Muy Fracturado (0.06 - 0.2 m)</option>
-                            <option value="3">Triturado / Suelo (< 0.06 m)</option>
-                        </select>
-                    </div>
-                    <div id="ui_pal" class="hidden">
-                        <div class="input-label">Jv (Palmström)</div>
-                        <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px;">
-    					El Jv es el número de juntas por metro. Macizos con Jv < 1 tienen RQD cercanos al 100%.</span>
-                        <input type="number" id="valJv" oninput="runRmr()" class="in-field" placeholder="Juntas/m³">
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-                    <div style="display:flex; align-items:center;"><span class="input-label" style="margin-right:5px; margin-bottom:0;">RQD EST.</span><div id="out_rqd" class="res-val-matrix"><b>-</b><span class="res-unit-tag">%</span></div></div>
-                </div>
             </div>
-            <div id="score_p2" class="score-anchor" style="color:#3498db;">PTS: 0</div>
-            <div class="note"><b>RMR-2:</b> Calidad del macizo.</div>
+            <div id="ui_pal" class="hidden">
+                <div class="input-label">Jv (Palmström)</div>
+                <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px;">
+                El Jv es el número de juntas por metro. Macizos con Jv < 1 tienen RQD cercanos al 100%.</span>
+                <input type="number" id="valJv" oninput="runRmr()" class="in-field" placeholder="Juntas/m³">
+            </div>
         </div>
 
-        <div class="geo-card junta-card" style="border-left: 4px solid #27ae60;">
+        <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+            <div style="display:flex; align-items:center;">
+                <span class="input-label" style="margin-right:5px; margin-bottom:0;">RQD EST.</span>
+                <div id="out_rqd" class="res-val-matrix"><b>-</b><span class="res-unit-tag">%</span></div>
+            </div>
+        </div>
+
+        <div id="score_p2" class="score-anchor" style="color:#3498db; margin-top: 5px;">PTS: 0</div>
+    </div>
+
+    <div class="note" style="margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f5f9; font-size: 8.5px; color: #94a3b8; line-height: 1.1; text-align: justify;">
+        <b>RMR-2:</b> El RQD define la competencia de la roca y es el indicador crítico para la estimación inicial del sostenimiento y el tiempo de autosoporte.
+    </div>
+</div>
+
+        <div class="geo-card junta-card" style="border-left: 4px solid #27ae60; display: flex; flex-direction: column; min-height: 100%;">
             <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <h4 class="j-title" style="margin: 0; color: #052c52; font-size: 12px; font-weight: 800;">📂 SISTEMA #1</h4>
+                    <h4 class="j-title" style="margin: 0; color: #052c52; font-size: 12px; font-weight: 800;">▤ JUNTA #1</h4>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
     <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
@@ -325,7 +386,7 @@
            oninput="validarAngular(this, 360)">
 </div>
 
-    <button onclick="capturarGiroscopio(this)" class="btn-gyro">📐</button>
+    <button onclick="capturarGiroscopio(this)" class="btn-gyro">🧭</button>
 				</div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
@@ -384,31 +445,46 @@
     </div>
 
             </div>
-            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
-                <span class="btn-del-junta" style="display:none; color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
-                <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important; text-align: right;">J1: 35 PTS</div>
-            </div>
-            <div class="note" style="margin-top:4px;"><b>RMR-3/4:</b> Estructura.</div>
-        </div>
-
- <div id="bloque-agua" class="geo-card full-row" style="border-left: 4px solid #3498db; background: #f0f7ff; min-height: auto; padding: 12px 15px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap: 20px;">
-        <div style="flex: 2;">
-            <h4 style="margin: 0 0 4px; color: #052c52; font-size: 12px; font-weight: 800;">💧 5. CONDICIÓN </h4>
-            <span class="guide-text" style="margin-bottom:0; font-size: 10px; line-height: 1.2;">Identifique el estado de humedad del frente o afloramiento para determinar la presión de poros o el caudal de filtración.</span>
-        </div>
-        <div style="flex: 1; display:flex; align-items:center; justify-content: flex-end; gap: 20px;">
-            <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 180px; font-size: 11.5px; border-color: #cbd5e1; height: 28px;">
-                <option value="15">Seco (Sin humedad visible)</option>
-                <option value="10">Húmedo (Humedad sin goteo)</option>
-                <option value="7">Mojado (Goteo continuo)</option>
-                <option value="0">Fluyente (Chorro de agua)</option>
-            </select>
-            <div id="score_p5" class="score-anchor" style="margin:0; min-width:65px; font-size: 11px;">PTS: 15</div>
+            <div style="flex-grow: 1;">
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+            <span class="btn-del-junta" style="display:none; color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
+            <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important; text-align: right;">J1: 35 PTS</div>
         </div>
     </div>
-</div>
 
+    <div class="note" style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 6px; font-size: 8.5px; color: #94a3b8; line-height: 1.2; text-align: justify;">
+        <b>RMR-3/4:</b> Apoye el dispositivo sobre el plano y espere 5s a que los valores se estabilicen. Evite la cercanía de elementos metálicos que alteren el sensor magnético.
+    </div>
+
+        </div>
+
+ <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 8px 12px;">
+    
+    <h4 style="margin: -8px -12px 10px -12px !important; padding: 6px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 8px; width: calc(100% + 24px);">
+        💧 5. CONDICIÓN HIDROGEOLÓGICA
+    </h4>
+
+    <p style="margin: 0 0 8px 0; font-size: 10px; line-height: 1.2; color: #7f8c8d; font-style: italic;">
+        Observe la presencia de humedad, goteo o flujo constante en las juntas y macizo para calificar la filtración.
+    </p>
+
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 175px; flex: none; font-size: 11px; height: 26px; font-weight: bold; color: #052c52;">
+            <option value="15">Seco (Sin humedad)</option>
+            <option value="10">Húmedo (Sin goteo)</option>
+            <option value="7">Mojado (Goteo)</option>
+            <option value="0">Fluyendo (Chorro)</option>
+        </select>
+        
+        <div id="score_p5" class="score-anchor" style="margin:0; font-size: 11px; font-weight: 900; color: #27ae60;">
+            PTS: 15
+        </div>
+    </div>
+
+    <div style="margin-top: 6px; border-top: 1px solid #f1f5f9; padding-top: 4px; font-size: 9px; line-height: 1.2; color: #94a3b8;">
+        <b>RMR-5:</b> Infiltración por cada 10m de avance: Seco (0 L/min), Húmedo (<10 L/min), Mojado (10-25 L/min), Fluyente (>125 L/min).
+    </div>
+</div>
         <div id="controles-fase1" class="full-row" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
             <button class="btn-add-system" onclick="addSystem()" style="width: 125px; height: 35px; font-size: 10px; margin: 0;">+ AÑADIR JUNTA</button>
             <button onclick="irAFase2()" style="width: 125px; height: 35px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 10px; cursor: pointer; text-transform: uppercase;">SIGUIENTE >></button>
@@ -523,7 +599,7 @@ function addSystem() {
     nuevaJunta.innerHTML = `
         <div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <h4 class="j-title" style="margin: 0; color: #052c52; font-size: 12px; font-weight: 800;">📂 SISTEMA #${sysCount}</h4>
+                <h4 class="j-title" style="margin: 0; color: #052c52; font-size: 12px; font-weight: 800;">▤ JUNTA #${sysCount}</h4>
             </div>
             
             <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
@@ -539,7 +615,7 @@ function addSystem() {
                            style="height:24px; max-width: 80px;" 
                            oninput="if(value>360)value=360; if(value<0)value=0; runRmr();">
                 </div>
-                <button onclick="capturarGiroscopio(this)" class="btn-gyro">📐</button>
+                <button onclick="capturarGiroscopio(this)" class="btn-gyro">🧭</button>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
@@ -1171,13 +1247,14 @@ function exportarConsolidado() {
     link.click();
 }
   
-// --- FUNCION GPS INTELIGENTE 15s ---
+// --- FUNCION GPS INTELIGENTE 30s ---
 function obtenerUbicacion() {
     const info = document.getElementById('gps_info');
     const btn = document.querySelector('.btn-gps-tactil');
     
     // 1. CAMBIO: El texto visual para el usuario
-    info.innerHTML = "⏳ Sincronizando satélites (30s)..."; 
+    info.style.fontSize = "8.5px";
+  	info.innerHTML = "⏳ Sincronizando satélites (30s)..."; 
     btn.style.animation = "pulse-gps 1.5s infinite";
 
     let mejorPos = null;

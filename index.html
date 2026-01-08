@@ -11,8 +11,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Clasificador RMR 89</title>
     <style>
-        #rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
-/* 1. RESETEO DE BORDES DE PANTALLA */
+/* 1. RESETEO Y FUENTE GLOBAL */
+* { box-sizing: border-box; }
+
 html, body {
     margin: 0 !important;
     padding: 0 !important;
@@ -23,161 +24,120 @@ html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 2. AJUSTE DEL CONTENEDOR (BASE PARA MÓVIL) */
+/* 2. CONTENEDOR MAESTRO (Mobile First) */
 #rmr-master-suite {
     background: #f4f7f9; 
     font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0 auto !important;
     width: 100% !important;
     max-width: 100%;
-    border-radius: 0 !important;
     border: none !important;
+    border-radius: 0 !important;
     min-height: 100vh;
-    overflow: hidden; 
+    overflow-x: hidden; 
     display: flex;
     flex-direction: column;
 }
 
-/* 3. AJUSTE PARA TABLET HORIZONTAL / PC */
+/* Ajuste para pantallas muy grandes (PC) opcional */
 @media (min-width: 1000px) {
     #rmr-master-suite {
-        margin: 0 !important;
-        max-width: 100% !important; /* Mantenemos 100% para evitar bordes al girar */
-        border-radius: 0 !important;
-        border: none !important;
+        max-width: 100% !important; /* Mantenemos el 100% para evitar bordes al girar */
         min-height: 100vh;
     }
 }
-        
-        /* GRID DINÁMICO: Este es el que hace la magia al girar */
-    .grid-main { 
-    display: grid; 
-    grid-template-columns: 1fr; 
-    gap: 8px; 
-    padding: 10px; 
-    width: 100%;
-}
-        
-        .geo-card {
-    background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e1e8ed;
-    min-height: 255px; display: flex; flex-direction: column; position: relative;
-    width: 100%;
-    overflow: hidden; /* Esto corta el fondo gris sobrante en las esquinas */
-}
-        
-        /* Control de filas anchas */
-        .full-row { grid-column: 1 / -1; min-height: auto !important; }
-        
-        .lbl-compact { font-size: 8.5px; color: #1a5276; font-weight: 800; min-width: 55px; text-align: right; text-transform: uppercase; margin-right: 5px; }
-        
-        /* INPUTS: Un poco más altos para facilitar el toque con el dedo */
-        .in-field { flex: 1; width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; outline: none; height: 30px; }
-        
-        .input-label { font-size: 8px; color: #1a5276; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
-        
-        .res-val-matrix { 
-            background: #f8fbfe; border: 1px solid #eee; padding: 4px 6px; 
-            border-radius: 4px; border-left: 3.5px solid #052c52; 
-            display: flex; justify-content: space-between; align-items: center; 
-            height: 30px; min-width: 80px;
-        }
-        
-        .res-val-matrix b { font-size: 10px; color: #333; }
-        .res-unit-tag { color: #64748b; font-size: 8px; font-weight: 400; margin-left: 2px; }
-        
-        .score-anchor { text-align: right; color: #27ae60; font-size: 10px; font-weight: 900; padding-right: 2px; margin-bottom: 2px; text-transform: uppercase; }
-        .guide-text { font-size: 8.5px; color: #7f8c8d; font-style: italic; margin-bottom: 6px; line-height: 1.2; display: block; }
-        .hidden { display: none; }
-        .method-slot { min-height: 95px; margin-top: 5px; }
-        .note { font-size: 8.5px; color: #566573; border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: auto; }
 
-        .btn-add-system {
-            background: #052c52; color: white; border: none; padding: 10px;
-            border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        /* BOTÓN GPS TÁCTIL */
-        .btn-gps-tactil {
-            flex: 0 0 38px; height: 30px; background: #ffffff; color: #1a5276; 
-            font-size: 18px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: 2px solid #cbd5e1; border-radius: 6px;
-            box-shadow: 0 2px 0 #cbd5e1; transition: all 0.1s; position: relative; top: 0;
-        }
-        .btn-gps-tactil:active { top: 2px; box-shadow: 0 0px 0 #cbd5e1; }
-
-        /* 1. BASE: CELULAR (Menos de 600px) */
+/* 3. GRID DINÁMICO (Responsive) */
 .grid-main { 
     display: grid; 
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr; /* Por defecto 1 columna */
     gap: 8px; 
     padding: 10px; 
     width: 100%;
 }
-.full-row { grid-column: 1; }
 
-/* 2. TABLET VERTICAL (600px a 999px) */
 @media (min-width: 600px) {
-    .grid-main { 
-        grid-template-columns: 1fr 1fr; 
-        gap: 12px;
-    }
-    .full-row { grid-column: span 2; }
-    #rmr-master-suite { border-radius: 12px; margin: 20px auto; }
+    .grid-main { grid-template-columns: 1fr 1fr; gap: 12px; }
 }
 
-/* 3. TABLET HORIZONTAL / PC (1000px en adelante) */
 @media (min-width: 1000px) {
-    .grid-main { 
-        grid-template-columns: 1fr 1fr 1fr; 
-    }
-    .full-row { grid-column: span 3; }
+    .grid-main { grid-template-columns: 1fr 1fr 1fr; }
 }
 
-/* 4. AJUSTES DE FLEXIBILIDAD (Para evitar que inputs se rompan) */
-@media (max-width: 850px) {
-    div[style*="display:flex"] { flex-wrap: wrap !important; }
-    .geo-card { min-height: auto; }
-    /* En móvil pegamos la app a los bordes */
-    #rmr-master-suite { margin: 0; border-radius: 0; border: none; }
+.full-row { grid-column: 1 / -1; min-height: auto !important; }
+
+/* 4. TARJETAS (GEO-CARD) - Aquí corregimos el colapso de iPhone 8 */
+.geo-card {
+    background: #ffffff; 
+    padding: 10px 12px; 
+    border-radius: 8px; 
+    border: 1px solid #e1e8ed;
+    min-height: 255px; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    flex-shrink: 0; /* IMPRESCINDIBLE: Evita que iOS reduzca la altura vertical */
 }
 
-/* --- ESTILOS DE COMPONENTES (Sin cambios de posición) --- */
-.btn-gyro {
-    height: 28px; width: 38px; background: #fffef0; 
-    border: 2px solid #f1c40f; color: #856404; 
-    border-radius: 6px; font-size: 14px; cursor: pointer;
-    box-shadow: 0 2px 0 #f1c40f; transition: 0.1s;
-    display: flex; align-items: center; justify-content: center;
-}
-.btn-gyro:active { transform: translateY(2px); box-shadow: 0 0 0; }
-
-.v-box {
-    background: #e67e22; color: white; font-size: 9px; 
-    font-weight: 800; padding: 5px 8px; border-radius: 3px;
-    white-space: nowrap; line-height: 1;
-}
-
-.copy-txt { font-size: 8px; opacity: 0.6; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
-
+/* 5. TÍTULOS Y TEXTOS */
 .geo-card h4 {
     background: #f1f5f9 !important;
     margin: -10px -12px 10px -12px !important; 
     padding: 0 15px;
-    border-radius: 0;
     border-bottom: 3px solid #3498db;
     color: #052c52;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 800;
     font-size: 11px;
-    display: flex;       
+    display: flex; 
     align-items: center; 
     width: calc(100% + 24px); 
     height: 32px;
     flex: none;   
-}     
-    </style>
+}
+
+.input-label { font-size: 8px; color: #1a5276; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
+.lbl-compact { font-size: 8.5px; color: #1a5276; font-weight: 800; min-width: 55px; text-align: right; text-transform: uppercase; margin-right: 5px; }
+.guide-text { font-size: 8.5px; color: #7f8c8d; font-style: italic; margin-bottom: 6px; line-height: 1.2; display: block; }
+.note { font-size: 8.5px; color: #566573; border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: auto; }
+.copy-txt { font-size: 8px; opacity: 0.6; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* 6. INPUTS Y BOTONES */
+.in-field { flex: 1; width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; outline: none; height: 30px; }
+
+.btn-gps-tactil, .btn-gyro {
+    background: #ffffff; color: #1a5276; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 2px solid #cbd5e1; border-radius: 6px; transition: all 0.1s;
+}
+.btn-gps-tactil { flex: 0 0 38px; height: 30px; font-size: 18px; box-shadow: 0 2px 0 #cbd5e1; position: relative; top: 0; }
+.btn-gyro { height: 28px; width: 38px; background: #fffef0; border-color: #f1c40f; color: #856404; font-size: 14px; box-shadow: 0 2px 0 #f1c40f; }
+
+.btn-add-system {
+    background: #052c52; color: white; border: none; padding: 10px;
+    border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* Estilos de respuesta y etiquetas */
+.res-val-matrix { background: #f8fbfe; border: 1px solid #eee; padding: 4px 6px; border-radius: 4px; border-left: 3.5px solid #052c52; display: flex; justify-content: space-between; align-items: center; height: 30px; min-width: 80px; }
+.res-val-matrix b { font-size: 10px; color: #333; }
+.res-unit-tag { color: #64748b; font-size: 8px; font-weight: 400; margin-left: 2px; }
+.score-anchor { text-align: right; color: #27ae60; font-size: 10px; font-weight: 900; padding-right: 2px; margin-bottom: 2px; text-transform: uppercase; }
+.v-box { background: #e67e22; color: white; font-size: 9px; font-weight: 800; padding: 5px 8px; border-radius: 3px; white-space: nowrap; line-height: 1; }
+
+/* 7. UTILIDADES */
+.hidden { display: none; }
+.method-slot { min-height: 95px; margin-top: 5px; }
+
+/* AJUSTES FINALES PARA EVITAR COMPRESIÓN EN MÓVILES EXTREMOS */
+@media (max-width: 850px) {
+    div[style*="display:flex"], div[style*="display: flex"] { flex-wrap: wrap !important; }
+    .geo-card { min-height: auto; }
+}
+</style>
  	
 </head>
 <body>
@@ -201,7 +161,7 @@ html, body {
         </div>
 
         <div class="v-box">
-            v9.2 PRO
+            v9.3 PRO
         </div>
     </div>
 
@@ -1505,5 +1465,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-
-

@@ -87,16 +87,27 @@
         }
         .btn-gps-tactil:active { top: 2px; box-shadow: 0 0px 0 #cbd5e1; }
 
-        /* --- TABLETS EN VERTICAL (Desde 600px hasta 999px) --- */
+        /* 1. BASE: CELULAR (Menos de 600px) */
+.grid-main { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 8px; 
+    padding: 10px; 
+    width: 100%;
+}
+.full-row { grid-column: 1; }
+
+/* 2. TABLET VERTICAL (600px a 999px) */
 @media (min-width: 600px) {
     .grid-main { 
         grid-template-columns: 1fr 1fr; 
         gap: 12px;
     }
     .full-row { grid-column: span 2; }
+    #rmr-master-suite { border-radius: 12px; margin: 20px auto; }
 }
 
-/* --- PC Y TABLET HORIZONTAL (Desde 1000px en adelante) --- */
+/* 3. TABLET HORIZONTAL / PC (1000px en adelante) */
 @media (min-width: 1000px) {
     .grid-main { 
         grid-template-columns: 1fr 1fr 1fr; 
@@ -104,12 +115,15 @@
     .full-row { grid-column: span 3; }
 }
 
-/* --- AJUSTES DE FLEXIBILIDAD GENERAL --- */
+/* 4. AJUSTES DE FLEXIBILIDAD (Para evitar que inputs se rompan) */
 @media (max-width: 850px) {
     div[style*="display:flex"] { flex-wrap: wrap !important; }
     .geo-card { min-height: auto; }
+    /* En móvil pegamos la app a los bordes */
+    #rmr-master-suite { margin: 0; border-radius: 0; border: none; }
 }
-		/* Estilo específico para el botón de brújula */
+
+/* --- ESTILOS DE COMPONENTES (Sin cambios de posición) --- */
 .btn-gyro {
     height: 28px; width: 38px; background: #fffef0; 
     border: 2px solid #f1c40f; color: #856404; 
@@ -118,30 +132,17 @@
     display: flex; align-items: center; justify-content: center;
 }
 .btn-gyro:active { transform: translateY(2px); box-shadow: 0 0 0; }
-        @media (max-width: 750px) { .grid-main { grid-template-columns: 1fr; } .full-row { grid-column: 1; } }
-      /* Cajita naranja más delgada */
+
 .v-box {
-    background: #e67e22;
-    color: white;
-    font-size: 9px;         /* Un punto más pequeña para que no fuerce altura */
-    font-weight: 800;
-    padding: 5px 8px;       /* 2px la hace bajita, 8px mantiene el ancho */
-    border-radius: 3px;     /* Bordes un poco más finos */
-    white-space: nowrap;
-    line-height: 1;         /* Evita espacio extra del texto */
+    background: #e67e22; color: white; font-size: 9px; 
+    font-weight: 800; padding: 5px 8px; border-radius: 3px;
+    white-space: nowrap; line-height: 1;
 }
-/* Texto de copyright pequeño debajo del subtítulo */
-.copy-txt {
-    font-size: 8px;
-    opacity: 0.6;
-    margin-top: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-/* Estilo para las cabeceras de cada tarjeta (Secciones 1-5) */
+
+.copy-txt { font-size: 8px; opacity: 0.6; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+
 .geo-card h4 {
     background: #f1f5f9 !important;
-    /* Sellado de bordes: -10px arriba, -12px a los lados para anular el padding de la tarjeta */
     margin: -10px -12px 10px -12px !important; 
     padding: 0 15px;
     border-radius: 0;
@@ -151,13 +152,11 @@
     letter-spacing: 0.5px;
     font-weight: 800;
     font-size: 11px;
-    /* Alineación perfecta */
     display: flex;       
     align-items: center; 
     width: calc(100% + 24px); 
-    height: 32px; /* Esta es la altura maestra */
+    height: 32px;
     flex: none;   
-    filter: none; /* Limpiamos filtros para evitar sombras extrañas */
 }     
     </style>
  	
@@ -183,7 +182,7 @@
         </div>
 
         <div class="v-box">
-            v9.0 PRO
+            v8.8 PRO
         </div>
     </div>
 
@@ -1483,5 +1482,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-
-

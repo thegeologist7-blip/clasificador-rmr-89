@@ -11,18 +11,31 @@
     <style>
         #rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
         #rmr-master-suite {
-            background: #f4f7f9; border-radius: 12px; font-family: 'Segoe UI', Arial, sans-serif;
-            border: 1px solid #d1d9e0; max-width: 1050px; width: 100%; margin: 20px auto;
-            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
+        background: #f4f7f9; 
+        font-family: 'Segoe UI', Arial, sans-serif;
+        border: 1px solid #d1d9e0; 
         
-        /* GRID RESPONSIVO: Cambia de 2 columnas a 1 automáticamente */
-        .grid-main { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-            gap: 8px; 
-            padding: 10px; 
-        }
+        /* CAMBIOS CLAVE PARA GIRO: */
+        width: 100% !important;   /* Ocupa todo el ancho siempre */
+        max-width: 1250px;        /* Límite más amplio para tablets en horizontal */
+        margin: 0 auto;           /* Sin margen arriba para que pegue al borde del celular/tablet */
+        border-radius: 0;         /* Bordes rectos en móvil se ven más profesionales */
+        
+        overflow: hidden; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+    }
+        
+        /* GRID DINÁMICO: Este es el que hace la magia al girar */
+    .grid-main { 
+        display: grid; 
+        /* Si hay espacio de sobra (horizontal), meterá más columnas automáticamente */
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+        gap: 12px; /* Un poco más de espacio para que respire en tablet */
+        padding: 10px; 
+        width: 100%;
+    }
         
         .geo-card {
     background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e1e8ed;
@@ -72,35 +85,28 @@
         }
         .btn-gps-tactil:active { top: 2px; box-shadow: 0 0px 0 #cbd5e1; }
 
-        * TABLETS: A partir de 600px de ancho permitimos 2 columnas */
-        @media (min-width: 600px) {
-            .grid-main { 
-                grid-template-columns: 1fr 1fr; 
-                gap: 12px;
-            }
-        }
+        /* --- TABLETS EN VERTICAL (Desde 600px hasta 999px) --- */
+@media (min-width: 600px) {
+    .grid-main { 
+        grid-template-columns: 1fr 1fr; 
+        gap: 12px;
+    }
+    .full-row { grid-column: span 2; }
+}
 
-        /* PC / TABLET HORIZONTAL: A partir de 1000px permitimos 3 columnas */
-        @media (min-width: 1000px) {
-            .grid-main { 
-                grid-template-columns: 1fr 1fr 1fr; 
-            }
-            .full-row { grid-column: span 3; } /* La sección 5 ocupará todo el ancho */
-        }
+/* --- PC Y TABLET HORIZONTAL (Desde 1000px en adelante) --- */
+@media (min-width: 1000px) {
+    .grid-main { 
+        grid-template-columns: 1fr 1fr 1fr; 
+    }
+    .full-row { grid-column: span 3; }
+}
 
-        /* CELULARES Y TABLETS PEQUEÑAS: Reset de márgenes externos */
-        @media (max-width: 850px) {
-            #rmr-master-suite { margin: 0; border-radius: 0; border: none; }
-            /* Permitimos que los flexbox internos se envuelvan si no hay espacio */
-            div[style*="display:flex"] { flex-wrap: wrap !important; }
-        }
-
-        /* CELULARES: Forzamos 1 columna solo si la pantalla es menor a 600px */
-        @media (max-width: 599px) {
-            .grid-main { grid-template-columns: 1fr; }
-            .full-row { grid-column: 1; }
-            .geo-card { min-height: auto; }
-        }
+/* --- AJUSTES DE FLEXIBILIDAD GENERAL --- */
+@media (max-width: 850px) {
+    div[style*="display:flex"] { flex-wrap: wrap !important; }
+    .geo-card { min-height: auto; }
+}
 		/* Estilo específico para el botón de brújula */
 .btn-gyro {
     height: 28px; width: 38px; background: #fffef0; 

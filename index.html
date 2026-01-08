@@ -20,34 +20,25 @@ html, body {
     width: 100%;
     height: 100%;
     overscroll-behavior: none; 
-    /* Fondo azul para que la barra de iOS no se vea blanca */
-    background: #052c52; 
+    background: #f4f7f9;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 2. CONTENEDOR MAESTRO */
+/* 2. AJUSTE DEL CONTENEDOR (BASE PARA MÓVIL) */
+/* Se cambia FLEX por BLOCK para que el iPhone no comprima las cajas verticalmente */
 #rmr-master-suite {
     background: #f4f7f9; 
+    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0 auto !important;
     width: 100% !important;
     max-width: 100%;
+    border-radius: 0 !important;
+    border: none !important;
     min-height: 100vh;
-    display: block;
-    /*padding-top: env(safe-area-inset-top); <-- Esto crea el tope para el contenido */
+    overflow-x: hidden; 
+    display: block; /* Cambiado de flex a block para permitir scroll natural */
 }
 
-/* 3. CABECERA AZUL (La que recibe el impacto del notch) */
-.main-header {
-    background: #052c52; 
-    color: white; 
-    border-bottom: 4px solid #3498db; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    padding: 18px 20px;
-    /* Ajuste quirúrgico para iPhone con notch */
-    padding-top: calc(15px + env(safe-area-inset-top)); 
-}
 /* 3. AJUSTE PARA TABLET HORIZONTAL / PC */
 @media (min-width: 1000px) {
     #rmr-master-suite {
@@ -198,7 +189,7 @@ html, body {
         </div>
 
         <div class="v-box">
-            v9.2 PRO
+            v9.5 PRO
         </div>
     </div>
 
@@ -1502,4 +1493,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-

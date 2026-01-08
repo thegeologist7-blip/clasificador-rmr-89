@@ -1,4 +1,4 @@
-const cacheName = 'rmr-v8.9';
+const cacheName = 'rmr-v9.0';
 const staticAssets = [
   './',
   './index.html',
@@ -17,5 +17,6 @@ self.addEventListener('fetch', e => {
   );
 
 });
+
 
 

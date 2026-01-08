@@ -10,12 +10,11 @@
     <title>Clasificador RMR 89</title>
     <style>
         #rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
-         #rmr-master-suite {
-    width: 100% !important;
-    max-width: 1100px;
-    margin: 0 auto;
-    overflow: hidden;
-}
+        #rmr-master-suite {
+            background: #f4f7f9; border-radius: 12px; font-family: 'Segoe UI', Arial, sans-serif;
+            border: 1px solid #d1d9e0; max-width: 1050px; width: 100%; margin: 20px auto;
+            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
         
         /* GRID RESPONSIVO: Cambia de 2 columnas a 1 automáticamente */
         .grid-main { 
@@ -72,21 +71,35 @@
             box-shadow: 0 2px 0 #cbd5e1; transition: all 0.1s; position: relative; top: 0;
         }
         .btn-gps-tactil:active { top: 2px; box-shadow: 0 0px 0 #cbd5e1; }
-/* TABLETS (8" a 11"): A partir de 600px de ancho */
-@media (min-width: 600px) {
-    .grid-main {
-        /* Forzamos 2 columnas exactas */
-        grid-template-columns: 1fr 1fr !important; 
-    }
-}
 
-        /* AJUSTES PARA CELULAR */
+        * TABLETS: A partir de 600px de ancho permitimos 2 columnas */
+        @media (min-width: 600px) {
+            .grid-main { 
+                grid-template-columns: 1fr 1fr; 
+                gap: 12px;
+            }
+        }
+
+        /* PC / TABLET HORIZONTAL: A partir de 1000px permitimos 3 columnas */
+        @media (min-width: 1000px) {
+            .grid-main { 
+                grid-template-columns: 1fr 1fr 1fr; 
+            }
+            .full-row { grid-column: span 3; } /* La sección 5 ocupará todo el ancho */
+        }
+
+        /* CELULARES Y TABLETS PEQUEÑAS: Reset de márgenes externos */
         @media (max-width: 850px) {
+            #rmr-master-suite { margin: 0; border-radius: 0; border: none; }
+            /* Permitimos que los flexbox internos se envuelvan si no hay espacio */
+            div[style*="display:flex"] { flex-wrap: wrap !important; }
+        }
+
+        /* CELULARES: Forzamos 1 columna solo si la pantalla es menor a 600px */
+        @media (max-width: 599px) {
             .grid-main { grid-template-columns: 1fr; }
             .full-row { grid-column: 1; }
-            div[style*="display:flex"] { flex-wrap: wrap !important; }
             .geo-card { min-height: auto; }
-            #rmr-master-suite { margin: 0; border-radius: 0; border: none; }
         }
 		/* Estilo específico para el botón de brújula */
 .btn-gyro {
@@ -162,7 +175,7 @@
         </div>
 
         <div class="v-box">
-            v9.0 PRO
+            v8.8 PRO
         </div>
     </div>
 
@@ -482,13 +495,13 @@
 
         </div>
 
- <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 8px 12px;">
+ <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden;">
     
-    <h4 style="margin: -8px -12px 10px -12px !important; padding: 6px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 8px; width: calc(100% + 24px);">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
         💧 5. CONDICIÓN HIDROGEOLÓGICA
     </h4>
 
-    <p style="margin: 0 0 8px 0; font-size: 10px; line-height: 1.2; color: #7f8c8d; font-style: italic;">
+    <p style="margin: 8px 0; font-size: 10px; line-height: 1.2; color: #7f8c8d; font-style: italic;">
         Observe la presencia de humedad, goteo o flujo constante en las juntas y macizo para calificar la filtración.
     </p>
 
@@ -1462,5 +1475,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-
-

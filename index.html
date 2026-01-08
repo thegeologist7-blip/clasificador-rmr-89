@@ -12,53 +12,41 @@
     <title>Clasificador RMR 89</title>
     <style>
         #rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
-        /* 1. RESETEO DE BORDES DE PANTALLA (Pegar al inicio del <style>) */
+/* 1. RESETEO DE BORDES DE PANTALLA */
 html, body {
     margin: 0 !important;
     padding: 0 !important;
     width: 100%;
     height: 100%;
-    /* Evita el rebote elástico en móviles */
     overscroll-behavior: none; 
     background: #f4f7f9;
-  	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 2. AJUSTE DEL CONTENEDOR PARA QUE NO TENGA MÁRGENES EN MÓVIL */
+/* 2. AJUSTE DEL CONTENEDOR (BASE PARA MÓVIL) */
 #rmr-master-suite {
+    background: #f4f7f9; 
+    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0 auto !important;
     width: 100% !important;
     max-width: 100%;
-    border-radius: 0 !important; /* Quita el redondeo para que pegue perfecto */
-    border-left: none !important;
-    border-right: none !important;
-    border-top: none !important;
+    border-radius: 0 !important;
+    border: none !important;
     min-height: 100vh;
-}
-
-/* 3. SOLO EN PANTALLAS GRANDES DEVOLVEMOS EL MARGEN (PC / TABLET HORIZONTAL) */
-@media (min-width: 1000px) {
-    #rmr-master-suite {
-        margin: 20px auto !important;
-        max-width: 1250px;
-        border-radius: 12px !important;
-        border: 1px solid #d1d9e0 !important;
-        min-height: auto;
-    }
-}
-    
-    
-    /* CAMBIOS PARA FORZAR EXPANSIÓN EN HORIZONTAL */
-    width: 100% !important;   
-    min-width: 100%;          /* Fuerza a no encogerse */
-    max-width: 1600px;        /* Límite muy alto para que en horizontal no encuentre tope */
-    margin: 0 auto !important;
-    border-radius: 0;         
-    
     overflow: hidden; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     display: flex;
     flex-direction: column;
+}
+
+/* 3. AJUSTE PARA TABLET HORIZONTAL / PC */
+@media (min-width: 1000px) {
+    #rmr-master-suite {
+        margin: 0 !important;
+        max-width: 100% !important; /* Mantenemos 100% para evitar bordes al girar */
+        border-radius: 0 !important;
+        border: none !important;
+        min-height: 100vh;
+    }
 }
         
         /* GRID DINÁMICO: Este es el que hace la magia al girar */

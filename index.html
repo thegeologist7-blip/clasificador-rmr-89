@@ -32,11 +32,14 @@ html, body {
     margin: 0 auto !important;
     width: 100% !important;
     max-width: 100%;
-    border-radius: 0 !important;
-    border: none !important;
     min-height: 100vh;
-    overflow-x: hidden; 
-    display: block; /* Cambiado de flex a block para permitir scroll natural */
+    display: block;
+
+    /* ESTO ARREGLA EL SCROLL DETRÁS DE LA BARRA */
+    padding-top: env(safe-area-inset-top); 
+    position: relative;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Hace que el scroll en iPhone sea suave */
 }
 
 /* 3. AJUSTE PARA TABLET HORIZONTAL / PC */
@@ -1493,5 +1496,6 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
+
 
 

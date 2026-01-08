@@ -1480,12 +1480,16 @@ function limpiarAlEntrar(input) {
             });
         }
         
-        // OPCIONAL: Pon aquí también la fecha automática si quieres
-        const fechaInput = document.getElementById('est_fecha');
-        if (fechaInput) {
-            fechaInput.value = new Date().toISOString().split('T')[0];
-        }
-    }; // Aquí cierra el onload
+        // --- FECHA LOCAL---
+    const fechaInput = document.getElementById('est_fecha');
+    if (fechaInput) {
+        const ahora = new Date();
+        // Ajustamos la zona horaria restando el desfase en minutos
+        const offset = ahora.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(ahora - offset)).toISOString().slice(0, 10);
+        fechaInput.value = localISOTime;
+    }
+};
 
     window.onbeforeunload = function() {
         return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
@@ -1501,4 +1505,5 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
+
 

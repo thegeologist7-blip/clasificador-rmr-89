@@ -5,7 +5,7 @@
     <link rel="manifest" href="manifest.json">
 	<link rel="apple-touch-icon" href="icon-512.png">
     <meta name="theme-color" content="#052c52">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">	
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">	
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="screen-orientation" content="any">	
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -364,13 +364,13 @@ html, body {
             <div class="note"><b>Ref:</b> Estimación mediante Deere & Miller (1966) / ISRM.</div>
         </div>
 
-        <div class="geo-card" style="display: flex; flex-direction: column; min-height: 100%; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
         ✔️ 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)
     </h4>
     
-    <div style="flex-grow: 1;">
-        <div class="input-label" style="margin-top: 8px;">MÉTODO</div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div class="input-label" style="margin-top: 0;">MÉTODO</div>
         <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52;">
             <option value="deere">Estimación Visual (Deere 1989)</option>
             <option value="pal">Ecuación de Palmström (Jv)</option>

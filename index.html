@@ -11,31 +11,31 @@
     <style>
         #rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
         #rmr-master-suite {
-        background: #f4f7f9; 
-        font-family: 'Segoe UI', Arial, sans-serif;
-        border: 1px solid #d1d9e0; 
-        
-        /* CAMBIOS CLAVE PARA GIRO: */
-        width: 100% !important;   /* Ocupa todo el ancho siempre */
-        max-width: 1250px;        /* Límite más amplio para tablets en horizontal */
-        margin: 0 auto;           /* Sin margen arriba para que pegue al borde del celular/tablet */
-        border-radius: 0;         /* Bordes rectos en móvil se ven más profesionales */
-        
-        overflow: hidden; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        display: flex;
-        flex-direction: column;
-    }
+    background: #f4f7f9; 
+    font-family: 'Segoe UI', Arial, sans-serif;
+    border: 1px solid #d1d9e0; 
+    
+    /* CAMBIOS PARA FORZAR EXPANSIÓN EN HORIZONTAL */
+    width: 100% !important;   
+    min-width: 100%;          /* Fuerza a no encogerse */
+    max-width: 1600px;        /* Límite muy alto para que en horizontal no encuentre tope */
+    margin: 0 auto !important;
+    border-radius: 0;         
+    
+    overflow: hidden; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+}
         
         /* GRID DINÁMICO: Este es el que hace la magia al girar */
     .grid-main { 
-        display: grid; 
-        /* Si hay espacio de sobra (horizontal), meterá más columnas automáticamente */
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-        gap: 12px; /* Un poco más de espacio para que respire en tablet */
-        padding: 10px; 
-        width: 100%;
-    }
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 8px; 
+    padding: 10px; 
+    width: 100%;
+}
         
         .geo-card {
     background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e1e8ed;
@@ -181,7 +181,7 @@
         </div>
 
         <div class="v-box">
-            v8.9 PRO
+            v8.8 PRO
         </div>
     </div>
 
@@ -1481,4 +1481,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-

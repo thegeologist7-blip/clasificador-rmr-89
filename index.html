@@ -8,14 +8,45 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">	
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="screen-orientation" content="any">	
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Clasificador RMR 89</title>
     <style>
         #rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
-        #rmr-master-suite {
-    background: #f4f7f9; 
-    font-family: 'Segoe UI', Arial, sans-serif;
-    border: 1px solid #d1d9e0; 
+        /* 1. RESETEO DE BORDES DE PANTALLA (Pegar al inicio del <style>) */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    height: 100%;
+    /* Evita el rebote elástico en móviles */
+    overscroll-behavior: none; 
+    background: #f4f7f9;
+  	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 2. AJUSTE DEL CONTENEDOR PARA QUE NO TENGA MÁRGENES EN MÓVIL */
+#rmr-master-suite {
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100%;
+    border-radius: 0 !important; /* Quita el redondeo para que pegue perfecto */
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    min-height: 100vh;
+}
+
+/* 3. SOLO EN PANTALLAS GRANDES DEVOLVEMOS EL MARGEN (PC / TABLET HORIZONTAL) */
+@media (min-width: 1000px) {
+    #rmr-master-suite {
+        margin: 20px auto !important;
+        max-width: 1250px;
+        border-radius: 12px !important;
+        border: 1px solid #d1d9e0 !important;
+        min-height: auto;
+    }
+}
+    
     
     /* CAMBIOS PARA FORZAR EXPANSIÓN EN HORIZONTAL */
     width: 100% !important;   
@@ -1482,4 +1513,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-

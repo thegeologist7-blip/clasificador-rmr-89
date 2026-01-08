@@ -4,7 +4,7 @@
   "description": "Calculadora Geomecánica Bieniawski 1989",
   "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any", 
   "background_color": "#052c52",
   "theme_color": "#052c52",
   "icons": [
@@ -22,3 +22,4 @@
     }
   ]
 }
+

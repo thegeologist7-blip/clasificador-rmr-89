@@ -745,41 +745,37 @@ function guardarUser() {
     const idH = obtenerIDHardware();
     
     if(!n || !e) return alert("Por favor, complete su nombre y correo.");
-    if(!e.includes("@")) return alert("Ingrese un correo válido");
 
+    // URL de envío directo
     const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScx9Z9L6lEBrDfQ9VCjHxDo3xz2bG-wyxKePra3-GsLX5zU6A/formResponse";
     
-    // Construcción de la cadena de datos exactamente como el link que probaste
-    const params = new URLSearchParams();
-    params.append("entry.1444146194", n);
-    params.append("entry.1017056073", e);
-    params.append("entry.1147775583", idH);
+    // CONSTRUCCIÓN DE LA URL CON LOS IDS ACTUALES
+    const queryParams = `entry.1444146194=${encodeURIComponent(n)}&entry.1017056073=${encodeURIComponent(e)}&entry.1147775583=${encodeURIComponent(idH)}`;
+    const finalUrl = `${baseUrl}?${queryParams}`;
 
-    // Feedback visual en el botón
-    const btn = document.querySelector('button[onclick="guardarUser()"]');
-    const textoOriginal = btn.innerHTML;
-    btn.innerHTML = "⌛ REGISTRANDO...";
-    btn.disabled = true;
-    btn.style.opacity = "0.7";
+    // MÉTODO DE ENVÍO SEGURO (BEACON)
+    // Esto asegura que los datos salgan incluso si la página se recarga rápido
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon(finalUrl);
+    } else {
+        fetch(finalUrl, { method: 'POST', mode: 'no-cors' });
+    }
 
-    // ENVÍO DE DATOS
-    fetch(baseUrl, {
-        method: "POST",
-        mode: "no-cors",
-        body: params
-    });
-
-    // GUARDADO LOCAL (Indispensable para que la App abra)
+    // GUARDADO LOCAL PARA ABRIR LA APP
     localStorage.setItem('rmr_user_name', n);
     localStorage.setItem('rmr_user_email', e);
     localStorage.setItem('rmr_trial_start', new Date().getTime());
 
-    // ESPERA DE SEGURIDAD: Damos 1.2 segundos para que el paquete de datos salga
-    // antes de recargar la página.
+    // UI Feedback
+    const btn = document.querySelector('button[onclick="guardarUser()"]');
+    btn.innerHTML = "REGISTRANDO...";
+    btn.disabled = true;
+
+    // Esperamos 1 segundo para asegurar el envío y recargamos
     setTimeout(() => {
         document.body.style.overflow = "auto";
         location.reload();
-    }, 1200);
+    }, 1000);
 }
 // --- 4. UI DE COMPRA FINAL ---
 function bloquearPantallaCompra(id, nombre) {

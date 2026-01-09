@@ -708,34 +708,28 @@ function obtenerIDHardware() {
 
 // 2. VERIFICAR ESTADO AL INICIAR
 function verificarAcceso() {
-    const activado = localStorage.getItem('rmr_pro_activated') === 'true';
-    if (activado) return;
+    // Si ya tiene licencia Pro, ignoramos límites
+    if (localStorage.getItem('rmr_pro_activated') === 'true') return;
 
     const registrado = localStorage.getItem('rmr_user_name');
     const id = obtenerIDHardware();
 
     if (!registrado) {
         bloquearPantallaRegistro(id);
-    } else {
-        const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start'));
-        const ahora = new Date().getTime();
-        const diasUso = (ahora - fechaInicio) / (1000 * 60 * 60 * 24);
+        return;
+    }
 
-        // --- REVISIÓN DE FICHAS ---
-        // Asegúrate de que 'rmr_backup_geotecnia' sea el nombre exacto donde guardas tu Array de estaciones
-        const datosLocal = localStorage.getItem('rmr_backup_geotecnia') || "[]";
-        const fichasTotal = JSON.parse(datosLocal).length;
+    // Límites de tiempo
+    const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start') || 0);
+    const diasUso = (new Date().getTime() - fechaInicio) / (1000 * 60 * 60 * 24);
+    
+    // Límite de estaciones (Usamos la variable global baseDeDatosFichas)
+    const fichasTotal = baseDeDatosFichas.length;
 
-        console.log("Días de uso:", diasUso.toFixed(2));
-        console.log("Total de fichas detectadas:", fichasTotal);
-
-        // Bloqueo si supera los días O las fichas
-        if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
-            bloquearPantallaCompra(id, registrado);
-        }
+    if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
+        bloquearPantallaCompra(id, registrado);
     }
 }
-
 // --- 3. UI DE REGISTRO INICIAL ---
 function bloquearPantallaRegistro(id) {
     const oldLayer = document.getElementById('blocker-layer');
@@ -1520,10 +1514,39 @@ function registrarFichaActual(silencioso = false) {
     else baseDeDatosFichas.push(ficha);
 	localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
     document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-    if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
+  	//
+  	verificarAcceso();
+  	//
+    if (!silencioso && !document.getElementById('blocker-layer')) {
+        alert("✅ Estación registrada y guardada en memoria.");
+    }
     return true;
-}
+} 
   	
+
+function verificarAcceso() {
+   //
+  	if (localStorage.getItem('rmr_pro_activated') === 'true') return;
+
+    const registrado = localStorage.getItem('rmr_user_name');
+    const id = obtenerIDHardware();
+
+    if (!registrado) {
+        bloquearPantallaRegistro(id);
+        return;
+    }
+
+  	//
+    const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start') || 0);
+    const diasUso = (new Date().getTime() - fechaInicio) / (1000 * 60 * 60 * 24);
+    const fichasTotal = baseDeDatosFichas.length;
+
+    // Lógica de bloqueo (Días o Cantidad de estaciones)
+    if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
+        bloquearPantallaCompra(id, registrado);
+    }
+} 
+  
 function exportarConsolidado() {
     if (baseDeDatosFichas.length === 0) return;
 
@@ -1793,6 +1816,24 @@ function limpiarAlEntrar(input) {
     }
 };
 
+  // Esta función se activa desde el botón de la pantalla de compra
+function inputClave(id) {
+    const claveUser = prompt("Sistema RMR89 Pro\nID de Equipo: " + id + "\n\nIngrese su clave de activación:");
+    
+    if (!claveUser) return;
+
+    // Validación mediante Semilla (Asegúrate de que coincida con LICENCIA.SEMILLA)
+    const semilla = 2026; 
+    const claveGenerada = "RMR-" + (parseInt(id) * semilla);
+
+    if (claveUser.trim().toUpperCase() === claveGenerada) {
+        localStorage.setItem('rmr_pro_activated', 'true');
+        alert("¡FELICITACIONES! Licencia activada correctamente.\nEl sistema se reiniciará con acceso total.");
+        location.reload();
+    } else {
+        alert("❌ Clave inválida para este ID de equipo.\nContacte a Byron Bravo para obtener su clave.");
+    }
+}
     window.onbeforeunload = function() {
         return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
     };

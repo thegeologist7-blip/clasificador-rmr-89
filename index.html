@@ -739,35 +739,48 @@ function bloquearPantallaRegistro(id) {
     document.body.style.overflow = "hidden"; // Bloquea scroll
 }
 
-async function guardarUser() {
+function guardarUser() {
     const n = document.getElementById('reg_n').value.trim();
     const e = document.getElementById('reg_e').value.trim();
     const idH = obtenerIDHardware();
     
     if(!n || !e) return alert("Por favor, complete su nombre y correo.");
+    if(!e.includes("@")) return alert("Ingrese un correo válido");
 
-    // URL de tu formulario (Debe terminar en /formResponse)
     const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScx9Z9L6lEBrDfQ9VCjHxDo3xz2bG-wyxKePra3-GsLX5zU6A/formResponse";
     
-    // Parámetros
-    const queryParams = `entry.1444146194=${encodeURIComponent(n)}&entry.1017056073=${encodeURIComponent(e)}&entry.1147775583=${encodeURIComponent(idH)}`;
+    // Construcción de la cadena de datos exactamente como el link que probaste
+    const params = new URLSearchParams();
+    params.append("entry.1444146194", n);
+    params.append("entry.1017056073", e);
+    params.append("entry.1147775583", idH);
 
-    // ENVÍO
-    fetch(`${baseUrl}?${queryParams}`, {
+    // Feedback visual en el botón
+    const btn = document.querySelector('button[onclick="guardarUser()"]');
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = "⌛ REGISTRANDO...";
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+
+    // ENVÍO DE DATOS
+    fetch(baseUrl, {
         method: "POST",
-        mode: "no-cors"
+        mode: "no-cors",
+        body: params
     });
 
-    // LOCAL
+    // GUARDADO LOCAL (Indispensable para que la App abra)
     localStorage.setItem('rmr_user_name', n);
     localStorage.setItem('rmr_user_email', e);
     localStorage.setItem('rmr_trial_start', new Date().getTime());
-    
-    document.body.style.overflow = "auto";
-    alert("Iniciando modo de prueba...");
-    location.reload();
-}
 
+    // ESPERA DE SEGURIDAD: Damos 1.2 segundos para que el paquete de datos salga
+    // antes de recargar la página.
+    setTimeout(() => {
+        document.body.style.overflow = "auto";
+        location.reload();
+    }, 1200);
+}
 // --- 4. UI DE COMPRA FINAL ---
 function bloquearPantallaCompra(id, nombre) {
     const oldLayer = document.getElementById('blocker-layer');

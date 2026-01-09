@@ -206,49 +206,25 @@ html, body {
     border-color: #052c52 !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-    /* Pantalla de bloqueo al activar */
-#loader-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 9999;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #3498db;
-    border-top: 5px solid transparent;
+    .spinner-mini {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
+    border-top-color: #fff;
+    animation: spin 0.8s ease-in-out infinite;
+    margin-right: 8px;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    to { transform: rotate(360deg); }
 }
 </style>
  	
 </head>
 <body>
-<div id="loader-overlay">
-    <div class="spinner"></div>
-    <div class="loading-text" id="status-text">Iniciando Registro...</div>
-</div>
+
 <div id="rmr-master-suite">
     <div style="background: #052c52; padding: 18px 20px; color: white; border-bottom: 4px solid #3498db; display: flex; justify-content: space-between; align-items: center;">
         
@@ -738,15 +714,22 @@ function verificarAcceso() {
     const registrado = localStorage.getItem('rmr_user_name');
     const id = obtenerIDHardware();
 
-    // Paso 3: Registro inicial
     if (!registrado) {
         bloquearPantallaRegistro(id);
     } else {
-        // Paso 4: Verificar límites
         const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start'));
-        const diasUso = (new Date().getTime() - fechaInicio) / (1000 * 60 * 60 * 24);
-        const fichasTotal = JSON.parse(localStorage.getItem('rmr_backup_geotecnia') || "[]").length;
+        const ahora = new Date().getTime();
+        const diasUso = (ahora - fechaInicio) / (1000 * 60 * 60 * 24);
 
+        // --- REVISIÓN DE FICHAS ---
+        // Asegúrate de que 'rmr_backup_geotecnia' sea el nombre exacto donde guardas tu Array de estaciones
+        const datosLocal = localStorage.getItem('rmr_backup_geotecnia') || "[]";
+        const fichasTotal = JSON.parse(datosLocal).length;
+
+        console.log("Días de uso:", diasUso.toFixed(2));
+        console.log("Total de fichas detectadas:", fichasTotal);
+
+        // Bloqueo si supera los días O las fichas
         if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
             bloquearPantallaCompra(id, registrado);
         }
@@ -784,38 +767,55 @@ function guardarUser() {
     
     if(!n || !e) return alert("Por favor, complete su nombre y correo.");
 
-    // 1. Mostrar pantalla de carga
-    const overlay = document.getElementById('loader-overlay');
-    const statusText = document.getElementById('status-text');
-    overlay.style.display = 'flex';
+    // --- ESTÉTICA DE ACTIVACIÓN ---
+    const btn = document.querySelector('button[onclick="guardarUser()"]');
+    const container = n.parentElement; // El cuadro blanco del registro
 
-    // 2. Simular pasos de activación (Estética visual)
-    setTimeout(() => { statusText.innerHTML = "Sincronizando con la nube..."; }, 800);
-    setTimeout(() => { statusText.innerHTML = "Activando Periodo de Prueba..."; }, 1600);
-    setTimeout(() => { statusText.innerHTML = "¡Acceso Concedido!"; }, 2400);
+    // Bloqueamos el botón y cambiamos el estilo
+    btn.disabled = true;
+    btn.style.background = "#95a5a6";
+    btn.style.boxShadow = "none";
+    btn.innerHTML = `<span class="spinner-mini"></span> ACTIVANDO SISTEMA...`;
 
-    // 3. Proceso de envío real
+    // Cambiamos el texto del párrafo para dar feedback
+    const p = document.querySelector('#blocker-layer p');
+    if(p) p.innerHTML = "Sincronizando licencia con el servidor geomecánico...";
+    p.style.color = "#27ae60";
+    p.style.fontWeight = "bold";
+
+    // --- LÓGICA DE ENVÍO ---
+    // Usamos los IDs que ya confirmamos que funcionan
     const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScx9Z9L6lEBrDfQ9VCjHxDo3xz2bG-wyxKePra3-GsLX5zU6A/formResponse";
     const idNombre = "525247613"; 
     const idCorreo = "622142618"; 
     const idEquipo = "1993307989"; 
 
-    const finalUrl = `${baseUrl}?entry.${idNombre}=${encodeURIComponent(n)}&entry.${idCorreo}=${encodeURIComponent(e)}&entry.${idEquipo}=${encodeURIComponent(idH)}`;
+    const queryParams = `entry.${idNombre}=${encodeURIComponent(n)}&entry.${idCorreo}=${encodeURIComponent(e)}&entry.${idEquipo}=${encodeURIComponent(idH)}`;
+    const finalUrl = `${baseUrl}?${queryParams}`;
 
-    // Registro Local
+    // Envío silencioso (Beacon es mejor para no interrumpir la animación)
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon(finalUrl);
+    } else {
+        const logger = new Image();
+        logger.src = finalUrl;
+    }
+
+    // Guardado local
     localStorage.setItem('rmr_user_name', n);
     localStorage.setItem('rmr_user_email', e);
     localStorage.setItem('rmr_trial_start', new Date().getTime());
 
-    // Envío silencioso
-    const logger = new Image();
-    logger.src = finalUrl;
+    // --- PAUSA ESTÉTICA FINAL ---
+    setTimeout(() => {
+        btn.innerHTML = "¡ACCESO CONCEDIDO!";
+        btn.style.background = "#2ecc71";
+    }, 1500);
 
-    // 4. Recarga final después de que el usuario vea los mensajes
     setTimeout(() => {
         document.body.style.overflow = "auto";
         location.reload();
-    }, 3200); // Duración total de la animación
+    }, 2500);
 }
 // --- 4. UI DE COMPRA FINAL ---
 function bloquearPantallaCompra(id, nombre) {

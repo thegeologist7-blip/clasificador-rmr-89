@@ -164,7 +164,48 @@ html, body {
     width: calc(100% + 24px); 
     height: 32px;
     flex: none;   
-}     
+}  
+    .schmidt-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 3px;
+    margin: 6px 0 10px 0; /* Menos margen superior */
+}
+
+.btn-schmidt {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 4px 0; /* Altura reducida al mínimo funcional */
+    border-radius: 4px; /* Bordes un poco más rectos para verse técnico */
+    cursor: pointer;
+    transition: all 0.15s ease;
+    height: 28px; /* Altura fija para que todos sean simétricos */
+}
+
+.sch-icon {
+    font-size: 13px; /* Flecha fina */
+    font-weight: 600;
+    margin-right: 2px;
+}
+
+.sch-deg {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: -0.5px; /* Compacta el texto */
+}
+
+.btn-schmidt-active {
+    background: #052c52 !important;
+    color: #ffffff !important;
+    border-color: #052c52 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
 </style>
  	
 </head>
@@ -322,21 +363,43 @@ html, body {
                         </div>
                     </div>
                     <div id="ui_sch" style="margin-top: 10px;">
-                        <div class="input-label">REBOTES R</div>
-                        <span class="guide-text" style="font-size: 9px; line-height: 1.1; margin-bottom: 4px;">
-    Se deben tomar 10 medidas en diferentes puntos para obtener un promedio representativo según norma ASTM D5873.</span>
-                        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:4px; margin: 8px 0;">
-    <input type="number" id="r1" class="in-field" placeholder="1" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r2" class="in-field" placeholder="2" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r3" class="in-field" placeholder="3" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r4" class="in-field" placeholder="4" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r5" class="in-field" placeholder="5" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r6" class="in-field" placeholder="6" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r7" class="in-field" placeholder="7" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r8" class="in-field" placeholder="8" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r9" class="in-field" placeholder="9" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-    <input type="number" id="r10" class="in-field" placeholder="10" oninput="if(this.value>100)this.value=100; runRmr();" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+    <div class="input-label">REBOTES R</div>
+    <span class="guide-text" style="font-size: 9px; line-height: 1.1; margin-bottom: 4px;">
+        Se deben tomar 10 medidas. Seleccione la orientación del ensayo para corregir el rebote.
+    </span>
+
+    <div class="schmidt-container">
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(90, this)">
+        <span class="sch-icon">↑</span><span class="sch-deg">+90°</span>
+    </button>
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(45, this)">
+        <span class="sch-icon">↗</span><span class="sch-deg">+45°</span>
+    </button>
+    <button type="button" class="btn-schmidt btn-schmidt-active" onclick="setSchmidtAngle(0, this)">
+        <span class="sch-icon">→</span><span class="sch-deg">0°</span>
+    </button>
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-45, this)">
+        <span class="sch-icon">↘</span><span class="sch-deg">-45°</span>
+    </button>
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-90, this)">
+        <span class="sch-icon">↓</span><span class="sch-deg">-90°</span>
+    </button>
 </div>
+    <input type="hidden" id="selected_angle" value="0">
+
+    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:4px; margin: 8px 0;">
+        <input type="number" id="r1" class="in-field" placeholder="1" oninput="runRmr()">
+        <input type="number" id="r2" class="in-field" placeholder="2" oninput="runRmr()">
+        <input type="number" id="r3" class="in-field" placeholder="3" oninput="runRmr()">
+        <input type="number" id="r4" class="in-field" placeholder="4" oninput="runRmr()">
+        <input type="number" id="r5" class="in-field" placeholder="5" oninput="runRmr()">
+        <input type="number" id="r6" class="in-field" placeholder="6" oninput="runRmr()">
+        <input type="number" id="r7" class="in-field" placeholder="7" oninput="runRmr()">
+        <input type="number" id="r8" class="in-field" placeholder="8" oninput="runRmr()">
+        <input type="number" id="r9" class="in-field" placeholder="9" oninput="runRmr()">
+        <input type="number" id="r10" class="in-field" placeholder="10" oninput="runRmr()">
+    </div>
+    
                         <div style="display:flex; gap:5px; margin-bottom:8px;">
                             <div style="flex:1;">
                                 <div class="input-label" style="font-size:7px;">GRUPO</div>
@@ -608,6 +671,105 @@ html, body {
 </div>
 
 <script>
+  // --- CONFIGURACIÓN DE NEGOCIO ---
+const LICENCIA = {
+    DIAS_TRIAL: 5,
+    MAX_FICHAS: 5,
+    PRECIO: "8.90 USD",
+    WA_NUM: "593XXXXXXXXX", // Pon tu número aquí
+    REPOSICION: "6.8%",
+    SEMILLA: 2026
+};
+
+// 1. GENERAR ADN DE EQUIPO (ID ÚNICO)
+function obtenerIDHardware() {
+    if (localStorage.getItem('device_id')) return localStorage.getItem('device_id');
+    const adn = [navigator.userAgent.length, screen.height * screen.width, navigator.hardwareConcurrency || 2, new Date().getTimezoneOffset()].join("-");
+    let hash = 0;
+    for (let i = 0; i < adn.length; i++) { hash = ((hash << 5) - hash) + adn.charCodeAt(i); hash |= 0; }
+    const idFinal = Math.abs(hash % 8000) + 1000;
+    localStorage.setItem('device_id', idFinal);
+    return idFinal;
+}
+
+// 2. VERIFICAR ESTADO AL INICIAR
+function verificarAcceso() {
+    const activado = localStorage.getItem('rmr_pro_activated') === 'true';
+    if (activado) return;
+
+    const registrado = localStorage.getItem('rmr_user_name');
+    const id = obtenerIDHardware();
+
+    // Paso 3: Registro inicial
+    if (!registrado) {
+        bloquearPantallaRegistro(id);
+    } else {
+        // Paso 4: Verificar límites
+        const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start'));
+        const diasUso = (new Date().getTime() - fechaInicio) / (1000 * 60 * 60 * 24);
+        const fichasTotal = JSON.parse(localStorage.getItem('rmr_backup_geotecnia') || "[]").length;
+
+        if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
+            bloquearPantallaCompra(id, registrado);
+        }
+    }
+}
+
+// 3. UI DE REGISTRO INICIAL
+function bloquearPantallaRegistro(id) {
+    document.body.innerHTML = `
+    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#052c52;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:sans-serif;color:white;text-align:center;">
+        <div style="background:white;padding:30px;border-radius:15px;color:#333;width:100%;max-width:350px;">
+            <h3 style="color:#052c52;margin-top:0;">🚀 ACTIVAR PRUEBA</h3>
+            <p style="font-size:12px;">Registre sus datos para iniciar su evaluación de RMR 89 Pro.</p>
+            <input type="text" id="reg_n" placeholder="Nombre completo" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;">
+            <input type="email" id="reg_e" placeholder="Correo electrónico" style="width:100%;padding:12px;margin-bottom:15px;border:1px solid #ddd;border-radius:8px;">
+            <button onclick="guardarUser()" style="width:100%;background:#27ae60;color:white;border:none;padding:15px;border-radius:8px;font-weight:bold;cursor:pointer;">ENVIAR Y EMPEZAR</button>
+            <p style="font-size:10px;color:#888;margin-top:15px;">* Opción de crear 5 estaciones o 5 días de prueba.</p>
+        </div>
+    </div>`;
+}
+
+function guardarUser() {
+    const n = document.getElementById('reg_n').value;
+    const e = document.getElementById('reg_e').value;
+    if(!n || !e) return alert("Complete los datos");
+    localStorage.setItem('rmr_user_name', n);
+    localStorage.setItem('rmr_user_email', e);
+    localStorage.setItem('rmr_trial_start', new Date().getTime());
+    location.reload();
+}
+
+// 4. UI DE COMPRA FINAL
+function bloquearPantallaCompra(id, nombre) {
+    document.body.innerHTML = `
+    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#052c52;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:sans-serif;color:white;text-align:center;">
+        <div style="width:100%;max-width:350px;">
+            <h2 style="color:#3498db;margin-bottom:5px;">⏳ PRUEBA TERMINADA</h2>
+            <p style="font-size:14px;opacity:0.9;">Para seguir usando la App adquiera la Suscripción Anual.</p>
+            <div style="background:rgba(255,255,255,0.1);padding:20px;border-radius:15px;margin:20px 0;">
+                <p style="font-size:24px;font-weight:bold;margin:0;">${LICENCIA.PRECIO}</p>
+                <p style="font-size:10px;opacity:0.7;">PAGO ÚNICO / 1 AÑO</p>
+                <hr style="opacity:0.2;margin:15px 0;">
+                <p style="font-size:11px;">ID EQUIPO: <b style="color:#3498db;">${id}</b></p>
+                <button onclick="window.open('https://wa.me/${LICENCIA.WA_NUM}?text=Hola Byron, mi nombre es ${nombre}. Solicito activar RMR Pro para el ID: ${id}')" 
+                    style="width:100%;background:#25D366;color:white;border:none;padding:12px;border-radius:8px;font-weight:bold;margin-top:10px;cursor:pointer;">SOLICITAR POR WHATSAPP</button>
+                <button onclick="inputClave('${id}')" style="background:none;border:none;color:white;font-size:11px;margin-top:15px;text-decoration:underline;cursor:pointer;">Ya tengo mi clave</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+function inputClave(id) {
+    const k = prompt("Ingrese su Clave de Activación Pro:");
+    if (parseInt(k) === (parseInt(id) + LICENCIA.SEMILLA) * 3) {
+        localStorage.setItem('rmr_pro_activated', 'true');
+        alert("✅ ¡Activación Exitosa!");
+        location.reload();
+    } else if (k !== null) {
+        alert("❌ Clave incorrecta.");
+    }
+}
     let sysCount = 1;
 
     function toggleRes() {
@@ -870,26 +1032,67 @@ function iniciarLecturaEstable(inDip, inDipDir) {
 };
     // 'true' para captura prioritaria
     window.addEventListener('deviceorientation', procesarMovimiento, true);
+  	
+} //
+  	function setSchmidtAngle(angulo, elemento) {
+    // 1. Gestionar el resaltado de los botones
+    document.querySelectorAll('.btn-schmidt').forEach(btn => btn.classList.remove('btn-schmidt-active'));
+    elemento.classList.add('btn-schmidt-active');
+    
+    // 2. Guardar el ángulo en el input oculto
+    const hiddenInput = document.getElementById('selected_angle');
+    if (hiddenInput) {
+        hiddenInput.value = angulo; }
+    
+    // 3. Disparar el cálculo general
+    runRmr(); 
 }
     function runRmr() {
     // --- 1. CÁLCULO DE RESISTENCIA (p1) ---
     let mRes = document.getElementById('m_res').value;
     let ucs = 0, p1 = 0;
+
     if(mRes === 'vis') {
         p1 = parseInt(document.getElementById('valVis').value) || 0;
         ucs = p1 === 15 ? 250 : p1 === 12 ? 150 : p1 === 7 ? 75 : p1 === 4 ? 35 : p1 === 2 ? 15 : 3;
         if(document.getElementById('out_vis_ucs')) document.getElementById('out_vis_ucs').querySelector('b').innerText = ucs;
     } else {
+        // --- LÓGICA PRO SCHMIDT ---
         let rVals = [1,2,3,4,5,6,7,8,9,10].map(i => parseFloat(document.getElementById('r'+i).value)||0).filter(v => v > 0);
         let rAvg = rVals.length > 0 ? rVals.reduce((a,b)=>a+b)/rVals.length : 0;
-        let g = parseFloat(document.getElementById('tipoRoca').value) || 2.7;
-        if (rAvg > 0) ucs = (Math.pow(rAvg, 2) * g * 1000) / 54000;
-        p1 = ucs > 250 ? 15 : ucs > 100 ? 12 : ucs > 50 ? 7 : ucs > 25 ? 4 : 2;
-        if(document.getElementById('out_sch_r')) document.getElementById('out_sch_r').querySelector('b').innerText = rAvg.toFixed(1);
+        
+        // Capturamos el ángulo de los nuevos botones
+        let angulo = parseInt(document.getElementById('selected_angle')?.value || 0);
+        
+        // Tabla de corrección Delta R (ISRM/Proceq)
+        let deltaR = 0;
+        if (rAvg > 0) {
+            if (angulo === 90)  deltaR = -3.2;
+            else if (angulo === 45)  deltaR = -1.8;
+            else if (angulo === 0)   deltaR = 0;
+            else if (angulo === -45) deltaR = 2.1;
+            else if (angulo === -90) deltaR = 3.4;
+        }
+
+        let rCorregido = rAvg + deltaR;
+        
+        // Densidad (gamma) desde el selector de litología
+        let gamma = parseFloat(document.getElementById('tipoRoca').value) || 2.7;
+        
+        // Fórmula de Miller: log10(UCS) = 0.00088 * gamma * R_corr + 1.01
+        if (rCorregido > 0) {
+            let logUCS = (0.00088 * (gamma * 9.81) * rCorregido) + 1.01; 
+            ucs = Math.pow(10, logUCS);
+        }
+
+        // Puntaje RMR (Bieniawski 1989)
+        p1 = ucs > 250 ? 15 : ucs > 100 ? 12 : ucs > 50 ? 7 : ucs > 25 ? 4 : ucs > 5 ? 2 : 1;
+
+        if(document.getElementById('out_sch_r')) document.getElementById('out_sch_r').querySelector('b').innerText = rCorregido.toFixed(1);
         if(document.getElementById('out_sch_ucs')) document.getElementById('out_sch_ucs').querySelector('b').innerText = ucs.toFixed(1);
     }
     document.getElementById('score_p1').innerText = "PTS: " + p1;
-
+	
     // --- 2. CÁLCULO DE CALIDAD RQD (p2) ---
     let mRqd = document.getElementById('m_rqd').value;
     let p2 = 0, rqd = 0;
@@ -904,35 +1107,27 @@ function iniciarLecturaEstable(inDip, inDipDir) {
     if(document.getElementById('out_rqd')) document.getElementById('out_rqd').querySelector('b').innerText = Math.round(rqd);
     document.getElementById('score_p2').innerText = "PTS: " + p2;
 
-    // --- 3. SELECCIÓN DE LA JUNTA MÁS CRÍTICA (p3 + p4) ---
-    // Recorremos todas las juntas y buscamos la que tenga menor puntaje
+    // --- 3. JUNTA CRÍTICA ---
     const tarjetasJuntas = document.querySelectorAll('.junta-card');
-    let puntosJuntaCritica = 35; // Máximo puntaje posible (20 espaciamiento + 15 condición)
-
+    let puntosJuntaCritica = 35;
     if (tarjetasJuntas.length > 0) {
         tarjetasJuntas.forEach(card => {
             let sumaJuntaActual = 0;
             card.querySelectorAll('.j-calc').forEach(select => {
                 sumaJuntaActual += parseInt(select.value) || 0;
             });
-            // Si esta junta es más desfavorable (menor puntaje), la elegimos
-            if (sumaJuntaActual < puntosJuntaCritica) {
-                puntosJuntaCritica = sumaJuntaActual;
-            }
+            if (sumaJuntaActual < puntosJuntaCritica) puntosJuntaCritica = sumaJuntaActual;
         });
     } else {
         puntosJuntaCritica = 0;
     }
 
-    // --- 4. CÁLCULO DE AGUA (p5) ---
+    // --- 4. AGUA ---
     let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
     document.getElementById('score_p5').innerText = "PTS: " + p5;
 
-    // --- 5. RMR BÁSICO TOTAL ---
-    // RMR = p1 + p2 + (p3+p4) + p5
+    // --- 5. FINAL ---
     let rmrBasico = p1 + p2 + puntosJuntaCritica + p5;
-    
-    // Mostramos el resultado en el label de RMR Básico (si existe en tu HTML)
     const lblRmrBase = document.getElementById('res_rmr_base');
     if(lblRmrBase) lblRmrBase.innerText = rmrBasico;
 
@@ -1449,11 +1644,12 @@ function limpiarAlEntrar(input) {
     input.value = input.value.replace("°", "");
 }
     window.onload = function() { 
-        const backup = localStorage.getItem('rmr_backup_geotecnia');
+    validarAcceso(); // <--- PASO 1: VERIFICAR LICENCIA ANTES DE TODO
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
     	if (backup) {
-        baseDeDatosFichas = JSON.parse(backup);
-        const btn = document.getElementById('btn_exportar');
-        if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+        	baseDeDatosFichas = JSON.parse(backup);
+        	const btn = document.getElementById('btn_exportar');
+        	if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
    		}
       	updateLitologia(); 
         updateEscenario(); 

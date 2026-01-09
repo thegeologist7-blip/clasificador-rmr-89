@@ -676,7 +676,7 @@ const LICENCIA = {
     DIAS_TRIAL: 5,
     MAX_FICHAS: 5,
     PRECIO: "8.90 USD",
-    WA_NUM: "593XXXXXXXXX", // Pon tu número aquí
+    WA_NUM: "593979731299", // Pon tu número aquí
     REPOSICION: "6.8%",
     SEMILLA: 2026
 };
@@ -742,44 +742,30 @@ function bloquearPantallaRegistro(id) {
 async function guardarUser() {
     const n = document.getElementById('reg_n').value.trim();
     const e = document.getElementById('reg_e').value.trim();
+    const idH = obtenerIDHardware();
     
     if(!n || !e) return alert("Por favor, complete su nombre y correo.");
 
-    // URL de tu formulario (asegúrate que termine en /formResponse)
-    const urlForm = "https://docs.google.com/forms/d/e/1FAIpQLScx9Z9L6lEBrDfQ9VCjHxDo3xz2bG-wyxKePra3-GsLX5zU6A/formResponse";
+    // URL de tu formulario (Debe terminar en /formResponse)
+    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScx9Z9L6lEBrDfQ9VCjHxDo3xz2bG-wyxKePra3-GsLX5zU6A/formResponse";
     
-    const formData = new FormData();
-    
-    // IDs REVISADOS PARA TU EXCEL "Usuarios-Clasificador RMR89"
-    // Entry para Nombre completo
-    formData.append("entry.1444146194", n); 
-    // Entry para Correo electrónico
-    formData.append("entry.1017056073", e);
-    // Entry para ID del Dispositivo (Aparecerá si añades una 3ra columna al formulario)
-    formData.append("entry.1147775583", obtenerIDHardware());
+    // Parámetros
+    const queryParams = `entry.1444146194=${encodeURIComponent(n)}&entry.1017056073=${encodeURIComponent(e)}&entry.1147775583=${encodeURIComponent(idH)}`;
 
-    // Envío silencioso
-    fetch(urlForm, {
+    // ENVÍO
+    fetch(`${baseUrl}?${queryParams}`, {
         method: "POST",
-        mode: "no-cors",
-        body: formData
-    }).then(() => {
-        console.log("Datos enviados al Excel");
-    }).catch(err => {
-        console.error("Error de red:", err);
+        mode: "no-cors"
     });
 
-    // Guardado local e inicio de App
+    // LOCAL
     localStorage.setItem('rmr_user_name', n);
     localStorage.setItem('rmr_user_email', e);
     localStorage.setItem('rmr_trial_start', new Date().getTime());
     
     document.body.style.overflow = "auto";
-    
-    // Esperamos medio segundo para asegurar el envío antes de recargar
-    setTimeout(() => {
-        location.reload();
-    }, 500);
+    alert("Iniciando modo de prueba...");
+    location.reload();
 }
 
 // --- 4. UI DE COMPRA FINAL ---

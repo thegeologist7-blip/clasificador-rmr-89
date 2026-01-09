@@ -230,7 +230,7 @@ html, body {
         </div>
 
         <div class="v-box">
-            v9.6 PRO
+            v9.5 PRO
         </div>
     </div>
 
@@ -790,10 +790,33 @@ function inputClave(id) {
         const grupo = document.getElementById('grupoRoca').value;
         const tipoSel = document.getElementById('tipoRoca');
         const lit = {
-            ignea: [{n:"Granito (2.65)",v:2.65},{n:"Basalto (2.85)",v:2.85},{n:"Andesita (2.60)",v:2.60},{n:"Diorita (2.75)",v:2.75}],
-            metamorfica: [{n:"Gneiss (2.70)",v:2.70},{n:"Esquisto (2.60)",v:2.60},{n:"Mármol (2.75)",v:2.75},{n:"Cuarcita (2.65)",v:2.65}],
-            sedimentaria: [{n:"Caliza (2.55)",v:2.55},{n:"Arenisca (2.30)",v:2.30},{n:"Lutita (2.40)",v:2.40},{n:"Dolomía (2.80)",v:2.80}]
-        };
+            ignea: [
+            {n:"Granito (2.65)", v:2.65},
+            {n:"Basalto (2.85)", v:2.85},
+            {n:"Andesita (2.60)", v:2.60},
+            {n:"Diorita (2.75)", v:2.75},
+            {n:"Riolita (2.50)", v:2.50},
+            {n:"Gabro (2.95)", v:2.95},
+            {n:"Sienita (2.70)", v:2.70},
+            {n:"Obsidiana (2.40)", v:2.40}
+        ],
+        metamorfica: [
+            {n:"Gneiss (2.70)", v:2.70},
+            {n:"Esquisto (2.60)", v:2.60},
+            {n:"Mármol (2.75)", v:2.75},
+            {n:"Cuarcita (2.65)", v:2.65},
+            {n:"Pizarra (2.75)", v:2.75},
+            {n:"Filita (2.70)", v:2.70}
+        ],
+        sedimentaria: [
+            {n:"Caliza (2.55)", v:2.55},
+            {n:"Arenisca (2.30)", v:2.30},
+            {n:"Lutita (2.40)", v:2.40},
+            {n:"Dolomía (2.80)", v:2.80},
+            {n:"Conglomerado (2.50)", v:2.50},
+            {n:"Brecha (2.45)", v:2.45}
+        ]
+    };
         tipoSel.innerHTML = "";
         lit[grupo].forEach(r => {
             let opt = document.createElement('option'); opt.value = r.v; opt.innerText = r.n;
@@ -1644,13 +1667,22 @@ function limpiarAlEntrar(input) {
     input.value = input.value.replace("°", "");
 }
     window.onload = function() { 
-    validarAcceso(); // <--- PASO 1: VERIFICAR LICENCIA ANTES DE TODO
+    // PASO 1: Ejecutar la validación (Asegúrate que el nombre sea el mismo que definiste arriba)
+    setTimeout(() => {
+        if (typeof verificarAcceso === 'function') {
+            verificarAcceso(); 
+        } else if (typeof validarAcceso === 'function') {
+            validarAcceso();
+        }
+    }, 100);
+
+    // PASO 2: Cargar el resto de la aplicación
     const backup = localStorage.getItem('rmr_backup_geotecnia');
-    	if (backup) {
-        	baseDeDatosFichas = JSON.parse(backup);
-        	const btn = document.getElementById('btn_exportar');
-        	if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-   		}
+    if (backup) {
+        baseDeDatosFichas = JSON.parse(backup);
+        const btn = document.getElementById('btn_exportar');
+        if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    }
       	updateLitologia(); 
         updateEscenario(); 
         toggleRes(); 
@@ -1689,4 +1721,3 @@ function limpiarAlEntrar(input) {
 </script>
 </body>
 </html>
-

@@ -230,7 +230,7 @@ html, body {
         </div>
 
         <div class="v-box">
-            v9.5 PRO
+            v9.8 PRO
         </div>
     </div>
 
@@ -715,51 +715,102 @@ function verificarAcceso() {
     }
 }
 
-// 3. UI DE REGISTRO INICIAL
+// --- 3. UI DE REGISTRO INICIAL ---
 function bloquearPantallaRegistro(id) {
-    document.body.innerHTML = `
-    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#052c52;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:sans-serif;color:white;text-align:center;">
-        <div style="background:white;padding:30px;border-radius:15px;color:#333;width:100%;max-width:350px;">
-            <h3 style="color:#052c52;margin-top:0;">🚀 ACTIVAR PRUEBA</h3>
-            <p style="font-size:12px;">Registre sus datos para iniciar su evaluación de RMR 89 Pro.</p>
-            <input type="text" id="reg_n" placeholder="Nombre completo" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;">
-            <input type="email" id="reg_e" placeholder="Correo electrónico" style="width:100%;padding:12px;margin-bottom:15px;border:1px solid #ddd;border-radius:8px;">
-            <button onclick="guardarUser()" style="width:100%;background:#27ae60;color:white;border:none;padding:15px;border-radius:8px;font-weight:bold;cursor:pointer;">ENVIAR Y EMPEZAR</button>
-            <p style="font-size:10px;color:#888;margin-top:15px;">* Opción de crear 5 estaciones o 5 días de prueba.</p>
+    const oldLayer = document.getElementById('blocker-layer');
+    if(oldLayer) oldLayer.remove();
+
+    document.body.insertAdjacentHTML('afterbegin', `
+    <div id="blocker-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5, 44, 82, 0.98); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);">
+        <div style="background:white; padding:30px; border-radius:20px; color:#333; width:90%; max-width:340px; box-sizing:border-box; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: auto;">
+            <div style="font-size:40px; margin-bottom:10px;">🚀</div>
+            <h3 style="color:#052c52; margin:0 0 10px 0; font-family:sans-serif; font-weight:800;">ACTIVAR PRUEBA</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:20px; line-height:1.4;">Para acceder a todas las funciones del Clasificador geomecánico RMR89 registra tus datos, y obten una prueba gratuita.</p>
+            
+            <input type="text" id="reg_n" placeholder="Nombre completo" style="width:100%; padding:14px; margin-bottom:12px; border:1.5px solid #eee; border-radius:10px; font-size:16px; box-sizing:border-box; outline:none; -webkit-appearance:none;">
+            
+            <input type="email" id="reg_e" placeholder="Correo electrónico" style="width:100%; padding:14px; margin-bottom:20px; border:1.5px solid #eee; border-radius:10px; font-size:16px; box-sizing:border-box; outline:none; -webkit-appearance:none;">
+            
+            <button onclick="guardarUser()" style="width:100%; background:#27ae60; color:white; border:none; padding:16px; border-radius:12px; font-weight:800; cursor:pointer; font-size:15px; letter-spacing:0.5px; box-shadow: 0 4px 15px rgba(39,174,96,0.3);">EMPEZAR AHORA</button>
+            
+            <p style="font-size:10px; color:#aaa; margin-top:20px; text-transform:uppercase;">*Tienes la opción de generar 5 estaciones geomecánicas y puedes usarla durante 5 días sin restricciones</p>
         </div>
-    </div>`;
+    </div>`);
+    document.body.style.overflow = "hidden"; // Bloquea scroll
 }
 
-function guardarUser() {
-    const n = document.getElementById('reg_n').value;
-    const e = document.getElementById('reg_e').value;
-    if(!n || !e) return alert("Complete los datos");
+async function guardarUser() {
+    const n = document.getElementById('reg_n').value.trim();
+    const e = document.getElementById('reg_e').value.trim();
+    
+    if(!n || !e) return alert("Por favor, complete su nombre y correo.");
+
+    // URL de tu formulario (asegúrate que termine en /formResponse)
+    const urlForm = "https://docs.google.com/forms/d/e/1FAIpQLScx9Z9L6lEBrDfQ9VCjHxDo3xz2bG-wyxKePra3-GsLX5zU6A/formResponse";
+    
+    const formData = new FormData();
+    
+    // IDs REVISADOS PARA TU EXCEL "Usuarios-Clasificador RMR89"
+    // Entry para Nombre completo
+    formData.append("entry.1444146194", n); 
+    // Entry para Correo electrónico
+    formData.append("entry.1017056073", e);
+    // Entry para ID del Dispositivo (Aparecerá si añades una 3ra columna al formulario)
+    formData.append("entry.1147775583", obtenerIDHardware());
+
+    // Envío silencioso
+    fetch(urlForm, {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+    }).then(() => {
+        console.log("Datos enviados al Excel");
+    }).catch(err => {
+        console.error("Error de red:", err);
+    });
+
+    // Guardado local e inicio de App
     localStorage.setItem('rmr_user_name', n);
     localStorage.setItem('rmr_user_email', e);
     localStorage.setItem('rmr_trial_start', new Date().getTime());
-    location.reload();
+    
+    document.body.style.overflow = "auto";
+    
+    // Esperamos medio segundo para asegurar el envío antes de recargar
+    setTimeout(() => {
+        location.reload();
+    }, 500);
 }
 
-// 4. UI DE COMPRA FINAL
+// --- 4. UI DE COMPRA FINAL ---
 function bloquearPantallaCompra(id, nombre) {
-    document.body.innerHTML = `
-    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#052c52;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:sans-serif;color:white;text-align:center;">
-        <div style="width:100%;max-width:350px;">
-            <h2 style="color:#3498db;margin-bottom:5px;">⏳ PRUEBA TERMINADA</h2>
-            <p style="font-size:14px;opacity:0.9;">Para seguir usando la App adquiera la Suscripción Anual.</p>
-            <div style="background:rgba(255,255,255,0.1);padding:20px;border-radius:15px;margin:20px 0;">
-                <p style="font-size:24px;font-weight:bold;margin:0;">${LICENCIA.PRECIO}</p>
-                <p style="font-size:10px;opacity:0.7;">PAGO ÚNICO / 1 AÑO</p>
-                <hr style="opacity:0.2;margin:15px 0;">
-                <p style="font-size:11px;">ID EQUIPO: <b style="color:#3498db;">${id}</b></p>
-                <button onclick="window.open('https://wa.me/${LICENCIA.WA_NUM}?text=Hola Byron, mi nombre es ${nombre}. Solicito activar RMR Pro para el ID: ${id}')" 
-                    style="width:100%;background:#25D366;color:white;border:none;padding:12px;border-radius:8px;font-weight:bold;margin-top:10px;cursor:pointer;">SOLICITAR POR WHATSAPP</button>
-                <button onclick="inputClave('${id}')" style="background:none;border:none;color:white;font-size:11px;margin-top:15px;text-decoration:underline;cursor:pointer;">Ya tengo mi clave</button>
-            </div>
-        </div>
-    </div>`;
-}
+    const oldLayer = document.getElementById('blocker-layer');
+    if(oldLayer) oldLayer.remove();
 
+    document.body.insertAdjacentHTML('afterbegin', `
+    <div id="blocker-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5, 44, 82, 0.98); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <div style="background:white; padding:30px; border-radius:20px; color:#333; width:90%; max-width:340px; box-sizing:border-box; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: auto;">
+            <div style="font-size:40px; margin-bottom:10px;">⏳</div>
+            <h2 style="color:#e74c3c; margin:0 0 5px 0; font-family:sans-serif; font-weight:800;">TRIAL FINALIZADO</h2>
+            <p style="font-size:13px; color:#666; margin-bottom:20px;">Adquiera la Suscripción Anual para seguir trabajando.</p>
+            
+            <div style="background:#f8f9fa; padding:20px; border-radius:15px; border:1px solid #eee; margin-bottom:20px;">
+                <p style="font-size:24px; font-weight:900; margin:0; color:#052c52;">${LICENCIA.PRECIO}</p>
+                <p style="font-size:10px; color:#999; text-transform:uppercase; letter-spacing:1px; margin-top:2px;">Acceso Total / 1 Año</p>
+                <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+                <p style="font-size:11px; margin-bottom:12px; color:#555;">ID EQUIPO: <b style="color:#3498db; font-size:13px;">${id}</b></p>
+                
+                <button onclick="window.open('https://wa.me/${LICENCIA.WA_NUM}?text=Hola Byron, soy ${nombre}. Solicito activar mi licencia RMR Pro ID: ${id}')" 
+                    style="width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:10px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    Solicitar por WhatsApp
+                </button>
+            </div>
+            
+            <button onclick="inputClave('${id}')" style="background:none; border:none; color:#3498db; font-size:12px; font-weight:600; text-decoration:underline; cursor:pointer;">Ya tengo mi clave de activación</button>
+        </div>
+    </div>`);
+    document.body.style.overflow = "hidden";
+}
 function inputClave(id) {
     const k = prompt("Ingrese su Clave de Activación Pro:");
     if (parseInt(k) === (parseInt(id) + LICENCIA.SEMILLA) * 3) {

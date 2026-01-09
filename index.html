@@ -51,40 +51,18 @@ html, body {
 }
 
 /* GRID DINÁMICO */
-.grid-main { 
+.grid-main {  
     display: grid; 
-    grid-template-columns: 1fr; 
-    gap: 8px; 
+    /* La magia está aquí: minmax define el ancho mínimo de cada tarjeta */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    gap: 12px; 
     padding: 10px; 
     width: 100%;
 }
 
-/* 1. BASE: CELULAR (Menos de 600px) */
-.full-row { grid-column: 1; }
-
-/* 2. TABLET VERTICAL (600px a 999px) */
-@media (min-width: 600px) {
-    .grid-main { 
-        grid-template-columns: 1fr 1fr; 
-        gap: 12px;
-    }
-    .full-row { grid-column: span 2; }
-    #rmr-master-suite { border-radius: 12px; margin: 20px auto; }
-}
-
-/* 3. TABLET HORIZONTAL / PC (1000px en adelante) */
-@media (min-width: 1000px) {
-    .grid-main { 
-        grid-template-columns: 1fr 1fr 1fr; 
-    }
-    .full-row { grid-column: span 3; }
-}
-
-/* 4. AJUSTES DE FLEXIBILIDAD */
-@media (max-width: 850px) {
-    div[style*="display:flex"] { flex-wrap: wrap !important; }
-    .geo-card { min-height: auto; }
-    #rmr-master-suite { margin: 0; border-radius: 0; border: none; }
+/* Las filas que deben ser siempre anchas (Reporte, Botones de control) */
+.full-row { 
+    grid-column: 1 / -1; 
 }
 
 /* --- ESTÉTICA DE COMPONENTES --- */
@@ -1121,7 +1099,9 @@ function iniciarLecturaEstable(inDip, inDipDir) {
             // Inyectamos datos finales
             inDip.value = Math.round(finalD);
             inDipDir.value = Math.round(finalDD);
-            
+            // --- AGREGAR ESTO: RESTAURAR PLACEHOLDERS ---
+    		inDip.placeholder = "0-90°";
+   			inDipDir.placeholder = "0-360°";
             // Estilos de confirmación
             [inDip, inDipDir].forEach(el => {
                 el.style.backgroundColor = "#c8e6c9"; 
@@ -1720,6 +1700,12 @@ function procesarFotoSilenciosa(input) {
 function nuevaEstacion() {
     if (!confirm("¿Deseas limpiar el formulario para iniciar una nueva estación? (Los datos guardados en el consolidado no se borrarán)")) return;
 
+    // --- INJERTO 1: APAGAR EL SENSOR INMEDIATAMENTE ---
+    if (typeof procesarMovimientoGlobal !== 'undefined' && procesarMovimientoGlobal) {
+        window.removeEventListener('deviceorientation', procesarMovimientoGlobal, true);
+        procesarMovimientoGlobal = null;
+    }
+
     // 1. Limpiar inputs básicos
     document.getElementById('est_id').value = "";
     document.getElementById('coord_e').value = "";
@@ -1732,16 +1718,34 @@ function nuevaEstacion() {
     // 2. Resetear Juntas: Eliminar todas las extras y resetear la primera
     const todasLasJuntas = document.querySelectorAll('.junta-card');
     todasLasJuntas.forEach((j, index) => {
-        if (index > 0) j.remove(); // Borra las adicionales
+        if (index > 0) j.remove(); 
     });
     
     // Resetear valores de la Junta #1
     sysCount = 1;
     const j1 = document.querySelector('.junta-card');
-    j1.querySelector('.j-dip').value = "";
-    j1.querySelector('.j-dipdir').value = "";
-    j1.querySelectorAll('.j-calc').forEach(sel => sel.selectedIndex = 0);
     
+    // DEFINIMOS CORRECTAMENTE LAS VARIABLES PARA QUE EL CÓDIGO NO SE ROMPA
+    const inputDip = j1.querySelector('.j-dip');
+    const inputDir = j1.querySelector('.j-dipdir');
+
+    // --- LIMPIEZA PROFUNDA Y RESTAURACIÓN DE PLACEHOLDERS ---
+    if (inputDip) {
+        inputDip.value = "";
+        // Usamos código hexadecimal universal para el símbolo de grado
+        inputDip.placeholder = "0-90\u00B0"; 
+        inputDip.style.backgroundColor = "#ffffff";
+    }
+
+    if (inputDir) {
+        inputDir.value = "";
+        inputDir.placeholder = "0-360\u00B0"; 
+        inputDir.style.backgroundColor = "#ffffff";
+    }
+
+    // Resetear los selectores de la junta
+    j1.querySelectorAll('.j-calc').forEach(sel => sel.selectedIndex = 0);
+
     // 3. Resetear Sensores y Resultados
     runRmr();
     volverAFase1();

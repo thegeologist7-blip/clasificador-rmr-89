@@ -1,4 +1,4 @@
-const cacheName = 'rmr-v9.5'; // Cambia el número cada vez que actualices tu App
+const cacheName = 'rmr-v9.6'; // Cambia el número cada vez que actualices tu App
 const staticAssets = [
   './',
   './index.html',
@@ -33,3 +33,4 @@ self.addEventListener('fetch', e => {
     })
   );
 });
+

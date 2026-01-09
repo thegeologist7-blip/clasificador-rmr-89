@@ -1,3 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+	<link rel="apple-touch-icon" href="icon-512.png">
+    <meta name="theme-color" content="#052c52">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">	
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="screen-orientation" content="any">	
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Clasificador RMR 89</title>
+    <style>
+/* 1. RESETEO Y FUENTE GLOBAL */
+#rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    height: 100%;
+    overscroll-behavior: none; 
+    background: #f4f7f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 2. AJUSTE DEL CONTENEDOR (BASE PARA MÓVIL) */
+/* Se cambia FLEX por BLOCK para que el iPhone no comprima las cajas verticalmente */
+#rmr-master-suite {
+    background: #f4f7f9; 
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100%;
+    border-radius: 0 !important;
+    border: none !important;
+    min-height: 100vh;
+    overflow-x: hidden; 
+    display: block; /* Cambiado de flex a block para permitir scroll natural */
+}
+
+/* 3. AJUSTE PARA TABLET HORIZONTAL / PC */
+@media (min-width: 1000px) {
+    #rmr-master-suite {
+        margin: 0 !important;
+        max-width: 100% !important; 
+        border-radius: 0 !important;
+        border: none !important;
+        min-height: 100vh;
+    }
+}
+
+/* GRID DINÁMICO */
+.grid-main { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 8px; 
+    padding: 10px; 
+    width: 100%;
+}
+
+/* 1. BASE: CELULAR (Menos de 600px) */
+.full-row { grid-column: 1; }
+
+/* 2. TABLET VERTICAL (600px a 999px) */
+@media (min-width: 600px) {
+    .grid-main { 
+        grid-template-columns: 1fr 1fr; 
+        gap: 12px;
+    }
+    .full-row { grid-column: span 2; }
+    #rmr-master-suite { border-radius: 12px; margin: 20px auto; }
+}
+
+/* 3. TABLET HORIZONTAL / PC (1000px en adelante) */
+@media (min-width: 1000px) {
+    .grid-main { 
+        grid-template-columns: 1fr 1fr 1fr; 
+    }
+    .full-row { grid-column: span 3; }
+}
+
+/* 4. AJUSTES DE FLEXIBILIDAD */
+@media (max-width: 850px) {
+    div[style*="display:flex"] { flex-wrap: wrap !important; }
+    .geo-card { min-height: auto; }
+    #rmr-master-suite { margin: 0; border-radius: 0; border: none; }
+}
+
+/* --- ESTÉTICA DE COMPONENTES --- */
+.geo-card {
+    background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e1e8ed;
+    min-height: 255px; display: flex; flex-direction: column; position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.lbl-compact { font-size: 8.5px; color: #1a5276; font-weight: 800; min-width: 55px; text-align: right; text-transform: uppercase; margin-right: 5px; }
+
+.in-field { flex: 1; width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; outline: none; height: 30px; }
+
+.input-label { font-size: 8px; color: #1a5276; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
+
+.res-val-matrix { 
+    background: #f8fbfe; border: 1px solid #eee; padding: 4px 6px; 
+    border-radius: 4px; border-left: 3.5px solid #052c52; 
+    display: flex; justify-content: space-between; align-items: center; 
+    height: 30px; min-width: 80px;
+}
+
+.res-val-matrix b { font-size: 10px; color: #333; }
+.res-unit-tag { color: #64748b; font-size: 8px; font-weight: 400; margin-left: 2px; }
+
+.score-anchor { text-align: right; color: #27ae60; font-size: 10px; font-weight: 900; padding-right: 2px; margin-bottom: 2px; text-transform: uppercase; }
+.guide-text { font-size: 8.5px; color: #7f8c8d; font-style: italic; margin-bottom: 6px; line-height: 1.2; display: block; }
+.hidden { display: none; }
+.method-slot { min-height: 95px; margin-top: 5px; }
+.note { font-size: 8.5px; color: #566573; border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: auto; }
+
+.btn-add-system {
+    background: #052c52; color: white; border: none; padding: 10px;
+    border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+
+.btn-gps-tactil {
+    flex: 0 0 38px; height: 30px; background: #ffffff; color: #1a5276; 
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 2px solid #cbd5e1; border-radius: 6px;
+    box-shadow: 0 2px 0 #cbd5e1; transition: all 0.1s; position: relative; top: 0;
+}
+.btn-gps-tactil:active { top: 2px; box-shadow: 0 0px 0 #cbd5e1; }
+
+.btn-gyro {
+    height: 28px; width: 38px; background: #fffef0; 
+    border: 2px solid #f1c40f; color: #856404; 
+    border-radius: 6px; font-size: 14px; cursor: pointer;
+    box-shadow: 0 2px 0 #f1c40f; transition: 0.1s;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-gyro:active { transform: translateY(2px); box-shadow: 0 0 0; }
+
+.v-box {
+    background: #e67e22; color: white; font-size: 9px; 
+    font-weight: 800; padding: 5px 8px; border-radius: 3px;
+    white-space: nowrap; line-height: 1;
+}
+
+.copy-txt { font-size: 8px; opacity: 0.6; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.geo-card h4 {
+    background: #f1f5f9 !important;
+    margin: -10px -12px 10px -12px !important; 
+    padding: 0 15px;
+    border-radius: 0;
+    border-bottom: 3px solid #3498db;
+    color: #052c52;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 800;
+    font-size: 11px;
+    display: flex;       
+    align-items: center; 
+    width: calc(100% + 24px); 
+    height: 32px;
+    flex: none;   
+}  
+    .schmidt-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 3px;
+    margin: 6px 0 10px 0; /* Menos margen superior */
+}
+
+.btn-schmidt {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 4px 0; /* Altura reducida al mínimo funcional */
+    border-radius: 4px; /* Bordes un poco más rectos para verse técnico */
+    cursor: pointer;
+    transition: all 0.15s ease;
+    height: 28px; /* Altura fija para que todos sean simétricos */
+}
+
+.sch-icon {
+    font-size: 13px; /* Flecha fina */
+    font-weight: 600;
+    margin-right: 2px;
+}
+
+.sch-deg {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: -0.5px; /* Compacta el texto */
+}
+
+.btn-schmidt-active {
+    background: #052c52 !important;
+    color: #ffffff !important;
+    border-color: #052c52 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+</style>
+ 	
+</head>
+<body>
+
+<div id="rmr-master-suite">
+    <div style="background: #052c52; padding: 18px 20px; color: white; border-bottom: 4px solid #3498db; display: flex; justify-content: space-between; align-items: center;">
+        
+        <div style="display: flex; flex-direction: column;">
+            <h1 style="margin:0; font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #ffffff;">
+                CLASIFICADOR RMR <span style="color: #3498db;"><i><b>89</b></i></span>
+            </h1>
+            <p style="margin: 4px 0 0; font-size: 10px; opacity: 0.9; text-transform: uppercase; font-weight: 600;">
+                Método Geomecánico de Bieniawski
+            </p>
+            <div class="copy-txt" style="font-size: 7px; opacity: 0.8; margin-top: 2px;">
+                © 2026 Byron Bravo • Todos los derechos reservados
+            </div>
+            <p style="margin: 6px 0 0; font-size: 7px; line-height: 1.2; color: #bdc3c7; text-align: justify; font-style: italic; opacity: 0.7; max-width: 400px;">
+                <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
+            </p>
+        </div>
+
+        <div class="v-box">
+            v9.8 PRO
+        </div>
+    </div>
+
+    <div class="grid-main" id="main-container">
+    <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
+        📋 1. DATOS E INFORMACIÓN GENERAL
+    </h4>
+    
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display:flex; gap:6px;">
+                <div style="flex:1.8;"><div class="input-label">TÉCNICO RESPONSABLE</div><input type="text" id="est_tec" class="in-field"></div>
+                <div style="flex:1;"><div class="input-label">FECHA</div><input type="date" id="est_fecha" class="in-field"></div>
+        </div>
+
+        <div style="width:100%;"><div class="input-label">PROYECTO / OBRA</div><input type="text" id="proy_nom" class="in-field"></div>
+
+        <div style="display:flex; gap:6px;">
+            <div style="flex: 1.2;">
+    <div class="input-label">FRENTE:</div>
+    <select id="escenario" onchange="updateEscenario(); runRmr();" class="in-field" 
+            style="font-weight: 800; color: #3498db; font-size: 10px; height: 26px; text-align: center; text-align-last: center; padding: 0;">
+        <option value="tunel">TÚNEL / GALERÍA</option>
+        <option value="talud">TALUD / MACIZO</option>
+    </select>
+            </div>
+            <div style="flex: 0.9;">
+                <div class="input-label" id="lbl_dip">AZIMUT EJE</div>
+                <input type="number" id="eje_dip" class="in-field" placeholder="°" oninput="if(this.value>360)this.value=360; if(this.value<0)this.value=0;">
+            </div>
+            <div style="flex: 1;">
+                <div class="input-label" id="lbl_dir">DIR. AVANCE</div>
+                <input type="text" id="eje_dir" class="in-field" placeholder="">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:6px; align-items: flex-end;">
+            <div style="flex:1;">
+                <div class="input-label" style="font-size: 7px;">COORD X (E)</div>
+        <input type="number" id="coord_e" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+    </div>
+    <div style="flex:1;">
+        <div class="input-label" style="font-size: 7px;">COORD Y (N)</div>
+        <input type="number" id="coord_n" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+    </div>
+    <div style="flex:0.7;">
+        <div class="input-label" style="font-size: 7px;">ALT (Z)</div>
+        <input type="number" id="coord_z" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+    </div>
+            <button onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS">⌖</button>
+        </div>
+        <div id="gps_info" style="font-size: 7px; color: #94a3b8; text-align: right; margin-top: -4px; font-style: italic; min-height: 8px;"></div>
+
+        <div style="display:flex; gap:6px;">
+            <div style="flex:1;">
+                <div class="input-label">EST. GEOMECÁNICA</div>
+                <input type="text" id="est_id" class="in-field" style="border-color:#e67e22; font-weight:bold; font-size: 11px;" placeholder="ID Obligatorio">
+            </div>
+            <div style="flex:1;">
+                <div class="input-label">SECTOR</div>
+                <input type="text" id="loc_sector" class="in-field">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:6px;">
+            <div style="flex:1;">
+                <div class="input-label" id="lbl_ubi_tec">NIVEL</div>
+                <input type="text" id="ubi_val" class="in-field">
+            </div>
+            <div style="flex:1;">
+                <div class="input-label">DESDE (m)</div>
+                <input type="number" id="abs_desde" class="in-field" step="0.01">
+            </div>
+            <div style="flex:1;">
+                <div class="input-label">HASTA (m)</div>
+                <input type="number" id="abs_hasta" class="in-field" step="0.01">
+            </div>
+        </div>
+
+        <div style="margin-top: 10px; display: flex; gap: 4px;">
+            <input type="file" id="foto_input" accept="image/*" capture="environment" style="display: none;" onchange="procesarFotoSilenciosa(this)">
+            
+            <button onclick="document.getElementById('foto_input').click()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px 2px 2px 6px; padding: 12px; font-weight: 800; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 3px 0 #1e8449; transition: 0.1s;" onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 1px 0 #1e8449'" onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 #1e8449'">
+                📷 REGISTRO FOTOGRÁFICO
+            </button>
+            
+            <button onclick="document.getElementById('foto_input').click()" style="width: 45px; background: #2ecc71; color: white; border: none; border-radius: 2px 6px 6px 2px; font-weight: 900; cursor: pointer; font-size: 18px; box-shadow: 0 3px 0 #27ae60; display: flex; align-items: center; justify-content: center;" title="Añadir otra foto">
+                +
+            </button>
+            <canvas id="canvas_foto" style="display: none;"></canvas>
+        </div>
+    </div>
+</div>
+
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
+        🔨 2. RESISTENCIA DE LA ROCA (UCS)
+    </h4>
+
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div class="input-label">MÉTODO DE ESTIMACIÓN</div>
+        <select id="m_res" onchange="toggleRes()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52; height: 30px;">
+            <option value="sch">Uso del Esclerómetro (Schmidt)</option>
+            <option value="vis">Estimación Visual/Manual (ISRM)</option>
+        </select>
+                <div class="method-slot">
+                    <div id="ui_vis" class="hidden">
+                        <div class="input-label">RESISTENCIA EN CAMPO</div>
+                        <select id="valVis" onchange="runRmr()" class="in-field">
+                            <option value="15">R6: >250 MPa (Extremadamente Fuerte)</option>
+                            <option value="12">R5: 100-250 MPa (Muy Fuerte)</option>
+                            <option value="7">R4: 50-100 MPa (Fuerte)</option>
+                            <option value="4">R3: 25-50 MPa (Moderadamente Fuerte)</option>
+                            <option value="2">R2: 5-25 MPa (Débil)</option>
+                            <option value="1">R1: 1-5 MPa (Muy Débil)</option>
+                        </select>
+                        <div class="input-label" style="margin-top:12px; border-bottom: 1px solid #eee;">IDENTIFICACIÓN MANUAL (ISRM, 1981)</div>
+                        <span class="guide-text" style="margin-top: 5px; display: block; font-size: 9px; line-height: 1.5;">
+                            <b>R6-R5:</b> Solo se astilla con golpes de martillo geológico.<br>
+                            <b>R4:</b> Se rompe con más de un golpe firme de martillo.<br>
+                            <b>R3:</b> Se rompe con un solo golpe firme. Se raya con navaja.<br>
+                            <b>R2:</b> Se rompe con golpe leve. Se raya fácilmente con navaja.<br>
+                            <b>R1-R0:</b> Se desmorona con el martillo. Se raya con la uña.
+                        </span>
+                        <div style="display:flex; justify-content:flex-end; margin-top:15px;">
+                            <div style="display:flex; align-items:center;">
+                                <span class="input-label" style="margin-right:5px; margin-bottom:0;">UCS EST.</span>
+                                <div id="out_vis_ucs" class="res-val-matrix"><b>-</b><span class="res-unit-tag">MPa</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ui_sch" style="margin-top: 10px;">
+    <div class="input-label">REBOTES R</div>
+    <span class="guide-text" style="font-size: 9px; line-height: 1.1; margin-bottom: 4px;">
+        Se deben tomar 10 medidas. Seleccione la orientación del ensayo para corregir el rebote.
+    </span>
+
+    <div class="schmidt-container">
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(90, this)">
+        <span class="sch-icon">↑</span><span class="sch-deg">+90°</span>
+    </button>
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(45, this)">
+        <span class="sch-icon">↗</span><span class="sch-deg">+45°</span>
+    </button>
+    <button type="button" class="btn-schmidt btn-schmidt-active" onclick="setSchmidtAngle(0, this)">
+        <span class="sch-icon">→</span><span class="sch-deg">0°</span>
+    </button>
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-45, this)">
+        <span class="sch-icon">↘</span><span class="sch-deg">-45°</span>
+    </button>
+    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-90, this)">
+        <span class="sch-icon">↓</span><span class="sch-deg">-90°</span>
+    </button>
+</div>
+    <input type="hidden" id="selected_angle" value="0">
+
+    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:4px; margin: 8px 0;">
+        <input type="number" id="r1" class="in-field" placeholder="1" oninput="runRmr()">
+        <input type="number" id="r2" class="in-field" placeholder="2" oninput="runRmr()">
+        <input type="number" id="r3" class="in-field" placeholder="3" oninput="runRmr()">
+        <input type="number" id="r4" class="in-field" placeholder="4" oninput="runRmr()">
+        <input type="number" id="r5" class="in-field" placeholder="5" oninput="runRmr()">
+        <input type="number" id="r6" class="in-field" placeholder="6" oninput="runRmr()">
+        <input type="number" id="r7" class="in-field" placeholder="7" oninput="runRmr()">
+        <input type="number" id="r8" class="in-field" placeholder="8" oninput="runRmr()">
+        <input type="number" id="r9" class="in-field" placeholder="9" oninput="runRmr()">
+        <input type="number" id="r10" class="in-field" placeholder="10" oninput="runRmr()">
+    </div>
+    
+                        <div style="display:flex; gap:5px; margin-bottom:8px;">
+                            <div style="flex:1;">
+                                <div class="input-label" style="font-size:7px;">GRUPO</div>
+                                <select id="grupoRoca" onchange="updateLitologia()" class="in-field">
+                                    <option value="ignea">Ígnea</option>
+                                    <option value="metamorfica">Metamórfica</option>
+                                    <option value="sedimentaria">Sedimentaria</option>
+                                </select>
+                            </div>
+                            <div style="flex:1.5;">
+                                <div class="input-label" style="font-size:7px;">LITOLOGÍA / DENSIDAD</div>
+                                <select id="tipoRoca" onchange="runRmr()" class="in-field"></select>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:5px;">
+                            <div style="display:flex; align-items:center;"><span class="input-label" style="margin-right:3px; margin-bottom:0;">R. PROM</span><div id="out_sch_r" class="res-val-matrix"><b>-</b></div></div>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end;">
+                            <div style="display:flex; align-items:center;"><span class="input-label" style="margin-right:3px; margin-bottom:0;">UCS EST.</span><div id="out_sch_ucs" class="res-val-matrix"><b>-</b><span class="res-unit-tag">MPa</span></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="score_p1" class="score-anchor">PTS: 0</div>
+            <div class="note"><b>Ref:</b> Estimación mediante Deere & Miller (1966) / ISRM.</div>
+        </div>
+
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+        ✔️ 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)
+    </h4>
+    
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div class="input-label" style="margin-top: 0;">MÉTODO</div>
+        <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52;">
+            <option value="deere">Estimación Visual (Deere 1989)</option>
+            <option value="pal">Ecuación de Palmström (Jv)</option>
+        </select>
+
+        <div class="method-slot">
+            <div id="ui_deere">
+                <div class="input-label">Fracturamiento</div>
+                <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
+                El RQD se estima visualmente en función del grado de fracturamiento observable en el afloramiento.</span>
+                <select id="valDeere" onchange="runRmr()" class="in-field">
+                    <option value="20">Muy Macizo (> 2.0 m)</option>
+                    <option value="17">Levemente Fracturado (0.6 - 2.0 m)</option>
+                    <option value="13">Moderadamente Fracturado (0.2 - 0.6 m)</option>
+                    <option value="8">Muy Fracturado (0.06 - 0.2 m)</option>
+                    <option value="3">Triturado / Suelo (< 0.06 m)</option>
+                </select>
+            </div>
+            <div id="ui_pal" class="hidden">
+                <div class="input-label">Jv (Palmström)</div>
+                <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px;">
+                El Jv es el número de juntas por metro. Macizos con Jv < 1 tienen RQD cercanos al 100%.</span>
+                <input type="number" id="valJv" oninput="runRmr()" class="in-field" placeholder="Juntas/m³">
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+            <div style="display:flex; align-items:center;">
+                <span class="input-label" style="margin-right:5px; margin-bottom:0;">RQD EST.</span>
+                <div id="out_rqd" class="res-val-matrix"><b>-</b><span class="res-unit-tag">%</span></div>
+            </div>
+        </div>
+
+        <div id="score_p2" class="score-anchor" style="color:#3498db; margin-top: 5px;">PTS: 0</div>
+    </div>
+
+    <div class="note" style="margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f5f9; font-size: 8.5px; color: #94a3b8; line-height: 1.1; text-align: justify;">
+        <b>RMR-2:</b> El RQD define la competencia de la roca y es el indicador crítico para la estimación inicial del sostenimiento y el tiempo de autosoporte.
+    </div>
+</div>
+
+        <div class="geo-card junta-card" style="border-left: 4px solid #27ae60; display: flex; flex-direction: column; min-height: 100%; padding: 10px 12px; overflow: hidden;">
+        <h4 class="j-title" style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+        ▤ JUNTA #1
+    </h4>
+
+    <div style="margin-top: 10px;"> 
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
+    <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
+    <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP:</span>
+    <input type="tel" 
+           placeholder="0-90°" 
+           class="in-field j-dip" 
+           style="height:24px; max-width: 80px;" 
+           oninput="validarAngular(this, 90)">
+</div>
+
+<div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
+    <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP DIR:</span>
+    <input type="tel" 
+           placeholder="0-360°" 
+           class="in-field j-dipdir" 
+           style="height:24px; max-width: 80px;" 
+           oninput="validarAngular(this, 360)">
+</div>
+
+    <button onclick="capturarGiroscopio(this)" class="btn-gyro">🧭</button>
+				</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                    <div><span class="input-label" style="font-size: 8px;">Espaciamiento</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="20">>2m</option>
+            <option value="15">0.6-2m</option>
+            <option value="10">200-600mm</option>
+            <option value="8">60-200mm</option>
+            <option value="5">&lt;60mm</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Persistencia</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">&lt;1m</option>
+            <option value="4">1-3m</option>
+            <option value="2">3-10m</option>
+            <option value="1">10-20m</option>
+            <option value="0">>20m</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Apertura</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Ninguno</option>
+            <option value="4">0.1-1mm</option>
+            <option value="1">1-5mm</option>
+            <option value="0">>5mm</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Rugosidad</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Muy Rugosa</option>
+            <option value="5">Rugosa</option>
+            <option value="1">Lisa</option>
+            <option value="0">Espejo</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Relleno</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Ninguno</option>
+            <option value="4">Duro &lt;5mm</option>
+            <option value="0">Blando >5mm</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Alteración</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Sana</option>
+            <option value="3">Mod. Meteorizada</option>
+            <option value="0">Descompuesta</option>
+        </select>
+    </div>
+
+            </div>
+            <div style="flex-grow: 1;">
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+            <span class="btn-del-junta" style="display:none; color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
+            <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important; text-align: right;">J1: 35 PTS</div>
+        </div>
+    </div>
+
+    <div class="note" style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 6px; font-size: 8.5px; color: #94a3b8; line-height: 1.2; text-align: justify;">
+        <b>RMR-3/4:</b> Apoye el dispositivo sobre el plano y espere 5s a que los valores se estabilicen. Evite la cercanía de elementos metálicos que alteren el sensor magnético.
+    </div>
+
+        </div>
+
+ <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden;">
+    
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+        💧 5. CONDICIÓN HIDROGEOLÓGICA
+    </h4>
+
+    <p style="margin: 8px 0; font-size: 10px; line-height: 1.2; color: #7f8c8d; font-style: italic;">
+        Observe la presencia de humedad, goteo o flujo constante en las juntas y macizo para calificar la filtración.
+    </p>
+
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 175px; flex: none; font-size: 11px; height: 26px; font-weight: bold; color: #052c52;">
+            <option value="15">Seco (Sin humedad)</option>
+            <option value="10">Húmedo (Sin goteo)</option>
+            <option value="7">Mojado (Goteo)</option>
+            <option value="0">Fluyendo (Chorro)</option>
+        </select>
+        
+        <div id="score_p5" class="score-anchor" style="margin:0; font-size: 11px; font-weight: 900; color: #27ae60;">
+            PTS: 15
+        </div>
+    </div>
+
+    <div style="margin-top: 6px; border-top: 1px solid #f1f5f9; padding-top: 4px; font-size: 9px; line-height: 1.2; color: #94a3b8;">
+        <b>RMR-5:</b> Infiltración por cada 10m de avance: Seco (0 L/min), Húmedo (<10 L/min), Mojado (10-25 L/min), Fluyente (>125 L/min).
+    </div>
+</div>
+        <div id="controles-fase1" class="full-row" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
+            <button class="btn-add-system" onclick="addSystem()" style="width: 125px; height: 35px; font-size: 10px; margin: 0;">+ AÑADIR JUNTA</button>
+            <button onclick="irAFase2()" style="width: 125px; height: 35px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 10px; cursor: pointer; text-transform: uppercase;">SIGUIENTE >></button>
+        </div>
+    </div> <div id="fase2-container" style="display: none; padding: 12px; background: #ebf2f7;">
+        <div id="reporte-card" class="geo-card full-row" style="border-top: 5px solid #27ae60; min-height: auto; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h4 style="margin: 0 0 15px; color: #052c52; font-size: 13px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px;">📊 REPORTE TÉCNICO GEOMECÁNICO RMR</h4>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                <div style="flex: 1.2; min-width: 280px;">
+                    <div style="background: #052c52; padding: 20px; border-radius: 8px; color: white; text-align: center; margin-bottom: 12px;">
+                        <div class="input-label" style="color: #3498db; font-size: 8px; margin-bottom: 2px;">RMR CORREGIDO (BIENIAWSKI 89)</div>
+                        <div id="res_rmr_final" style="font-size: 48px; font-weight: 900; color: #fff; line-height: 1;">0</div>
+                        <div id="res_clase_tag" style="font-size: 10px; font-weight: 800; background: #27ae60; border-radius: 4px; padding: 4px 8px; display: inline-block; margin-top: 8px; white-space: nowrap;">CLASE: -</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                        <div style="background: #fff; padding: 10px 5px; border-radius: 6px; border: 1px solid #e1e8ed; text-align: center;">
+                            <div class="input-label" style="font-size: 6.5px; margin-bottom: 4px;">COHESIÓN (c)</div>
+                            <div id="res_cohesion" style="font-size: 12px; font-weight: 800; color: #333;">-</div>
+                        </div>
+                        <div style="background: #fff; padding: 10px 5px; border-radius: 6px; border: 1px solid #e1e8ed; text-align: center;">
+                            <div class="input-label" style="font-size: 6.5px; margin-bottom: 4px;">FRICCIÓN (φ)</div>
+                            <div id="res_friccion" style="font-size: 12px; font-weight: 800; color: #333;">-</div>
+                        </div>
+                        <div style="grid-column: span 2; background: #f0f7ff; padding: 10px 5px; border-radius: 6px; border: 1px solid #d1d9e0; text-align: center;">
+                            <div class="input-label" style="font-size: 7px; margin-bottom: 2px; color: #1a5276;">MÓDULO DE DEFORMACIÓN (Em)</div>
+                            <div id="res_modulo_e" style="font-size: 14px; font-weight: 900; color: #052c52;">-</div>
+                            <div style="font-size: 6px; color: #64748b; margin-top: 2px;">GPa (Serafim & Pereira)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 8px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #d1d9e0;">
+                        <div style="flex: 1; text-align: center;">
+                            <div class="input-label" style="font-size: 7px; color: #64748b;">RMR BÁSICO</div>
+                            <div id="res_rmr_base" style="font-size: 18px; font-weight: 800; color: #1a5276;">0</div>
+                        </div>
+                        <div style="width: 1px; background: #eee;"></div>
+                        <div style="flex: 1; text-align: center;">
+                            <div class="input-label" style="font-size: 7px; color: #c0392b;">AJUSTE (P6)</div>
+                            <div id="res_ajuste" style="font-size: 18px; font-weight: 800; color: #c0392b;">0</div>
+                        </div>
+                    </div>
+                    <div id="bloque_dinamico" style="background: #f8fbfe; padding: 12px; border-radius: 8px; border: 1px solid #e1e8ed; flex-grow: 1; font-size: 10px; color: #333; line-height: 1.4;"></div>
+                    <div style="background: #fffbe6; padding: 10px; border-radius: 6px; border: 1px solid #ffe58f;">
+                        <div class="input-label" style="color: #856404; font-size: 8px; margin-bottom: 4px;">🔍 ANÁLISIS ESTRUCTURAL COMPARATIVO</div>
+                        <div id="res_peor_junta" style="font-size: 9.5px; font-weight: 600; color: #555; line-height: 1.3;"></div>
+                    </div>
+                    <div style="background: #fff; padding: 8px 4px; border-radius: 6px; border: 1px solid #e1e8ed; text-align: center;">
+                        <div class="input-label" style="font-size: 6.5px; margin-bottom: 4px;">MANTENIMIENTO / STAND-UP TIME</div>
+                        <div id="res_tiempo" style="font-size: 9px; font-weight: 800; color: #333; line-height: 1;">-</div>
+                    </div>
+                </div>
+            </div>
+			<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+    
+    <div style="display: flex; gap: 8px;">
+        <button onclick="registrarFichaActual(false)" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
+        
+        <button onclick="nuevaEstacion()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">➕ NUEVA ESTACIÓN</button>
+    </div>
+
+    <button onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📥 EXPORTAR EXCEL (0 FICHAS)</button>
+    
+    <button onclick="volverAFase1()" style="width: 100%; background: #64748b; color: white; border: none; border-radius: 6px; padding: 10px; font-size: 9px; cursor: pointer; text-transform: uppercase;">« EDITAR DATOS DE ESTACIÓN</button>
+</div>
+        </div>
+    </div>
+</div>
+
+<script>
+  // --- CONFIGURACIÓN DE NEGOCIO ---
+const LICENCIA = {
+    DIAS_TRIAL: 5,
+    MAX_FICHAS: 5,
+    PRECIO: "8.90 USD",
+    WA_NUM: "593979731299", // Pon tu número aquí
+    REPOSICION: "6.8%",
+    SEMILLA: 2026
+};
+
+// 1. GENERAR ADN DE EQUIPO (ID ÚNICO)
+function obtenerIDHardware() {
+    if (localStorage.getItem('device_id')) return localStorage.getItem('device_id');
+    const adn = [navigator.userAgent.length, screen.height * screen.width, navigator.hardwareConcurrency || 2, new Date().getTimezoneOffset()].join("-");
+    let hash = 0;
+    for (let i = 0; i < adn.length; i++) { hash = ((hash << 5) - hash) + adn.charCodeAt(i); hash |= 0; }
+    const idFinal = Math.abs(hash % 8000) + 1000;
+    localStorage.setItem('device_id', idFinal);
+    return idFinal;
+}
+
+// 2. VERIFICAR ESTADO AL INICIAR
+function verificarAcceso() {
+    const activado = localStorage.getItem('rmr_pro_activated') === 'true';
+    if (activado) return;
+
+    const registrado = localStorage.getItem('rmr_user_name');
+    const id = obtenerIDHardware();
+
+    // Paso 3: Registro inicial
+    if (!registrado) {
+        bloquearPantallaRegistro(id);
+    } else {
+        // Paso 4: Verificar límites
+        const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start'));
+        const diasUso = (new Date().getTime() - fechaInicio) / (1000 * 60 * 60 * 24);
+        const fichasTotal = JSON.parse(localStorage.getItem('rmr_backup_geotecnia') || "[]").length;
+
+        if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
+            bloquearPantallaCompra(id, registrado);
+        }
+    }
+}
+
+// --- 3. UI DE REGISTRO INICIAL ---
+function bloquearPantallaRegistro(id) {
+    const oldLayer = document.getElementById('blocker-layer');
+    if(oldLayer) oldLayer.remove();
+
+    document.body.insertAdjacentHTML('afterbegin', `
+    <div id="blocker-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5, 44, 82, 0.98); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);">
+        <div style="background:white; padding:30px; border-radius:20px; color:#333; width:90%; max-width:340px; box-sizing:border-box; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: auto;">
+            <div style="font-size:40px; margin-bottom:10px;">🚀</div>
+            <h3 style="color:#052c52; margin:0 0 10px 0; font-family:sans-serif; font-weight:800;">ACTIVAR PRUEBA</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:20px; line-height:1.4;">Para acceder a todas las funciones del Clasificador geomecánico RMR89 registra tus datos, y obten una prueba gratuita.</p>
+            
+            <input type="text" id="reg_n" placeholder="Nombre completo" style="width:100%; padding:14px; margin-bottom:12px; border:1.5px solid #eee; border-radius:10px; font-size:16px; box-sizing:border-box; outline:none; -webkit-appearance:none;">
+            
+            <input type="email" id="reg_e" placeholder="Correo electrónico" style="width:100%; padding:14px; margin-bottom:20px; border:1.5px solid #eee; border-radius:10px; font-size:16px; box-sizing:border-box; outline:none; -webkit-appearance:none;">
+            
+            <button onclick="guardarUser()" style="width:100%; background:#27ae60; color:white; border:none; padding:16px; border-radius:12px; font-weight:800; cursor:pointer; font-size:15px; letter-spacing:0.5px; box-shadow: 0 4px 15px rgba(39,174,96,0.3);">EMPEZAR AHORA</button>
+            
+            <p style="font-size:10px; color:#aaa; margin-top:20px; text-transform:uppercase;">*Tienes la opción de generar 5 estaciones geomecánicas y puedes usarla durante 5 días sin restricciones</p>
+        </div>
+    </div>`);
+    document.body.style.overflow = "hidden"; // Bloquea scroll
+}
+
 function guardarUser() {
     const n = document.getElementById('reg_n').value.trim();
     const e = document.getElementById('reg_e').value.trim();
@@ -35,3 +776,993 @@ function guardarUser() {
         location.reload();
     }, 1200);
 }
+// --- 4. UI DE COMPRA FINAL ---
+function bloquearPantallaCompra(id, nombre) {
+    const oldLayer = document.getElementById('blocker-layer');
+    if(oldLayer) oldLayer.remove();
+
+    document.body.insertAdjacentHTML('afterbegin', `
+    <div id="blocker-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5, 44, 82, 0.98); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <div style="background:white; padding:30px; border-radius:20px; color:#333; width:90%; max-width:340px; box-sizing:border-box; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: auto;">
+            <div style="font-size:40px; margin-bottom:10px;">⏳</div>
+            <h2 style="color:#e74c3c; margin:0 0 5px 0; font-family:sans-serif; font-weight:800;">TRIAL FINALIZADO</h2>
+            <p style="font-size:13px; color:#666; margin-bottom:20px;">Adquiera la Suscripción Anual para seguir trabajando.</p>
+            
+            <div style="background:#f8f9fa; padding:20px; border-radius:15px; border:1px solid #eee; margin-bottom:20px;">
+                <p style="font-size:24px; font-weight:900; margin:0; color:#052c52;">${LICENCIA.PRECIO}</p>
+                <p style="font-size:10px; color:#999; text-transform:uppercase; letter-spacing:1px; margin-top:2px;">Acceso Total / 1 Año</p>
+                <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+                <p style="font-size:11px; margin-bottom:12px; color:#555;">ID EQUIPO: <b style="color:#3498db; font-size:13px;">${id}</b></p>
+                
+                <button onclick="window.open('https://wa.me/${LICENCIA.WA_NUM}?text=Hola Byron, soy ${nombre}. Solicito activar mi licencia RMR Pro ID: ${id}')" 
+                    style="width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:10px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    Solicitar por WhatsApp
+                </button>
+            </div>
+            
+            <button onclick="inputClave('${id}')" style="background:none; border:none; color:#3498db; font-size:12px; font-weight:600; text-decoration:underline; cursor:pointer;">Ya tengo mi clave de activación</button>
+        </div>
+    </div>`);
+    document.body.style.overflow = "hidden";
+}
+function inputClave(id) {
+    const k = prompt("Ingrese su Clave de Activación Pro:");
+    if (parseInt(k) === (parseInt(id) + LICENCIA.SEMILLA) * 3) {
+        localStorage.setItem('rmr_pro_activated', 'true');
+        alert("✅ ¡Activación Exitosa!");
+        location.reload();
+    } else if (k !== null) {
+        alert("❌ Clave incorrecta.");
+    }
+}
+    let sysCount = 1;
+
+    function toggleRes() {
+        let m = document.getElementById('m_res').value;
+        document.getElementById('ui_sch').classList.toggle('hidden', m !== 'sch');
+        document.getElementById('ui_vis').classList.toggle('hidden', m !== 'vis');
+        runRmr();
+    }
+
+    function toggleRqd() {
+        let m = document.getElementById('m_rqd').value;
+        document.getElementById('ui_deere').classList.toggle('hidden', m !== 'deere');
+        document.getElementById('ui_pal').classList.toggle('hidden', m !== 'pal');
+        runRmr();
+    }
+
+    function updateLitologia() {
+        const grupo = document.getElementById('grupoRoca').value;
+        const tipoSel = document.getElementById('tipoRoca');
+        const lit = {
+            ignea: [
+            {n:"Granito (2.65)", v:2.65},
+            {n:"Basalto (2.85)", v:2.85},
+            {n:"Andesita (2.60)", v:2.60},
+            {n:"Diorita (2.75)", v:2.75},
+            {n:"Riolita (2.50)", v:2.50},
+            {n:"Gabro (2.95)", v:2.95},
+            {n:"Sienita (2.70)", v:2.70},
+            {n:"Obsidiana (2.40)", v:2.40}
+        ],
+        metamorfica: [
+            {n:"Gneiss (2.70)", v:2.70},
+            {n:"Esquisto (2.60)", v:2.60},
+            {n:"Mármol (2.75)", v:2.75},
+            {n:"Cuarcita (2.65)", v:2.65},
+            {n:"Pizarra (2.75)", v:2.75},
+            {n:"Filita (2.70)", v:2.70}
+        ],
+        sedimentaria: [
+            {n:"Caliza (2.55)", v:2.55},
+            {n:"Arenisca (2.30)", v:2.30},
+            {n:"Lutita (2.40)", v:2.40},
+            {n:"Dolomía (2.80)", v:2.80},
+            {n:"Conglomerado (2.50)", v:2.50},
+            {n:"Brecha (2.45)", v:2.45}
+        ]
+    };
+        tipoSel.innerHTML = "";
+        lit[grupo].forEach(r => {
+            let opt = document.createElement('option'); opt.value = r.v; opt.innerText = r.n;
+            tipoSel.appendChild(opt);
+        });
+        runRmr();
+    }
+
+function addSystem() {
+    sysCount++;
+    const container = document.getElementById('main-container');
+    const nuevaJunta = document.createElement('div');
+    nuevaJunta.className = "geo-card junta-card";
+    nuevaJunta.style.borderLeft = "4px solid #27ae60";
+
+    nuevaJunta.innerHTML = `
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <h4 class="j-title" style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+            ▤ JUNTA #${sysCount}
+        </h4>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
+                <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
+                    <span class="input-label" style="margin-bottom: 0; white-space: nowrap;">DIP:</span>
+                    <input type="number" placeholder="0-90°" class="in-field j-dip" 
+                           style="height:24px; max-width: 80px;" 
+                           oninput="if(value>90)value=90; if(value<0)value=0; runRmr();">
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
+                    <span class="input-label" style="margin-bottom: 0; white-space: nowrap;">DIP DIR:</span>
+                    <input type="number" placeholder="0-360°" class="in-field j-dipdir" 
+                           style="height:24px; max-width: 80px;" 
+                           oninput="if(value>360)value=360; if(value<0)value=0; runRmr();">
+                </div>
+                <button onclick="capturarGiroscopio(this)" class="btn-gyro">🧭</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                    <div><span class="input-label" style="font-size: 8px;">Espaciamiento</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="20">>2m</option>
+            <option value="15">0.6-2m</option>
+            <option value="10">200-600mm</option>
+            <option value="8">60-200mm</option>
+            <option value="5">&lt;60mm</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Persistencia</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">&lt;1m</option>
+            <option value="4">1-3m</option>
+            <option value="2">3-10m</option>
+            <option value="1">10-20m</option>
+            <option value="0">>20m</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Apertura</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Ninguno</option>
+            <option value="4">0.1-1mm</option>
+            <option value="1">1-5mm</option>
+            <option value="0">>5mm</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Rugosidad</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Muy Rugosa</option>
+            <option value="5">Rugosa</option>
+            <option value="1">Lisa</option>
+            <option value="0">Espejo</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Relleno</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Ninguno</option>
+            <option value="4">Duro &lt;5mm</option>
+            <option value="0">Blando >5mm</option>
+        </select>
+    </div>
+    <div>
+        <span class="input-label" style="font-size: 8px;">Alteración</span>
+        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
+            <option value="6">Sana</option>
+            <option value="3">Mod. Meteorizada</option>
+            <option value="0">Descompuesta</option></select></div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+            <span onclick="this.parentElement.parentElement.remove(); calcJuntas();" style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
+            <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important;">J${sysCount}: 35 PTS</div>
+        </div>
+    `;
+
+    const bloqueAgua = document.getElementById('bloque-agua');
+    container.insertBefore(nuevaJunta, bloqueAgua);
+    calcJuntas();
+}
+function calcJuntas() {
+    // 1. Seleccionar todas las tarjetas de juntas que existen en el momento
+    const tarjetas = document.querySelectorAll('.junta-card');
+    let totalPuntosJuntas = 0;
+
+    tarjetas.forEach((tarjeta, index) => {
+        let sumaFila = 0;
+        // Buscamos todos los selectores de esa tarjeta específica
+        const selectores = tarjeta.querySelectorAll('.j-calc');
+        
+        selectores.forEach(sel => {
+            sumaFila += parseInt(sel.value) || 0;
+        });
+
+        // Actualizamos el texto de puntaje de ESA tarjeta
+        const txtPuntaje = tarjeta.querySelector('.j-score-text');
+        if (txtPuntaje) {
+            txtPuntaje.innerText = `J${index + 1}: ${sumaFila} PTS`;
+        }
+
+        // Para el RMR Final, normalmente se usa el valor de la junta más desfavorable
+        // o el promedio. Aquí acumularemos para que decidas cómo procesarlo.
+        totalPuntosJuntas += sumaFila; 
+    });
+
+    // 2. Llamamos al cálculo general del RMR
+    if (typeof runRmr === 'function') {
+        runRmr();
+    }
+}  
+function capturarGiroscopio(btn) {
+    const card = btn.closest('.junta-card');
+    if (!card) return;
+    const inDip = card.querySelector('.j-dip');
+    const inDipDir = card.querySelector('.j-dipdir');
+
+    // Feedback táctil inmediato para saber que el botón respondió
+    if (navigator.vibrate) navigator.vibrate(20);
+
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS 13+ requiere permiso explícito
+        DeviceOrientationEvent.requestPermission()
+            .then(response => {
+                if (response === 'granted') {
+                    iniciarLecturaEstable(inDip, inDipDir);
+                } else {
+                    alert("Permiso de sensores denegado.");
+                }
+            })
+            .catch(console.error);
+    } else {
+        // Android y navegadores de escritorio (Chrome/Firefox)
+        iniciarLecturaEstable(inDip, inDipDir);
+    }
+}
+
+function iniciarLecturaEstable(inDip, inDipDir) {
+    let muestras = [];
+    const tiempoInicio = Date.now();
+    const DURACION = 5000; // 5 segundos de toma de datos
+
+    [inDip, inDipDir].forEach(el => {
+        el.value = "";
+        el.placeholder = "Midiendo...";
+        el.style.backgroundColor = "#fff9c4"; // Amarillo
+    });
+
+    const procesarMovimiento = (e) => {
+    const ahora = Date.now();
+    
+    // 1. Convertimos los ángulos de Euler a Radianes
+    const alpha = e.alpha * (Math.PI / 180); // Azimut (Brújula)
+    const beta = e.beta * (Math.PI / 180);   // Inclinación X-Y
+    const gamma = e.gamma * (Math.PI / 180); // Inclinación lateral
+
+    // 2. CÁLCULO DEL DIP (Buzamiento 0-90°)
+    // Es el ángulo entre el plano del celular y el plano horizontal
+    let dipRad = Math.acos(Math.cos(beta) * Math.cos(gamma));
+    let dipGrados = dipRad * (180 / Math.PI);
+    
+    // Ajuste para asegurar que siempre sea entre 0 y 90
+    if (dipGrados > 90) dipGrados = 180 - dipGrados;
+
+    // 3. CÁLCULO DEL DIP DIRECTION (Azimut de la pendiente 0-360°)
+    // Calculamos el componente de la gravedad en el plano del dispositivo
+    // webkitCompassHeading nos da el Norte Magnético estable en grados
+    let heading = e.webkitCompassHeading || (360 - e.alpha);
+    
+    // Hallamos la dirección de la máxima pendiente relativa al eje del celular
+    let y_comp = -Math.sin(beta) * Math.cos(gamma);
+    let x_comp = -Math.sin(gamma);
+    let anguloRelativo = Math.atan2(x_comp, y_comp) * (180 / Math.PI);
+
+    // El Dip Direction real es el Azimut del móvil + la dirección de la pendiente
+    let dipDirFinal = (heading + anguloRelativo + 360) % 360;
+
+    if (dipGrados !== null && dipDirFinal !== null) {
+        muestras.push({ d: dipGrados, dd: dipDirFinal });
+    }
+
+    // Al finalizar los 5 segundos de promediado
+    if (ahora - tiempoInicio >= DURACION) {
+        window.removeEventListener('deviceorientation', procesarMovimiento, true);
+        
+        if (muestras.length > 0) {
+            // PROMEDIO VECTORIAL (Indispensable para Azimut)
+            let sS = 0, sC = 0, sumD = 0;
+            muestras.forEach(m => {
+                sS += Math.sin(m.dd * Math.PI / 180);
+                sC += Math.cos(m.dd * Math.PI / 180);
+                sumD += m.d;
+            });
+            
+            let finalDD = Math.atan2(sS, sC) * (180 / Math.PI);
+            if (finalDD < 0) finalDD += 360;
+            let finalD = sumD / muestras.length;
+
+            // Inyectamos datos finales
+            inDip.value = Math.round(finalD);
+            inDipDir.value = Math.round(finalDD);
+            
+            // Estilos de confirmación
+            [inDip, inDipDir].forEach(el => {
+                el.style.backgroundColor = "#c8e6c9"; 
+                setTimeout(() => { el.style.backgroundColor = "#ffffff"; }, 1500);
+            });
+
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            runRmr(); 
+        }
+    }
+};
+    // 'true' para captura prioritaria
+    window.addEventListener('deviceorientation', procesarMovimiento, true);
+  	
+} //
+  	function setSchmidtAngle(angulo, elemento) {
+    // 1. Gestionar el resaltado de los botones
+    document.querySelectorAll('.btn-schmidt').forEach(btn => btn.classList.remove('btn-schmidt-active'));
+    elemento.classList.add('btn-schmidt-active');
+    
+    // 2. Guardar el ángulo en el input oculto
+    const hiddenInput = document.getElementById('selected_angle');
+    if (hiddenInput) {
+        hiddenInput.value = angulo; }
+    
+    // 3. Disparar el cálculo general
+    runRmr(); 
+}
+    function runRmr() {
+    // --- 1. CÁLCULO DE RESISTENCIA (p1) ---
+    let mRes = document.getElementById('m_res').value;
+    let ucs = 0, p1 = 0;
+
+    if(mRes === 'vis') {
+        p1 = parseInt(document.getElementById('valVis').value) || 0;
+        ucs = p1 === 15 ? 250 : p1 === 12 ? 150 : p1 === 7 ? 75 : p1 === 4 ? 35 : p1 === 2 ? 15 : 3;
+        if(document.getElementById('out_vis_ucs')) document.getElementById('out_vis_ucs').querySelector('b').innerText = ucs;
+    } else {
+        // --- LÓGICA PRO SCHMIDT ---
+        let rVals = [1,2,3,4,5,6,7,8,9,10].map(i => parseFloat(document.getElementById('r'+i).value)||0).filter(v => v > 0);
+        let rAvg = rVals.length > 0 ? rVals.reduce((a,b)=>a+b)/rVals.length : 0;
+        
+        // Capturamos el ángulo de los nuevos botones
+        let angulo = parseInt(document.getElementById('selected_angle')?.value || 0);
+        
+        // Tabla de corrección Delta R (ISRM/Proceq)
+        let deltaR = 0;
+        if (rAvg > 0) {
+            if (angulo === 90)  deltaR = -3.2;
+            else if (angulo === 45)  deltaR = -1.8;
+            else if (angulo === 0)   deltaR = 0;
+            else if (angulo === -45) deltaR = 2.1;
+            else if (angulo === -90) deltaR = 3.4;
+        }
+
+        let rCorregido = rAvg + deltaR;
+        
+        // Densidad (gamma) desde el selector de litología
+        let gamma = parseFloat(document.getElementById('tipoRoca').value) || 2.7;
+        
+        // Fórmula de Miller: log10(UCS) = 0.00088 * gamma * R_corr + 1.01
+        if (rCorregido > 0) {
+            let logUCS = (0.00088 * (gamma * 9.81) * rCorregido) + 1.01; 
+            ucs = Math.pow(10, logUCS);
+        }
+
+        // Puntaje RMR (Bieniawski 1989)
+        p1 = ucs > 250 ? 15 : ucs > 100 ? 12 : ucs > 50 ? 7 : ucs > 25 ? 4 : ucs > 5 ? 2 : 1;
+
+        if(document.getElementById('out_sch_r')) document.getElementById('out_sch_r').querySelector('b').innerText = rCorregido.toFixed(1);
+        if(document.getElementById('out_sch_ucs')) document.getElementById('out_sch_ucs').querySelector('b').innerText = ucs.toFixed(1);
+    }
+    document.getElementById('score_p1').innerText = "PTS: " + p1;
+	
+    // --- 2. CÁLCULO DE CALIDAD RQD (p2) ---
+    let mRqd = document.getElementById('m_rqd').value;
+    let p2 = 0, rqd = 0;
+    if(mRqd === 'deere') {
+        p2 = parseInt(document.getElementById('valDeere').value) || 0;
+        rqd = p2 === 20 ? 95 : p2 === 17 ? 82 : p2 === 13 ? 62 : p2 === 8 ? 37 : 15;
+    } else {
+        rqd = 115 - (3.3 * (parseFloat(document.getElementById('valJv').value) || 0));
+        if (rqd > 100) rqd = 100; if (rqd < 0) rqd = 0;
+        p2 = rqd > 90 ? 20 : rqd > 75 ? 17 : rqd > 50 ? 13 : rqd > 25 ? 8 : 3;
+    }
+    if(document.getElementById('out_rqd')) document.getElementById('out_rqd').querySelector('b').innerText = Math.round(rqd);
+    document.getElementById('score_p2').innerText = "PTS: " + p2;
+
+    // --- 3. JUNTA CRÍTICA ---
+    const tarjetasJuntas = document.querySelectorAll('.junta-card');
+    let puntosJuntaCritica = 35;
+    if (tarjetasJuntas.length > 0) {
+        tarjetasJuntas.forEach(card => {
+            let sumaJuntaActual = 0;
+            card.querySelectorAll('.j-calc').forEach(select => {
+                sumaJuntaActual += parseInt(select.value) || 0;
+            });
+            if (sumaJuntaActual < puntosJuntaCritica) puntosJuntaCritica = sumaJuntaActual;
+        });
+    } else {
+        puntosJuntaCritica = 0;
+    }
+
+    // --- 4. AGUA ---
+    let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
+    document.getElementById('score_p5').innerText = "PTS: " + p5;
+
+    // --- 5. FINAL ---
+    let rmrBasico = p1 + p2 + puntosJuntaCritica + p5;
+    const lblRmrBase = document.getElementById('res_rmr_base');
+    if(lblRmrBase) lblRmrBase.innerText = rmrBasico;
+
+    return rmrBasico;
+}
+
+    function irAFase2() {
+    const esc = document.getElementById('escenario').value;
+    const isT = esc === 'tunel';
+    
+    // 1. Definición de campos obligatorios básicos
+    const camposValidar = [
+        { id: 'est_id', nombre: 'ID de Estación' },
+        { id: 'est_tec', nombre: 'Técnico Responsable' },
+        { id: 'est_fecha', nombre: 'Fecha' }
+    ];
+
+    // 2. Añadir campos de orientación de estación (según escenario)
+    // El Dip (Inclinación o Azimut Eje) siempre es obligatorio
+    camposValidar.push({ id: 'eje_dip', nombre: document.getElementById('lbl_dip').innerText });
+    
+    // La Dirección solo es obligatoria en modo TALUD
+    if (!isT) {
+        camposValidar.push({ id: 'eje_dir', nombre: 'DIRECCIÓN DEL TALUD' });
+    }
+
+    let faltantes = [];
+
+    // 3. Validación de campos con resalte visual y limpieza de vacuna
+    camposValidar.forEach(campo => {
+        let el = document.getElementById(campo.id);
+        // "Vacuna": quitamos el símbolo de grado para ver si hay un valor real
+        let valorLimpio = el.value.toString().replace('°', '').trim();
+        
+        if (!valorLimpio) {
+            faltantes.push(campo.nombre);
+            el.style.border = "2px solid #e74c3c";
+            el.style.backgroundColor = "#fdf2f2";
+        } else {
+            el.style.border = "1px solid #cbd5e1";
+            el.style.backgroundColor = "#ffffff";
+        }
+    });
+
+    // 4. Validación técnica mínima: Sistema #1 de juntas
+    const elJ1Dip = document.querySelector('.j-dip');
+    const elJ1Dir = document.querySelector('.j-dipdir');
+    
+    const valJ1Dip = elJ1Dip.value.toString().replace('°', '').trim();
+    const valJ1Dir = elJ1Dir.value.toString().replace('°', '').trim();
+    
+    if (!valJ1Dip || !valJ1Dir) {
+        faltantes.push("Medición Dip/Dir del Sistema #1 (Juntas)");
+        
+        // PINTAR ROJO SI ESTÁ VACÍO
+        if (!valJ1Dip) {
+            elJ1Dip.style.border = "2px solid #e74c3c";
+            elJ1Dip.style.backgroundColor = "#fdf2f2";
+        }
+        if (!valJ1Dir) {
+            elJ1Dir.style.border = "2px solid #e74c3c";
+            elJ1Dir.style.backgroundColor = "#fdf2f2";
+        }
+    } else {
+        // LIMPIAR COLOR SI YA ESTÁ LLENO
+        elJ1Dip.style.border = "1px solid #cbd5e1";
+        elJ1Dip.style.backgroundColor = "#ffffff";
+        elJ1Dir.style.border = "1px solid #cbd5e1";
+        elJ1Dir.style.backgroundColor = "#ffffff";
+    }
+
+    // 5. Bloqueo si hay campos vacíos
+    if (faltantes.length > 0) {
+        alert("⚠️ ATENCIÓN: Faltan datos críticos para el reporte:\n\n- " + faltantes.join("\n- "));
+        return; // Detiene la función aquí
+    }
+
+    // 6. Procesamiento y Transición (Si todo está lleno)
+    runRmr(); 
+    
+    if (typeof registrarFichaActual === 'function') {
+        registrarFichaActual(true); 
+    }
+
+    document.getElementById('main-container').style.display = 'none';
+    document.getElementById('fase2-container').style.display = 'block';
+    
+    setTimeout(() => {
+        calcularClasificacionFinal();
+    }, 50);
+
+    window.scrollTo(0,0);
+}
+    function volverAFase1() {
+        document.getElementById('main-container').style.display = 'grid';
+        document.getElementById('fase2-container').style.display = 'none';
+    }
+
+    function updateEscenario() {
+    const esc = document.getElementById('escenario').value;
+    const isT = esc === 'tunel';
+    
+    const inputDip = document.getElementById('eje_dip');
+    const inputDir = document.getElementById('eje_dir');
+    const labelDip = document.getElementById('lbl_dip');
+    const labelDir = document.getElementById('lbl_dir');
+    const labelUbi = document.getElementById('lbl_ubi_tec');
+
+    // Cambiamos los textos de las etiquetas
+    labelDip.innerText = isT ? "AZIMUT EJE" : "INCL. TALUD";
+    labelDir.innerText = isT ? "DIR. AVANCE" : "DIRECC. TALUD";
+    labelUbi.innerText = isT ? "NIVEL" : "TRAMO";
+
+    if (isT) {
+        // --- MODO TÚNEL ---
+        inputDip.placeholder = "0-360\u00B0";
+        // IMPORTANTE: En túnel el Azimut llega a 360
+        inputDip.setAttribute("oninput", "validarAngular(this, 360)");
+        
+        inputDir.value = ""; 
+        inputDir.disabled = true; 
+        inputDir.style.backgroundColor = "#f1f5f9"; 
+        inputDir.style.opacity = "0.6";
+        inputDir.placeholder = "N/A";
+    } else {
+        // --- MODO TALUD ---
+        inputDip.placeholder = "0-90\u00B0";
+        // IMPORTANTE: En talud la inclinación solo llega a 90
+        inputDip.setAttribute("oninput", "validarAngular(this, 90)");
+        
+        inputDir.disabled = false;
+        inputDir.style.backgroundColor = "#ffffff";
+        inputDir.style.opacity = "1";
+        inputDir.placeholder = "0-360\u00B0";
+        // Dirección de talud siempre hasta 360
+        inputDir.setAttribute("oninput", "validarAngular(this, 360)");
+    }
+    runRmr();
+}
+    function calcularClasificacionFinal() {
+        let p1 = parseInt(document.getElementById('score_p1').innerText.replace('PTS: ', '')) || 0;
+        let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
+        let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
+        
+        let minScore = 100, indexPeor = 1;
+        const sistemasJuntas = document.querySelectorAll('.junta-card');
+        
+        // 1. Identificación Junta Crítica y Generación Lista Comparativa
+        let listaHTML = `<div style="border-bottom:1px solid #ffe58f; margin-bottom:5px; padding-bottom:3px;"><b>Análisis de Sistemas (RMR Básico):</b></div>`;
+
+        sistemasJuntas.forEach((card, i) => {
+            let scoreJ = 0;
+            card.querySelectorAll('.j-calc').forEach(sel => scoreJ += parseInt(sel.value));
+            if (scoreJ < minScore) { minScore = scoreJ; indexPeor = i + 1; }
+        });
+
+        sistemasJuntas.forEach((card, i) => {
+            let sj = 0; card.querySelectorAll('.j-calc').forEach(sel => sj += parseInt(sel.value));
+            let rmrBj = p1 + p2 + sj + p5;
+            let esC = (i + 1 === indexPeor);
+            listaHTML += `
+                <div style="display:flex; justify-content:space-between; padding:2px 5px; margin:1px 0; border-radius:3px; 
+                    ${esC ? 'background:#fdf2ce; border:1px solid #f9d876; color:#c0392b; font-weight:900;' : 'color:#555;'}">
+                    <span>Fam. #${i + 1} (${card.querySelector('.j-dipdir').value || '0'}/${card.querySelector('.j-dip').value || '0'}°)</span>
+                    <span>RMRb: ${rmrBj} ${esC ? '⚠️' : ''}</span>
+                </div>`;
+        });
+
+        let rmrBase = p1 + p2 + minScore + p5;
+        const esc = document.getElementById('escenario').value;
+        const oDip = parseFloat(document.getElementById('eje_dip').value.replace('\u00B0', '')) || 0;
+		const oDir = parseFloat(document.getElementById('eje_dir').value.replace('\u00B0', '')) || 0;
+        let p6 = 0;
+
+        sistemasJuntas.forEach(card => {
+            let jDp = parseFloat(card.querySelector('.j-dip').value) || 0;
+            let jDr = parseFloat(card.querySelector('.j-dipdir').value) || 0;
+            let a = 0;
+            if (esc === 'tunel') {
+                let d = Math.abs(oDip - jDr) % 180; if (d > 90) d = 180 - d;
+                if (d < 20) a = -12; else if (d < 45) a = -5; else a = (jDp > 45) ? 0 : -2;
+            } else {
+                let dD = Math.abs(oDir - jDr); if (dD > 180) dD = 360 - dD;
+                if (dD < 20) {
+                    if (jDp > oDip) a = -5; else if (Math.abs(oDip - jDp) < 10) a = -60; else a = -25;
+                } else if (Math.abs(dD - 180) < 20) a = -25;
+            }
+            if (a < p6) p6 = a;
+        });
+
+        let rmrFinal = Math.max(0, rmrBase + p6);
+        let modE = Math.pow(10, (rmrFinal - 10) / 40).toFixed(2);
+        let clase = "", cohesion = "", friccion = "", soporte = "", color = "", tiempo = "";
+        
+        if (rmrFinal > 80) {
+            clase = "I - MUY BUENA"; cohesion = "> 400"; friccion = "> 45"; color = "#1b5e20"; tiempo = "20 años / 15m vano";
+            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Sección completa con avance de 3m.<br><b>Soporte:</b> Generalmente autosoportante. Solo pernos ocasionales en cuñas puntuales." : "<b>Estabilidad:</b> Macizo competente y estable. No requiere medidas de refuerzo; monitoreo estándar.";
+        } else if (rmrFinal > 60) {
+            clase = "II - BUENA"; cohesion = "300-400"; friccion = "35-45"; color = "#2ecc71"; tiempo = "1 año / 10m vano";
+            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Sección completa. Avance de 1.0 a 1.5m con soporte a 20m del frente.<br><b>Soporte:</b> Bulones localizados en corona (3m long) espaciados 2.5m con malla ocasional." : "<b>Estabilidad:</b> Bloques estables con riesgo de caída puntual por gravedad. Recomendable sellado de grietas.";
+        } else if (rmrFinal > 40) {
+            clase = "III - MEDIA"; cohesion = "200-300"; friccion = "25-35"; color = "#f1c40f"; tiempo = "1 semana / 5m vano";
+            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Galería y destroza. Avance de 1.5 a 3m. Iniciar soporte inmediatamente.<br><b>Soporte:</b> Bulones sistemáticos (4m) espaciados 1.5-2m en corona y hastiales. Shotcrete de 50-100mm en corona." : "<b>Estabilidad:</b> Riesgo de fallas locales por cuñas o bloques. Requiere pernos de anclaje sistemáticos.";
+        } else if (rmrFinal > 20) {
+            clase = "IV - MALA"; cohesion = "100-200"; friccion = "15-25"; color = "#e67e22"; tiempo = "10 h / 2.5m vano";
+            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Galería y destroza. Avances cortos (1.0-1.5m). Soporte simultáneo.<br><b>Soporte:</b> Bulones sistemáticos (4-5m) espaciados 1-1.5m. Shotcrete 100-150mm. Cerchas ligeras espaciadas 1.5m." : "<b>Estabilidad:</b> Talud inestable con deformaciones activas. Requiere muros de gravedad y shotcrete.";
+        } else {
+            clase = "V - MUY MALA"; cohesion = "< 100"; friccion = "< 15"; color = "#c0392b"; tiempo = "30 min / 0.5m vano";
+            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Múltiples secciones. Avance mínimo 0.5m. Sostenimiento inmediato.<br><b>Soporte:</b> Bulones sistemáticos (5-6m). Shotcrete >150mm con malla. Cerchas pesadas espaciadas 0.75m." : "<b>Estabilidad:</b> Falla inminente por flujo o colapso circular. Requiere medidas urgentes de contención.";
+        }
+
+        document.getElementById('res_rmr_base').innerText = rmrBase;
+        document.getElementById('res_ajuste').innerText = p6;
+        document.getElementById('res_rmr_final').innerText = rmrFinal;
+        document.getElementById('res_clase_tag').innerText = "CLASE: " + clase;
+        document.getElementById('res_clase_tag').style.background = color;
+        document.getElementById('res_cohesion').innerText = cohesion + " kPa";
+        document.getElementById('res_friccion').innerHTML = friccion + "&deg;";
+        document.getElementById('res_modulo_e').innerText = modE + " GPa";
+        document.getElementById('res_tiempo').innerText = tiempo;
+        document.getElementById('res_peor_junta').innerHTML = listaHTML;
+        document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
+        document.getElementById('reporte-card').style.borderTopColor = color;
+    }
+  
+  		// 1. Variable global para guardar todas las estaciones del día
+let baseDeDatosFichas = [];
+
+function registrarFichaActual(silencioso = false) {
+    const idActual = document.getElementById('est_id').value.trim();
+    if (!idActual) {
+        if (!silencioso) alert("⚠️ Error: La estación debe tener un ID.");
+        return false;
+    }
+
+    // Captura detallada de cada Junta (solo datos, sin puntos intermedios)
+    let datosJuntas = [];
+    document.querySelectorAll('.junta-card').forEach((card) => {
+        const selects = card.querySelectorAll('.j-calc');
+        datosJuntas.push({
+            dip: card.querySelector('.j-dip').value || "0",
+            dir: card.querySelector('.j-dipdir').value || "0",
+            espac: selects[0].options[selects[0].selectedIndex].text,
+            persist: selects[1].options[selects[1].selectedIndex].text,
+            apert: selects[2].options[selects[2].selectedIndex].text,
+            rugos: selects[3].options[selects[3].selectedIndex].text,
+            rellen: selects[4].options[selects[4].selectedIndex].text,
+            alter: selects[5].options[selects[5].selectedIndex].text
+        });
+    });
+
+    const ficha = {
+        id: idActual,
+        fecha: document.getElementById('est_fecha').value,
+        tecnico: document.getElementById('est_tec').value,
+        proyecto: document.getElementById('proy_nom').value,
+        x: document.getElementById('coord_e').value,
+        y: document.getElementById('coord_n').value,
+        z: document.getElementById('coord_z').value,
+        sector: document.getElementById('loc_sector').value,
+        nivel: document.getElementById('ubi_val').value,
+        desde: document.getElementById('abs_desde').value,
+        hasta: document.getElementById('abs_hasta').value,
+        // Datos de Roca y Agua
+        ucs_val: document.querySelector('#out_vis_ucs b')?.innerText || document.querySelector('#out_sch_ucs b')?.innerText || "0",
+        rqd_val: document.querySelector('#out_rqd b')?.innerText || "0",
+        agua_tipo: document.getElementById('p5_agua').options[document.getElementById('p5_agua').selectedIndex].text,
+        juntas: datosJuntas,
+        // Resultados Finales
+        rmr_b: document.getElementById('res_rmr_base').innerText,
+        p6: document.getElementById('res_ajuste').innerText,
+        rmr_f: document.getElementById('res_rmr_final').innerText,
+        clase: document.getElementById('res_clase_tag').innerText,
+        cohesion: document.getElementById('res_cohesion').innerText,
+        friccion: document.getElementById('res_friccion').innerText,
+        modulo: document.getElementById('res_modulo_e').innerText
+    };
+
+    const indexExistente = baseDeDatosFichas.findIndex(f => f.id === idActual);
+    if (indexExistente !== -1) baseDeDatosFichas[indexExistente] = ficha;
+    else baseDeDatosFichas.push(ficha);
+	localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
+    return true;
+}
+  	
+function exportarConsolidado() {
+    if (baseDeDatosFichas.length === 0) return;
+
+    const desarrollador = "Mgtr. Byron Bravo";
+    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas.length));
+    
+    // Encabezados dinámicos por Sistema
+    let encabezadoSistemas = "";
+    let subEncabezadoDatos = "";
+    for (let i = 1; i <= maxJuntas; i++) {
+        encabezadoSistemas += `<th colspan="8" style="background-color: #27ae60; color: white; border: 1px solid #000;">SISTEMA #${i}</th>`;
+        subEncabezadoDatos += `<th>DIP(°)</th><th>DIR(°)</th><th>ESPAC.</th><th>PERSIST.</th><th>APERT.</th><th>RUGOS.</th><th>RELLEN.</th><th>ALTER.</th>`;
+    }
+
+    let excelTemplate = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta charset="utf-8">
+        <style>
+            table { border-collapse: collapse; }
+            th { border: 1px solid #000; text-align: center; font-family: Arial; font-size: 9pt; padding: 5px; }
+            td { border: 1px solid #666; text-align: center; font-family: Arial; font-size: 8pt; padding: 4px; }
+            .azul { background-color: #052c52; color: white; }
+            .naranja { background-color: #d35400; color: white; }
+        </style></head>
+        <body>
+            <div style="font-size: 14pt; font-weight: bold; color: #052c52;">BASE DE DATOS GEOMECÁNICA RMR (Bieniawski 1989)</div>
+            <br>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th colspan="11" class="azul">INFORMACIÓN GENERAL</th>
+                        <th colspan="2" class="azul">PROPIEDADES MATRIZ</th>
+                        ${encabezadoSistemas}
+                        <th style="background-color: #27ae60; color: white;">HIDRO.</th>
+                        <th colspan="7" class="naranja">RESULTADOS GEOMECÁNICOS</th>
+                    </tr>
+                    <tr>
+                        <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th><th>COORD X</th><th>COORD Y</th><th>COORD Z</th><th>SECTOR</th><th>NIVEL</th><th>DESDE</th><th>HASTA</th>
+                        <th>UCS(MPa)</th><th>RQD(%)</th>
+                        ${subEncabezadoDatos}
+                        <th>AGUA</th>
+                        <th>RMRb</th><th>P6</th><th>RMRf</th><th>CLASE</th><th>c (kPa)</th><th>phi (°)</th><th>Em (GPa)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${baseDeDatosFichas.map(f => {
+                        let celdasJuntas = "";
+                        for (let i = 0; i < maxJuntas; i++) {
+                            const j = f.juntas[i];
+                            if (j) {
+                                celdasJuntas += `<td>${j.dip}</td><td>${j.dir}</td><td>${j.espac}</td><td>${j.persist}</td><td>${j.apert}</td><td>${j.rugos}</td><td>${j.rellen}</td><td>${j.alter}</td>`;
+                            } else {
+                                celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
+                            }
+                        }
+                        return `
+                            <tr>
+                                <td style="font-weight:bold;">${f.id}</td><td>${f.fecha}</td><td>${f.tecnico}</td><td>${f.proyecto}</td>
+                                <td>${f.x}</td><td>${f.y}</td><td>${f.z}</td><td>${f.sector}</td><td>${f.nivel}</td><td>${f.desde}</td><td>${f.hasta}</td>
+                                <td>${f.ucs_val}</td><td>${f.rqd_val}</td>
+                                ${celdasJuntas}
+                                <td>${f.agua_tipo}</td>
+                                <td style="font-weight:bold;">${f.rmr_b}</td><td>${f.p6}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f}</td>
+                                <td style="font-weight:bold;">${f.clase}</td><td>${f.cohesion}</td><td>${f.friccion}</td><td>${f.modulo}</td>
+                            </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+            <br>
+            <div style="font-size: 8pt; color: #666;">Algoritmos y Desarrollo Técnico: <b>${desarrollador}</b> | Generado: ${new Date().toLocaleString()}</div>
+        </body></html>`;
+
+    const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Data_RMR_ByronBravo.xls`;
+    link.click();
+	// --- LIMPIEZA POST-EXPORTACIÓN ---
+    if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido exportado?")) {
+        baseDeDatosFichas = []; // Limpia la variable en RAM
+        localStorage.removeItem('rmr_backup_geotecnia'); // Borra el respaldo permanente
+        document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
+        alert("🧹 Memoria limpia para una nueva jornada.");
+    }
+}
+  
+// --- FUNCION GPS INTELIGENTE 30s ---
+function obtenerUbicacion() {
+    const info = document.getElementById('gps_info');
+    const btn = document.querySelector('.btn-gps-tactil');
+    
+    // 1. CAMBIO: El texto visual para el usuario
+    info.style.fontSize = "8.5px";
+  	info.innerHTML = "⏳ Sincronizando satélites (30s)..."; 
+    btn.style.animation = "pulse-gps 1.5s infinite";
+
+    let mejorPos = null;
+    const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+            mejorPos = pos;
+            // Si llega a la perfección rápido, corta antes (eficiencia)
+            if (pos.coords.accuracy <= 3) finalizarGPS(pos, watchId);
+            else info.innerHTML = `⏳ Calibrando: ±${pos.coords.accuracy.toFixed(1)}m`;
+        },
+        () => {}, 
+        { 
+            enableHighAccuracy: true, 
+            timeout: 30000, // 2. CAMBIO: Tiempo de espera del sensor (en milisegundos)
+            maximumAge: 0 
+        }
+    );
+
+    // 3. CAMBIO: El temporizador de "rendición" forzosa
+    setTimeout(() => {
+        if (mejorPos) {
+            finalizarGPS(mejorPos, watchId);
+        } else {
+            navigator.geolocation.clearWatch(watchId);
+            info.innerHTML = "❌ Tiempo agotado. Ingrese manual.";
+            btn.style.animation = "none";
+        }
+    }, 30000); // 30 segundos exactos
+}
+
+function finalizarGPS(pos, watchId) {
+    navigator.geolocation.clearWatch(watchId);
+    document.getElementById('coord_e').value = pos.coords.longitude.toFixed(6);
+    document.getElementById('coord_n').value = pos.coords.latitude.toFixed(6);
+    if (pos.coords.altitude) document.getElementById('coord_z').value = Math.round(pos.coords.altitude);
+    
+    const acc = pos.coords.accuracy;
+    document.getElementById('gps_info').innerHTML = `✅ Precisión lograda: ±${acc.toFixed(1)}m`;
+    document.getElementById('gps_info').style.color = acc < 10 ? "#27ae60" : "#f1c40f";
+    document.querySelector('.btn-gps-tactil').style.animation = "none";
+}
+
+// --- PROCESAMIENTO DE FOTO CON MARCA DE AGUA ---
+function procesarFotoSilenciosa(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        const idEst = document.getElementById('est_id').value || "S_ID";
+        const fecha = document.getElementById('est_fecha').value || new Date().toLocaleDateString();
+
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.getElementById('canvas_foto');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width; canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                const hTag = canvas.height * 0.05;
+                ctx.fillStyle = "rgba(0,0,0,0.6)";
+                ctx.fillRect(0, canvas.height - hTag, canvas.width, hTag);
+                ctx.font = `bold ${Math.round(hTag*0.5)}px Arial`;
+                ctx.fillStyle = "white";
+                ctx.fillText(`ID: ${idEst} | FECHA: ${fecha} | BYRON BRAVO`, 30, canvas.height - (hTag/3));
+
+                const link = document.createElement('a');
+                link.download = `RMR_${idEst}_${new Date().getTime()}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.8);
+                link.click();
+                input.value = ""; // Reset para permitir otra foto inmediata
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+function nuevaEstacion() {
+    if (!confirm("¿Deseas limpiar el formulario para iniciar una nueva estación? (Los datos guardados en el consolidado no se borrarán)")) return;
+
+    // 1. Limpiar inputs básicos
+    document.getElementById('est_id').value = "";
+    document.getElementById('coord_e').value = "";
+    document.getElementById('coord_n').value = "";
+    document.getElementById('coord_z').value = "";
+    document.getElementById('gps_info').innerHTML = "";
+    document.getElementById('abs_desde').value = "";
+    document.getElementById('abs_hasta').value = "";
+    
+    // 2. Resetear Juntas: Eliminar todas las extras y resetear la primera
+    const todasLasJuntas = document.querySelectorAll('.junta-card');
+    todasLasJuntas.forEach((j, index) => {
+        if (index > 0) j.remove(); // Borra las adicionales
+    });
+    
+    // Resetear valores de la Junta #1
+    sysCount = 1;
+    const j1 = document.querySelector('.junta-card');
+    j1.querySelector('.j-dip').value = "";
+    j1.querySelector('.j-dipdir').value = "";
+    j1.querySelectorAll('.j-calc').forEach(sel => sel.selectedIndex = 0);
+    
+    // 3. Resetear Sensores y Resultados
+    runRmr();
+    volverAFase1();
+    window.scrollTo(0,0);
+    alert("✨ Formulario listo para nueva estación.");
+}
+  	
+function validarAngular(input, max) {
+    if (input.disabled) return;
+
+    // 1. Limpiamos: solo permitimos números
+    let v = input.value.replace(/\D/g, '');
+    
+    if (v !== "") {
+        let num = parseInt(v);
+        // 2. Restringimos al máximo permitido
+        if (num > max) num = max;
+        input.value = num; // Mantenemos el número puro mientras escribe
+    }
+    runRmr();
+}
+
+// 3. Función extra para poner el símbolo SOLO al salir del campo
+function formatearAlSalir(input) {
+    if (input.value !== "" && !input.value.includes("°")) {
+        input.value = input.value + "°";
+    }
+}
+
+// 4. Función para limpiar el símbolo al entrar al campo (para poder editar)
+function limpiarAlEntrar(input) {
+    input.value = input.value.replace("°", "");
+}
+    window.onload = function() { 
+    // PASO 1: Ejecutar la validación (Asegúrate que el nombre sea el mismo que definiste arriba)
+    setTimeout(() => {
+        if (typeof verificarAcceso === 'function') {
+            verificarAcceso(); 
+        } else if (typeof validarAcceso === 'function') {
+            validarAcceso();
+        }
+    }, 100);
+
+    // PASO 2: Cargar el resto de la aplicación
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        baseDeDatosFichas = JSON.parse(backup);
+        const btn = document.getElementById('btn_exportar');
+        if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    }
+      	updateLitologia(); 
+        updateEscenario(); 
+        toggleRes(); 
+        calcJuntas(); 
+
+        // AQUÍ VA TU CÓDIGO DE MAYÚSCULAS
+        const inputID = document.getElementById('est_id');
+        if (inputID) {
+            inputID.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+        
+        // --- FECHA LOCAL---
+    const fechaInput = document.getElementById('est_fecha');
+    if (fechaInput) {
+        const ahora = new Date();
+        // Ajustamos la zona horaria restando el desfase en minutos
+        const offset = ahora.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(ahora - offset)).toISOString().slice(0, 10);
+        fechaInput.value = localISOTime;
+    }
+};
+
+    window.onbeforeunload = function() {
+        return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
+    };
+  // REGISTRO DEL SERVICE WORKER (Para Modo Avión)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log("✅ Sistema Offline Preparado"))
+                .catch(err => console.log("❌ Error de registro sw:", err));
+        });
+    }
+</script>
+</body>
+</html>

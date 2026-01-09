@@ -222,7 +222,7 @@ html, body {
         </div>
 
         <div class="v-box">
-            v9.8 PRO
+            v9.9 PRO
         </div>
     </div>
 
@@ -564,31 +564,56 @@ html, body {
 
         </div>
 
- <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden;">
+ <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden; border-left: 4px solid #3498db;">
     
     <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
         💧 5. CONDICIÓN HIDROGEOLÓGICA
     </h4>
 
-    <p style="margin: 8px 0; font-size: 10px; line-height: 1.2; color: #7f8c8d; font-style: italic;">
-        Observe la presencia de humedad, goteo o flujo constante en las juntas y macizo para calificar la filtración.
-    </p>
-
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 175px; flex: none; font-size: 11px; height: 26px; font-weight: bold; color: #052c52;">
-            <option value="15">Seco (Sin humedad)</option>
-            <option value="10">Húmedo (Sin goteo)</option>
-            <option value="7">Mojado (Goteo)</option>
-            <option value="0">Fluyendo (Chorro)</option>
-        </select>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
         
-        <div id="score_p5" class="score-anchor" style="margin:0; font-size: 11px; font-weight: 900; color: #27ae60;">
-            PTS: 15
-        </div>
-    </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+            <div style="width: 230px;"> <div class="input-label">INFILTRACIÓN</div>
+                <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 100%; font-size: 11px; height: 30px; font-weight: 800; color: #052c52;">
+                    <option value="15">Seco (Sin humedad)</option>
+           			 <option value="10">Húmedo (Superficie oscura, sin goteo)</option>
+           			 <option value="7">Mojado (Goteo esporádico)</option>
+            		 <option value="4">Goteo persistente / Chorro leve</option>
+           			 <option value="0">Fluyente (Chorro a presión)</option>
+                </select>
+            </div>
 
-    <div style="margin-top: 6px; border-top: 1px solid #f1f5f9; padding-top: 4px; font-size: 9px; line-height: 1.2; color: #94a3b8;">
-        <b>RMR-5:</b> Infiltración por cada 10m de avance: Seco (0 L/min), Húmedo (<10 L/min), Mojado (10-25 L/min), Fluyente (>125 L/min).
+            <div id="score_p5" style="margin-top: 12px; font-size: 10.2px; font-weight: 900; color: #27ae60; white-space: nowrap;">
+                PTS: 15
+            </div>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid #eee; border-radius: 6px; padding: 8px;">
+            <div class="input-label" style="border-bottom: 1px solid #eee; padding-bottom: 3px; margin-bottom: 6px; font-size: 8.5px;">GUÍA DE CAMPO PARA RMR-5</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 5px;">
+                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                    <span style="color: #27ae60; font-weight: bold; min-width: 45px;">SECO:</span>
+                    <span style="color: #566573;">No hay rastro de agua ni humedad en las juntas. Macizo estable.</span>
+                </div>
+                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                    <span style="color: #3498db; font-weight: bold; min-width: 45px;">HÚMEDO:</span>
+                    <span style="color: #566573;">Superficies oscurecidas por humedad, pero no hay desprendimiento de gotas.</span>
+                </div>
+                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                    <span style="color: #f1c40f; font-weight: bold; min-width: 45px;">MOJADO:</span>
+                    <span style="color: #566573;">Goteo esporádico o continuo. Se observa agua libre en las grietas.</span>
+                </div>
+                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                    <span style="color: #e67e22; font-weight: bold; min-width: 45px;">FLUJO:</span>
+                    <span style="color: #c0392b;">Chorros de agua saliendo de las fracturas. Dificulta la colocación de soporte.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="note" style="margin-top: 4px; font-size: 8px; color: #94a3b8; text-align: justify; border: none;">
+            <b>PARÁMETRO:</b> Rango de presión de agua en juntas / Esfuerzo principal mayor (σw / σ1). Valores basados en Bieniawski 1989 para túneles y taludes.
+        </div>
     </div>
 </div>
         <div id="controles-fase1" class="full-row" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
@@ -1838,9 +1863,7 @@ function inputClave(id) {
         alert("❌ Clave inválida para este ID de equipo.\nContacte a Byron Bravo para obtener su clave.");
     }
 }
-    window.onbeforeunload = function() {
-        return baseDeDatosFichas.length > 0 ? "¿Tienes estaciones sin exportar a Excel. ¿Estás seguro de salir?" : null;
-    };
+   
   // REGISTRO DEL SERVICE WORKER (Para Modo Avión)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

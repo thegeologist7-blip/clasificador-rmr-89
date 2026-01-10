@@ -222,7 +222,7 @@ html, body {
         </div>
 
         <div class="v-box">
-            v9.9 PRO
+            v10.0 PRO
         </div>
     </div>
 
@@ -688,171 +688,6 @@ html, body {
 </div>
 
 <script>
-  // --- CONFIGURACIÓN DE NEGOCIO ---
-const LICENCIA = {
-    DIAS_TRIAL: 5,
-    MAX_FICHAS: 5,
-    PRECIO: "8.90 USD",
-    WA_NUM: "593979731299", // Pon tu número aquí
-    REPOSICION: "6.8%",
-    SEMILLA: 2026
-};
-
-// 1. GENERAR ADN DE EQUIPO (ID ÚNICO)
-function obtenerIDHardware() {
-    if (localStorage.getItem('device_id')) return localStorage.getItem('device_id');
-    const adn = [navigator.userAgent.length, screen.height * screen.width, navigator.hardwareConcurrency || 2, new Date().getTimezoneOffset()].join("-");
-    let hash = 0;
-    for (let i = 0; i < adn.length; i++) { hash = ((hash << 5) - hash) + adn.charCodeAt(i); hash |= 0; }
-    const idFinal = Math.abs(hash % 8000) + 1000;
-    localStorage.setItem('device_id', idFinal);
-    return idFinal;
-}
-
-// 2. VERIFICAR ESTADO AL INICIAR
-function verificarAcceso() {
-    // Si ya tiene licencia Pro, ignoramos límites
-    if (localStorage.getItem('rmr_pro_activated') === 'true') return;
-
-    const registrado = localStorage.getItem('rmr_user_name');
-    const id = obtenerIDHardware();
-
-    if (!registrado) {
-        bloquearPantallaRegistro(id);
-        return;
-    }
-
-    // Límites de tiempo
-    const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start') || 0);
-    const diasUso = (new Date().getTime() - fechaInicio) / (1000 * 60 * 60 * 24);
-    
-    // Límite de estaciones (Usamos la variable global baseDeDatosFichas)
-    const fichasTotal = baseDeDatosFichas.length;
-
-    if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
-        bloquearPantallaCompra(id, registrado);
-    }
-}
-// --- 3. UI DE REGISTRO INICIAL ---
-function bloquearPantallaRegistro(id) {
-    const oldLayer = document.getElementById('blocker-layer');
-    if(oldLayer) oldLayer.remove();
-
-    document.body.insertAdjacentHTML('afterbegin', `
-    <div id="blocker-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5, 44, 82, 0.98); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);">
-        <div style="background:white; padding:30px; border-radius:20px; color:#333; width:90%; max-width:340px; box-sizing:border-box; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: auto;">
-            <div style="font-size:40px; margin-bottom:10px;">🚀</div>
-            <h3 style="color:#052c52; margin:0 0 10px 0; font-family:sans-serif; font-weight:800;">ACTIVAR PRUEBA</h3>
-            <p style="font-size:13px; color:#666; margin-bottom:20px; line-height:1.4;">Para acceder a todas las funciones del Clasificador geomecánico RMR89 registra tus datos, y obten una prueba gratuita.</p>
-            
-            <input type="text" id="reg_n" placeholder="Nombre completo" style="width:100%; padding:14px; margin-bottom:12px; border:1.5px solid #eee; border-radius:10px; font-size:16px; box-sizing:border-box; outline:none; -webkit-appearance:none;">
-            
-            <input type="email" id="reg_e" placeholder="Correo electrónico" style="width:100%; padding:14px; margin-bottom:20px; border:1.5px solid #eee; border-radius:10px; font-size:16px; box-sizing:border-box; outline:none; -webkit-appearance:none;">
-            
-            <button onclick="guardarUser()" style="width:100%; background:#27ae60; color:white; border:none; padding:16px; border-radius:12px; font-weight:800; cursor:pointer; font-size:15px; letter-spacing:0.5px; box-shadow: 0 4px 15px rgba(39,174,96,0.3);">EMPEZAR AHORA</button>
-            
-            <p style="font-size:10px; color:#aaa; margin-top:20px; text-transform:uppercase;">*Tienes la opción de generar 5 estaciones geomecánicas y puedes usarla durante 5 días sin restricciones</p>
-        </div>
-    </div>`);
-    document.body.style.overflow = "hidden"; // Bloquea scroll
-}
-
-function guardarUser() {
-    const n = document.getElementById('reg_n').value.trim();
-    const e = document.getElementById('reg_e').value.trim();
-    const idH = obtenerIDHardware();
-    
-    if(!n || !e) return alert("Por favor, complete su nombre y correo.");
-
-    // --- ESTÉTICA DE ACTIVACIÓN ---
-    const btn = document.querySelector('button[onclick="guardarUser()"]');
-    const container = n.parentElement; // El cuadro blanco del registro
-
-    // Bloqueamos el botón y cambiamos el estilo
-    btn.disabled = true;
-    btn.style.background = "#95a5a6";
-    btn.style.boxShadow = "none";
-    btn.innerHTML = `<span class="spinner-mini"></span> ACTIVANDO SISTEMA...`;
-
-    // Cambiamos el texto del párrafo para dar feedback
-    const p = document.querySelector('#blocker-layer p');
-    if(p) p.innerHTML = "Sincronizando licencia con el servidor geomecánico...";
-    p.style.color = "#27ae60";
-    p.style.fontWeight = "bold";
-
-    // --- LÓGICA DE ENVÍO ---
-    // Usamos los IDs que ya confirmamos que funcionan
-    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScx9Z9L6lEBrDfQ9VCjHxDo3xz2bG-wyxKePra3-GsLX5zU6A/formResponse";
-    const idNombre = "525247613"; 
-    const idCorreo = "622142618"; 
-    const idEquipo = "1993307989"; 
-
-    const queryParams = `entry.${idNombre}=${encodeURIComponent(n)}&entry.${idCorreo}=${encodeURIComponent(e)}&entry.${idEquipo}=${encodeURIComponent(idH)}`;
-    const finalUrl = `${baseUrl}?${queryParams}`;
-
-    // Envío silencioso (Beacon es mejor para no interrumpir la animación)
-    if (navigator.sendBeacon) {
-        navigator.sendBeacon(finalUrl);
-    } else {
-        const logger = new Image();
-        logger.src = finalUrl;
-    }
-
-    // Guardado local
-    localStorage.setItem('rmr_user_name', n);
-    localStorage.setItem('rmr_user_email', e);
-    localStorage.setItem('rmr_trial_start', new Date().getTime());
-
-    // --- PAUSA ESTÉTICA FINAL ---
-    setTimeout(() => {
-        btn.innerHTML = "¡ACCESO CONCEDIDO!";
-        btn.style.background = "#2ecc71";
-    }, 1500);
-
-    setTimeout(() => {
-        document.body.style.overflow = "auto";
-        location.reload();
-    }, 2500);
-}
-// --- 4. UI DE COMPRA FINAL ---
-function bloquearPantallaCompra(id, nombre) {
-    const oldLayer = document.getElementById('blocker-layer');
-    if(oldLayer) oldLayer.remove();
-
-    document.body.insertAdjacentHTML('afterbegin', `
-    <div id="blocker-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5, 44, 82, 0.98); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-        <div style="background:white; padding:30px; border-radius:20px; color:#333; width:90%; max-width:340px; box-sizing:border-box; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: auto;">
-            <div style="font-size:40px; margin-bottom:10px;">⏳</div>
-            <h2 style="color:#e74c3c; margin:0 0 5px 0; font-family:sans-serif; font-weight:800;">TRIAL FINALIZADO</h2>
-            <p style="font-size:13px; color:#666; margin-bottom:20px;">Adquiera la Suscripción Anual para seguir trabajando.</p>
-            
-            <div style="background:#f8f9fa; padding:20px; border-radius:15px; border:1px solid #eee; margin-bottom:20px;">
-                <p style="font-size:24px; font-weight:900; margin:0; color:#052c52;">${LICENCIA.PRECIO}</p>
-                <p style="font-size:10px; color:#999; text-transform:uppercase; letter-spacing:1px; margin-top:2px;">Acceso Total / 1 Año</p>
-                <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
-                <p style="font-size:11px; margin-bottom:12px; color:#555;">ID EQUIPO: <b style="color:#3498db; font-size:13px;">${id}</b></p>
-                
-                <button onclick="window.open('https://wa.me/${LICENCIA.WA_NUM}?text=Hola Byron, soy ${nombre}. Solicito activar mi licencia RMR Pro ID: ${id}')" 
-                    style="width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:10px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                    Solicitar por WhatsApp
-                </button>
-            </div>
-            
-            <button onclick="inputClave('${id}')" style="background:none; border:none; color:#3498db; font-size:12px; font-weight:600; text-decoration:underline; cursor:pointer;">Ya tengo mi clave de activación</button>
-        </div>
-    </div>`);
-    document.body.style.overflow = "hidden";
-}
-function inputClave(id) {
-    const k = prompt("Ingrese su Clave de Activación Pro:");
-    if (parseInt(k) === (parseInt(id) + LICENCIA.SEMILLA) * 3) {
-        localStorage.setItem('rmr_pro_activated', 'true');
-        alert("✅ ¡Activación Exitosa!");
-        location.reload();
-    } else if (k !== null) {
-        alert("❌ Clave incorrecta.");
-    }
-}
     let sysCount = 1;
 
     function toggleRes() {
@@ -911,98 +746,52 @@ function inputClave(id) {
 function addSystem() {
     sysCount++;
     const container = document.getElementById('main-container');
+    const bloqueAgua = document.getElementById('bloque-agua');
     const nuevaJunta = document.createElement('div');
     nuevaJunta.className = "geo-card junta-card";
     nuevaJunta.style.borderLeft = "4px solid #27ae60";
 
+    // Nota: Eliminamos el evento oninput complejo y usamos el simple
     nuevaJunta.innerHTML = `
-        <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <h4 class="j-title" style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+        <h4 class="j-title" style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
             ▤ JUNTA #${sysCount}
         </h4>
-            </div>
-            
+        <div style="margin-top: 10px;"> 
             <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
                 <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-                    <span class="input-label" style="margin-bottom: 0; white-space: nowrap;">DIP:</span>
-                    <input type="number" placeholder="0-90°" class="in-field j-dip" 
-                           style="height:24px; max-width: 80px;" 
-                           oninput="if(value>90)value=90; if(value<0)value=0; runRmr();">
+                    <span class="input-label" style="margin:0;">DIP:</span>
+                    <input type="number" placeholder="0-90\u00B0" class="in-field j-dip" style="height:24px;" oninput="validarAngular(this, 90)">
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-                    <span class="input-label" style="margin-bottom: 0; white-space: nowrap;">DIP DIR:</span>
-                    <input type="number" placeholder="0-360°" class="in-field j-dipdir" 
-                           style="height:24px; max-width: 80px;" 
-                           oninput="if(value>360)value=360; if(value<0)value=0; runRmr();">
+                    <span class="input-label" style="margin:0;">DIR:</span>
+                    <input type="number" placeholder="0-360\u00B0" class="in-field j-dipdir" style="height:24px;" oninput="validarAngular(this, 360)">
                 </div>
                 <button onclick="capturarGiroscopio(this)" class="btn-gyro">🧭</button>
             </div>
-
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                    <div><span class="input-label" style="font-size: 8px;">Espaciamiento</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="20">>2m</option>
-            <option value="15">0.6-2m</option>
-            <option value="10">200-600mm</option>
-            <option value="8">60-200mm</option>
-            <option value="5">&lt;60mm</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Persistencia</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">&lt;1m</option>
-            <option value="4">1-3m</option>
-            <option value="2">3-10m</option>
-            <option value="1">10-20m</option>
-            <option value="0">>20m</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Apertura</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Ninguno</option>
-            <option value="4">0.1-1mm</option>
-            <option value="1">1-5mm</option>
-            <option value="0">>5mm</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Rugosidad</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Muy Rugosa</option>
-            <option value="5">Rugosa</option>
-            <option value="1">Lisa</option>
-            <option value="0">Espejo</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Relleno</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Ninguno</option>
-            <option value="4">Duro &lt;5mm</option>
-            <option value="0">Blando >5mm</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Alteración</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Sana</option>
-            <option value="3">Mod. Meteorizada</option>
-            <option value="0">Descompuesta</option></select></div>
+                ${generarSelectsJunta()} 
             </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
-            <span onclick="this.parentElement.parentElement.remove(); calcJuntas();" style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
-            <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important;">J${sysCount}: 35 PTS</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+                <span onclick="this.closest('.junta-card').remove(); calcJuntas();" style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
+                <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important;">J${sysCount}: 35 PTS</div>
+            </div>
         </div>
     `;
 
-    const bloqueAgua = document.getElementById('bloque-agua');
     container.insertBefore(nuevaJunta, bloqueAgua);
     calcJuntas();
+}
+
+// Función auxiliar para no repetir código en addSystem
+function generarSelectsJunta() {
+    return `
+        <div><span class="input-label">Espaciamiento</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5">&lt;60mm</option></select></div>
+        <div><span class="input-label">Persistencia</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">&lt;1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
+        <div><span class="input-label">Apertura</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Ninguno</option><option value="4">0.1-1mm</option><option value="1">1-5mm</option><option value="0">>5mm</option></select></div>
+        <div><span class="input-label">Rugosidad</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
+        <div><span class="input-label">Relleno</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Ninguno</option><option value="4">Duro &lt;5mm</option><option value="0">Blando >5mm</option></select></div>
+        <div><span class="input-label">Alteración</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Sana</option><option value="3">Mod. Meteorizada</option><option value="0">Descompuesta</option></select></div>
+    `;
 }
 function calcJuntas() {
     // 1. Seleccionar todas las tarjetas de juntas que existen en el momento
@@ -1063,84 +852,81 @@ function capturarGiroscopio(btn) {
 function iniciarLecturaEstable(inDip, inDipDir) {
     let muestras = [];
     const tiempoInicio = Date.now();
-    const DURACION = 5000; // 5 segundos de toma de datos
+    const DURACION = 5000;
+
+    // MEJORA: Detectar si el móvil soporta orientación ABSOLUTA (Norte Real)
+    const tipoEvento = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
 
     [inDip, inDipDir].forEach(el => {
         el.value = "";
         el.placeholder = "Midiendo...";
-        el.style.backgroundColor = "#fff9c4"; // Amarillo
+        el.style.backgroundColor = "#fff9c4"; 
     });
 
     const procesarMovimiento = (e) => {
-    const ahora = Date.now();
-    
-    // 1. Convertimos los ángulos de Euler a Radianes
-    const alpha = e.alpha * (Math.PI / 180); // Azimut (Brújula)
-    const beta = e.beta * (Math.PI / 180);   // Inclinación X-Y
-    const gamma = e.gamma * (Math.PI / 180); // Inclinación lateral
-
-    // 2. CÁLCULO DEL DIP (Buzamiento 0-90°)
-    // Es el ángulo entre el plano del celular y el plano horizontal
-    let dipRad = Math.acos(Math.cos(beta) * Math.cos(gamma));
-    let dipGrados = dipRad * (180 / Math.PI);
-    
-    // Ajuste para asegurar que siempre sea entre 0 y 90
-    if (dipGrados > 90) dipGrados = 180 - dipGrados;
-
-    // 3. CÁLCULO DEL DIP DIRECTION (Azimut de la pendiente 0-360°)
-    // Calculamos el componente de la gravedad en el plano del dispositivo
-    // webkitCompassHeading nos da el Norte Magnético estable en grados
-    let heading = e.webkitCompassHeading || (360 - e.alpha);
-    
-    // Hallamos la dirección de la máxima pendiente relativa al eje del celular
-    let y_comp = -Math.sin(beta) * Math.cos(gamma);
-    let x_comp = -Math.sin(gamma);
-    let anguloRelativo = Math.atan2(x_comp, y_comp) * (180 / Math.PI);
-
-    // El Dip Direction real es el Azimut del móvil + la dirección de la pendiente
-    let dipDirFinal = (heading + anguloRelativo + 360) % 360;
-
-    if (dipGrados !== null && dipDirFinal !== null) {
-        muestras.push({ d: dipGrados, dd: dipDirFinal });
-    }
-
-    // Al finalizar los 5 segundos de promediado
-    if (ahora - tiempoInicio >= DURACION) {
-        window.removeEventListener('deviceorientation', procesarMovimiento, true);
+        const ahora = Date.now();
         
-        if (muestras.length > 0) {
-            // PROMEDIO VECTORIAL (Indispensable para Azimut)
-            let sS = 0, sC = 0, sumD = 0;
-            muestras.forEach(m => {
-                sS += Math.sin(m.dd * Math.PI / 180);
-                sC += Math.cos(m.dd * Math.PI / 180);
-                sumD += m.d;
-            });
-            
-            let finalDD = Math.atan2(sS, sC) * (180 / Math.PI);
-            if (finalDD < 0) finalDD += 360;
-            let finalD = sumD / muestras.length;
-
-            // Inyectamos datos finales
-            inDip.value = Math.round(finalD);
-            inDipDir.value = Math.round(finalDD);
-            // --- AGREGAR ESTO: RESTAURAR PLACEHOLDERS ---
-    		inDip.placeholder = "0-90°";
-   			inDipDir.placeholder = "0-360°";
-            // Estilos de confirmación
-            [inDip, inDipDir].forEach(el => {
-                el.style.backgroundColor = "#c8e6c9"; 
-                setTimeout(() => { el.style.backgroundColor = "#ffffff"; }, 1500);
-            });
-
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            runRmr(); 
+        // OBTENCIÓN DEL NORTE REAL (Brunton Style)
+        let heading = null;
+        if (e.webkitCompassHeading) {
+            heading = e.webkitCompassHeading; // iOS (Perfecto)
+        } else {
+            // Android: 'alpha' en evento absoluto es el Norte Magnético
+            // Restamos de 360 porque alpha aumenta en sentido antihorario
+            heading = (360 - e.alpha) % 360; 
         }
-    }
-};
-    // 'true' para captura prioritaria
-    window.addEventListener('deviceorientation', procesarMovimiento, true);
-  	
+
+        if (heading === null) return;
+
+        const beta = e.beta * (Math.PI / 180);
+        const gamma = e.gamma * (Math.PI / 180);
+
+        // DIP (0-90) - Tu fórmula es excelente
+        let dipRad = Math.acos(Math.cos(beta) * Math.cos(gamma));
+        let dipGrados = dipRad * (180 / Math.PI);
+        if (dipGrados > 90) dipGrados = 180 - dipGrados;
+
+        // DIP DIRECTION (Compensado)
+        let y_comp = -Math.sin(beta) * Math.cos(gamma);
+        let x_comp = -Math.sin(gamma);
+        let anguloRelativo = Math.atan2(x_comp, y_comp) * (180 / Math.PI);
+        let dipDirFinal = (heading + anguloRelativo + 360) % 360;
+
+        muestras.push({ d: dipGrados, dd: dipDirFinal });
+
+        if (ahora - tiempoInicio >= DURACION) {
+            // IMPORTANTE: Quitar el evento correcto
+            window.removeEventListener(tipoEvento, procesarMovimiento, true);
+            
+            if (muestras.length > 0) {
+                let sS = 0, sC = 0, sumD = 0;
+                muestras.forEach(m => {
+                    sS += Math.sin(m.dd * Math.PI / 180);
+                    sC += Math.cos(m.dd * Math.PI / 180);
+                    sumD += m.d;
+                });
+                
+                let finalDD = Math.atan2(sS, sC) * (180 / Math.PI);
+                if (finalDD < 0) finalDD += 360;
+                let finalD = sumD / muestras.length;
+
+                inDip.value = Math.round(finalD);
+                inDipDir.value = Math.round(finalDD);
+                inDip.placeholder = "0-90\u00B0";
+                inDipDir.placeholder = "0-360\u00B0";
+
+                [inDip, inDipDir].forEach(el => {
+                    el.style.backgroundColor = "#c8e6c9"; 
+                    setTimeout(() => { el.style.backgroundColor = "#ffffff"; }, 1500);
+                });
+
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                runRmr(); 
+            }
+        }
+    };
+    // ESCUCHAR EL EVENTO SEGURO
+    window.addEventListener(tipoEvento, procesarMovimiento, true);
 } //
   	function setSchmidtAngle(angulo, elemento) {
     // 1. Gestionar el resaltado de los botones
@@ -1183,7 +969,7 @@ function iniciarLecturaEstable(inDip, inDipDir) {
         }
 
         let rCorregido = rAvg + deltaR;
-        
+             
         // Densidad (gamma) desde el selector de litología
         let gamma = parseFloat(document.getElementById('tipoRoca').value) || 2.7;
         
@@ -1375,6 +1161,17 @@ function iniciarLecturaEstable(inDip, inDipDir) {
     }
     runRmr();
 }
+  
+  function validarAngular(input, max) {
+    // Solo permitimos números, sin símbolos que rompan el flujo
+    let v = input.value.replace(/\D/g, '');
+    if (v !== "") {
+        let num = parseInt(v);
+        if (num > max) num = max;
+        input.value = num; 
+    }
+    runRmr();
+}
     function calcularClasificacionFinal() {
         let p1 = parseInt(document.getElementById('score_p1').innerText.replace('PTS: ', '')) || 0;
         let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
@@ -1519,39 +1316,10 @@ function registrarFichaActual(silencioso = false) {
     else baseDeDatosFichas.push(ficha);
 	localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
     document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-  	//
-  	verificarAcceso();
-  	//
-    if (!silencioso && !document.getElementById('blocker-layer')) {
-        alert("✅ Estación registrada y guardada en memoria.");
-    }
+    if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
     return true;
-} 
+}
   	
-
-function verificarAcceso() {
-   //
-  	if (localStorage.getItem('rmr_pro_activated') === 'true') return;
-
-    const registrado = localStorage.getItem('rmr_user_name');
-    const id = obtenerIDHardware();
-
-    if (!registrado) {
-        bloquearPantallaRegistro(id);
-        return;
-    }
-
-  	//
-    const fechaInicio = parseInt(localStorage.getItem('rmr_trial_start') || 0);
-    const diasUso = (new Date().getTime() - fechaInicio) / (1000 * 60 * 60 * 24);
-    const fichasTotal = baseDeDatosFichas.length;
-
-    // Lógica de bloqueo (Días o Cantidad de estaciones)
-    if (diasUso > LICENCIA.DIAS_TRIAL || fichasTotal >= LICENCIA.MAX_FICHAS) {
-        bloquearPantallaCompra(id, registrado);
-    }
-} 
-  
 function exportarConsolidado() {
     if (baseDeDatosFichas.length === 0) return;
 
@@ -1689,6 +1457,7 @@ function finalizarGPS(pos, watchId) {
     document.querySelector('.btn-gps-tactil').style.animation = "none";
 }
 
+
 // --- PROCESAMIENTO DE FOTO CON MARCA DE AGUA ---
 function procesarFotoSilenciosa(input) {
     if (input.files && input.files[0]) {
@@ -1730,7 +1499,6 @@ function nuevaEstacion() {
         window.removeEventListener('deviceorientation', procesarMovimientoGlobal, true);
         procesarMovimientoGlobal = null;
     }
-
     // 1. Limpiar inputs básicos
     document.getElementById('est_id').value = "";
     document.getElementById('coord_e').value = "";
@@ -1779,16 +1547,12 @@ function nuevaEstacion() {
 }
   	
 function validarAngular(input, max) {
-    if (input.disabled) return;
-
-    // 1. Limpiamos: solo permitimos números
+    // Solo permitimos números, sin símbolos que rompan el flujo
     let v = input.value.replace(/\D/g, '');
-    
     if (v !== "") {
         let num = parseInt(v);
-        // 2. Restringimos al máximo permitido
         if (num > max) num = max;
-        input.value = num; // Mantenemos el número puro mientras escribe
+        input.value = num; 
     }
     runRmr();
 }
@@ -1805,22 +1569,12 @@ function limpiarAlEntrar(input) {
     input.value = input.value.replace("°", "");
 }
     window.onload = function() { 
-    // PASO 1: Ejecutar la validación (Asegúrate que el nombre sea el mismo que definiste arriba)
-    setTimeout(() => {
-        if (typeof verificarAcceso === 'function') {
-            verificarAcceso(); 
-        } else if (typeof validarAcceso === 'function') {
-            validarAcceso();
-        }
-    }, 100);
-
-    // PASO 2: Cargar el resto de la aplicación
-    const backup = localStorage.getItem('rmr_backup_geotecnia');
-    if (backup) {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+    	if (backup) {
         baseDeDatosFichas = JSON.parse(backup);
         const btn = document.getElementById('btn_exportar');
         if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-    }
+   		}
       	updateLitologia(); 
         updateEscenario(); 
         toggleRes(); 
@@ -1845,25 +1599,7 @@ function limpiarAlEntrar(input) {
     }
 };
 
-  // Esta función se activa desde el botón de la pantalla de compra
-function inputClave(id) {
-    const claveUser = prompt("Sistema RMR89 Pro\nID de Equipo: " + id + "\n\nIngrese su clave de activación:");
     
-    if (!claveUser) return;
-
-    // Validación mediante Semilla (Asegúrate de que coincida con LICENCIA.SEMILLA)
-    const semilla = 2026; 
-    const claveGenerada = "RMR-" + (parseInt(id) * semilla);
-
-    if (claveUser.trim().toUpperCase() === claveGenerada) {
-        localStorage.setItem('rmr_pro_activated', 'true');
-        alert("¡FELICITACIONES! Licencia activada correctamente.\nEl sistema se reiniciará con acceso total.");
-        location.reload();
-    } else {
-        alert("❌ Clave inválida para este ID de equipo.\nContacte a Byron Bravo para obtener su clave.");
-    }
-}
-   
   // REGISTRO DEL SERVICE WORKER (Para Modo Avión)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

@@ -194,7 +194,81 @@ html, body {
     animation: spin 0.8s ease-in-out infinite;
     margin-right: 8px;
 }
-   
+/* Contenedor: Mantiene el scroll horizontal sin generar huecos abajo */
+.junta-tabs-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    padding: 0;
+    margin-top: 10px;
+    border-bottom: 2px solid #052c52;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    /* Eliminamos el padding y margin negativo que causaban el hueco */
+}
+
+/* Ocultar barra de scroll estéticamente */
+.junta-tabs-wrapper::-webkit-scrollbar {
+    height: 0px;
+    display: none;
+}
+
+/* Base común (Tu estilo) */
+.j-tab, .btn-add-tab {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #cbd5e1;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    transition: 0.2s;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* Pestañas inactivas (Tu estilo) */
+.j-tab {
+    padding: 0 15px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-right: 1px;
+}
+
+/* Pestaña ACTIVA: Un poco más grande y pegada a la base */
+.j-tab.active {
+    background: #052c52;
+    color: #ffffff;
+    border-color: #052c52;
+    height: 33px; /* Más grande que las otras (30px) */
+    margin-bottom: -2px; /* Pisa la línea azul para fundirse con la caja */
+    z-index: 2;
+    position: relative;
+    top: 0; /* Eliminado el desplazamiento de 8px */
+}
+
+/* Botón Añadir (+) Sticky (Tu estilo) */
+.btn-add-tab {
+    width: 35px;
+    background: #f1f5f9;
+    color: #052c52;
+    font-size: 18px;
+    font-weight: bold;
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    box-shadow: -4px 0 8px -4px rgba(0,0,0,0.2);
+}
+
+.btn-add-tab:hover, .j-tab:not(.active):hover {
+    background: #cbd5e1;
+}
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
@@ -234,11 +308,11 @@ html, body {
     
     <div style="display: flex; flex-direction: column; gap: 8px;">
             <div style="display:flex; gap:6px;">
-                <div style="flex:1.8;"><div class="input-label">TÉCNICO RESPONSABLE</div><input type="text" id="est_tec" class="in-field"></div>
+                <div style="flex:1.8;"><div class="input-label">TÉCNICO RESPONSABLE</div><input type="text" id="est_tec" class="in-field" placeholder="NOMBRE COMPLETO"></div>
                 <div style="flex:1;"><div class="input-label">FECHA</div><input type="date" id="est_fecha" class="in-field"></div>
         </div>
 
-        <div style="width:100%;"><div class="input-label">PROYECTO / OBRA</div><input type="text" id="proy_nom" class="in-field"></div>
+        <div style="width:100%;"><div class="input-label">PROYECTO / OBRA</div><input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA"></div>
 
         <div style="display:flex; gap:6px;">
             <div style="flex: 1.2;">
@@ -255,22 +329,22 @@ html, body {
             </div>
             <div style="flex: 1;">
                 <div class="input-label" id="lbl_dir">DIR. AVANCE</div>
-                <input type="text" id="eje_dir" class="in-field" placeholder="">
+                <input type="number" id="eje_dir" class="in-field" placeholder="">
             </div>
         </div>
 
         <div style="display:flex; gap:6px; align-items: flex-end;">
             <div style="flex:1;">
                 <div class="input-label" style="font-size: 7px;">COORD X (E)</div>
-        <input type="number" id="coord_e" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+        <input type="number" inputmode="decimal" id="coord_e" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
     </div>
     <div style="flex:1;">
         <div class="input-label" style="font-size: 7px;">COORD Y (N)</div>
-        <input type="number" id="coord_n" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+        <input type="number" inputmode="decimal" id="coord_n" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
     </div>
     <div style="flex:0.7;">
         <div class="input-label" style="font-size: 7px;">ALT (Z)</div>
-        <input type="number" id="coord_z" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+        <input type="number" inputmode="decimal" id="coord_z" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
     </div>
             <button onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS">⌖</button>
         </div>
@@ -380,17 +454,17 @@ html, body {
     <input type="hidden" id="selected_angle" value="0">
 
     <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:4px; margin: 8px 0;">
-        <input type="number" id="r1" class="in-field" placeholder="1" oninput="runRmr()">
-        <input type="number" id="r2" class="in-field" placeholder="2" oninput="runRmr()">
-        <input type="number" id="r3" class="in-field" placeholder="3" oninput="runRmr()">
-        <input type="number" id="r4" class="in-field" placeholder="4" oninput="runRmr()">
-        <input type="number" id="r5" class="in-field" placeholder="5" oninput="runRmr()">
-        <input type="number" id="r6" class="in-field" placeholder="6" oninput="runRmr()">
-        <input type="number" id="r7" class="in-field" placeholder="7" oninput="runRmr()">
-        <input type="number" id="r8" class="in-field" placeholder="8" oninput="runRmr()">
-        <input type="number" id="r9" class="in-field" placeholder="9" oninput="runRmr()">
-        <input type="number" id="r10" class="in-field" placeholder="10" oninput="runRmr()">
-    </div>
+    <input type="number" id="r1" class="in-field" placeholder="1" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r2" class="in-field" placeholder="2" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r3" class="in-field" placeholder="3" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r4" class="in-field" placeholder="4" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r5" class="in-field" placeholder="5" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r6" class="in-field" placeholder="6" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r7" class="in-field" placeholder="7" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r8" class="in-field" placeholder="8" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r9" class="in-field" placeholder="9" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r10" class="in-field" placeholder="10" inputmode="numeric" oninput="runRmr()">
+</div>
     
                         <div style="display:flex; gap:5px; margin-bottom:8px;">
                             <div style="flex:1;">
@@ -467,96 +541,45 @@ html, body {
     </div>
 </div>
 
-        <div class="geo-card junta-card" style="border-left: 4px solid #27ae60; display: flex; flex-direction: column; min-height: 100%; padding: 10px 12px; overflow: hidden;">
-        <h4 class="j-title" style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
-        ▤ JUNTA #1
-    </h4>
-
-    <div style="margin-top: 10px;"> 
-        <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
-    <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-    <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP:</span>
-    <input type="tel" 
-           placeholder="0-90°" 
-           class="in-field j-dip" 
-           style="height:24px; max-width: 80px;" 
-           oninput="validarAngular(this, 90)">
-</div>
-
-<div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-    <span class="input-label" style="margin-bottom: 0; white-space: nowrap; color: #1a5276;">DIP DIR:</span>
-    <input type="tel" 
-           placeholder="0-360°" 
-           class="in-field j-dipdir" 
-           style="height:24px; max-width: 80px;" 
-           oninput="validarAngular(this, 360)">
-</div>
-
-    <button onclick="capturarGiroscopio(this)" class="btn-gyro">🧭</button>
-				</div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                    <div><span class="input-label" style="font-size: 8px;">Espaciamiento</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="20">>2m</option>
-            <option value="15">0.6-2m</option>
-            <option value="10">200-600mm</option>
-            <option value="8">60-200mm</option>
-            <option value="5">&lt;60mm</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Persistencia</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">&lt;1m</option>
-            <option value="4">1-3m</option>
-            <option value="2">3-10m</option>
-            <option value="1">10-20m</option>
-            <option value="0">>20m</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Apertura</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Ninguno</option>
-            <option value="4">0.1-1mm</option>
-            <option value="1">1-5mm</option>
-            <option value="0">>5mm</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Rugosidad</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Muy Rugosa</option>
-            <option value="5">Rugosa</option>
-            <option value="1">Lisa</option>
-            <option value="0">Espejo</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Relleno</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Ninguno</option>
-            <option value="4">Duro &lt;5mm</option>
-            <option value="0">Blando >5mm</option>
-        </select>
-    </div>
-    <div>
-        <span class="input-label" style="font-size: 8px;">Alteración</span>
-        <select class="in-field j-calc" onchange="calcJuntas()" style="font-size: 12px; height: 32px;">
-            <option value="6">Sana</option>
-            <option value="3">Mod. Meteorizada</option>
-            <option value="0">Descompuesta</option>
-        </select>
-    </div>
-
-            </div>
-            <div style="flex-grow: 1;">
-        <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
-            <span class="btn-del-junta" style="display:none; color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
-            <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important; text-align: right;">J1: 35 PTS</div>
+        <div class="geo-card" id="seccion-juntas">
+    <h4>▤ 4. ESTRUCTURAS GEOLÓGICAS</h4>
+    
+    <div class="junta-tabs-wrapper" id="tabs-container">
         </div>
+
+    <div id="form-junta-unica" style="margin-top: 10px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
+            <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
+                <span class="input-label" style="margin:0;">DIP:</span>
+                <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" oninput="guardarDatosJunta()">
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
+                <span class="input-label" style="margin:0;">DIR:</span>
+                <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" oninput="guardarDatosJunta()">
+            </div>
+            <button onclick="capturarGiroscopio()" class="btn-gyro">🧭</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;" id="ui-selects">
+            <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
+            <div><span class="input-label">Persistencia</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
+            <div><span class="input-label">Apertura</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">0.1-1mm</option><option value="1">1-5mm</option><option value="0">>5mm</option></select></div>
+            <div><span class="input-label">Rugosidad</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
+            <div><span class="input-label">Relleno</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
+            <div><span class="input-label">Alteración</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
+        </div>
+
+        <div id="junta-content" style="background: #ffffff; border: 1px solid #e2e8f0; border-top: none; padding: 15px; border-radius: 0 0 8px 8px;">
+    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px;">
+        <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
+              style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; display:none; margin-right: auto;">
+            ✕ ELIMINAR FAMILIA
+        </span>
+        <div id="ui-puntos-junta" class="score-anchor" style="color:#27ae60; margin:0 !important;">J1: 35 PTS</div>
     </div>
+</div>
+    </div>
+
 
     <div class="note" style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 6px; font-size: 8.5px; color: #94a3b8; line-height: 1.2; text-align: justify;">
         <b>RMR-3/4:</b> Apoye el dispositivo sobre el plano y espere 5s a que los valores se estabilicen. Evite la cercanía de elementos metálicos que alteren el sensor magnético.
@@ -616,10 +639,11 @@ html, body {
         </div>
     </div>
 </div>
-        <div id="controles-fase1" class="full-row" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
-            <button class="btn-add-system" onclick="addSystem()" style="width: 125px; height: 35px; font-size: 10px; margin: 0;">+ AÑADIR JUNTA</button>
-            <button onclick="irAFase2()" style="width: 125px; height: 35px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 10px; cursor: pointer; text-transform: uppercase;">SIGUIENTE >></button>
-        </div>
+        <div id="controles-fase1" class="full-row" style="display: flex; justify-content: flex-end; padding: 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
+    <button onclick="prepararYIrAFase2()" style="width: 160px; height: 40px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #1e8449;">
+        VER REPORTE >>
+    </button>
+</div>
     </div> <div id="fase2-container" style="display: none; padding: 12px; background: #ebf2f7;">
         <div id="reporte-card" class="geo-card full-row" style="border-top: 5px solid #27ae60; min-height: auto; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
             <h4 style="margin: 0 0 15px; color: #052c52; font-size: 13px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px;">📊 REPORTE TÉCNICO GEOMECÁNICO RMR</h4>
@@ -792,7 +816,17 @@ html, body {
     }
     runRmr();
 }
+	function prepararYIrAFase2() {
+    // 1. Forzamos el guardado de la pestaña de junta que el usuario tiene abierta actualmente
+    guardarDatosJunta(); 
 
+    // 2. Ejecutamos el motor de cálculo una última vez para asegurar coherencia
+    runRmr();
+
+    // 3. Llamamos a tu función original de validación y cambio de pantalla
+    // (Asegúrate de que esta función 'irAFase2' sea la que oculta el main-container)
+    irAFase2(); 
+}
   function irAFase2() {
     const esc = document.getElementById('escenario').value;
     const isT = esc === 'tunel';
@@ -831,31 +865,37 @@ html, body {
         }
     });
 
-    // 4. Validación técnica mínima: Sistema #1 de juntas
-    const elJ1Dip = document.querySelector('.j-dip');
-    const elJ1Dir = document.querySelector('.j-dipdir');
+    const j1 = listaJuntas[0];
+    const elUiDip = document.getElementById('ui-dip');
+    const elUiDir = document.getElementById('ui-dir');
     
-    const valJ1Dip = elJ1Dip.value.toString().replace('°', '').trim();
-    const valJ1Dir = elJ1Dir.value.toString().replace('°', '').trim();
+    // Limpiamos los valores de grados para validar
+    const valJ1Dip = (j1.dip || "").toString().replace('°', '').trim();
+    const valJ1Dir = (j1.dir || "").toString().replace('°', '').trim();
     
     if (!valJ1Dip || !valJ1Dir) {
-        faltantes.push("Medición Dip/Dir del Sistema #1 (Juntas)");
+        faltantes.push("Medición Dip/Dir de la Junta #1 (Es obligatoria)");
         
-        // PINTAR ROJO SI ESTÁ VACÍO
+        // Si el usuario no está en la Junta 1, lo llevamos allá para que corrija
+        if (idActivo !== 1) {
+            cambiarAJunta(1);
+        }
+
+        // Resaltamos los campos físicos que ve el usuario
         if (!valJ1Dip) {
-            elJ1Dip.style.border = "2px solid #e74c3c";
-            elJ1Dip.style.backgroundColor = "#fdf2f2";
+            elUiDip.style.border = "2px solid #e74c3c";
+            elUiDip.style.backgroundColor = "#fdf2f2";
         }
         if (!valJ1Dir) {
-            elJ1Dir.style.border = "2px solid #e74c3c";
-            elJ1Dir.style.backgroundColor = "#fdf2f2";
+            elUiDir.style.border = "2px solid #e74c3c";
+            elUiDir.style.backgroundColor = "#fdf2f2";
         }
     } else {
-        // LIMPIAR COLOR SI YA ESTÁ LLENO
-        elJ1Dip.style.border = "1px solid #cbd5e1";
-        elJ1Dip.style.backgroundColor = "#ffffff";
-        elJ1Dir.style.border = "1px solid #cbd5e1";
-        elJ1Dir.style.backgroundColor = "#ffffff";
+        // Restauramos el estilo si todo está correcto
+        elUiDip.style.border = "1px solid #cbd5e1";
+        elUiDip.style.backgroundColor = "#ffffff";
+        elUiDir.style.border = "1px solid #cbd5e1";
+        elUiDir.style.backgroundColor = "#ffffff";
     }
 
     // 5. Bloqueo si hay campos vacíos
@@ -916,55 +956,119 @@ function limpiarAlEntrar(input) {
 // 4. DINÁMICA DE JUNTAS (DOM)
 // ==========================================  
   
-function addSystem() {
-    sysCount++;
-    const container = document.getElementById('main-container');
-    const bloqueAgua = document.getElementById('bloque-agua');
-    const nuevaJunta = document.createElement('div');
-    nuevaJunta.className = "geo-card junta-card";
-    nuevaJunta.style.borderLeft = "4px solid #27ae60";
+// --- MEMORIA DE JUNTAS ---
+let listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6] }];
+let idActivo = 1;
 
-    // Nota: Eliminamos el evento oninput complejo y usamos el simple
-    nuevaJunta.innerHTML = `
-        <h4 class="j-title" style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
-            ▤ JUNTA #${sysCount}
-        </h4>
-        <div style="margin-top: 10px;"> 
-            <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
-                <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-                    <span class="input-label" style="margin:0;">DIP:</span>
-                    <input type="number" placeholder="0-90\u00B0" class="in-field j-dip" style="height:24px;" oninput="validarAngular(this, 90)">
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-                    <span class="input-label" style="margin:0;">DIR:</span>
-                    <input type="number" placeholder="0-360\u00B0" class="in-field j-dipdir" style="height:24px;" oninput="validarAngular(this, 360)">
-                </div>
-                <button onclick="capturarGiroscopio(this)" class="btn-gyro">🧭</button>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                ${generarSelectsJunta()} 
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
-                <span onclick="this.closest('.junta-card').remove(); calcJuntas();" style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase;">✕ Eliminar Junta</span>
-                <div class="score-anchor j-score-text" style="color:#27ae60; margin:0 !important;">J${sysCount}: 35 PTS</div>
-            </div>
-        </div>
-    `;
+// Inicializar al cargar
+window.addEventListener('load', () => {
+    renderizarTabs();
+    cambiarAJunta(1);
+});
 
-    container.insertBefore(nuevaJunta, bloqueAgua);
-    calcJuntas();
+function renderizarTabs() {
+    const container = document.getElementById('tabs-container');
+    if (!container) return;
+
+    let html = '';
+    
+    // 1. Poner la junta activa siempre de primera
+    const juntaActiva = listaJuntas.find(j => j.id === idActivo);
+    if (juntaActiva) {
+        html += `<div class="j-tab active" onclick="cambiarAJunta(${juntaActiva.id})">JUNTA #${juntaActiva.id}</div>`;
+    }
+
+    // 2. Las demás juntas después
+    listaJuntas.forEach(j => {
+        if (j.id !== idActivo) {
+            html += `<div class="j-tab" onclick="cambiarAJunta(${j.id})">J#${j.id}</div>`;
+        }
+    });
+    
+    // 3. Botón MAS con clase sticky
+    html += `<div class="btn-add-tab" onclick="nuevaJunta()">+</div>`;
+    
+    container.innerHTML = html;
+    
+    // 4. Scroll automático al inicio para ver la activa
+    container.scrollLeft = 0;
+
+    // Control de visibilidad del botón eliminar
+    const btnEliminar = document.getElementById('btn-eliminar-junta');
+    if (btnEliminar) {
+        btnEliminar.style.display = (idActivo !== 1 && listaJuntas.length > 1) ? 'block' : 'none';
+    }
 }
-  
-// Función auxiliar para no repetir código en addSystem
-function generarSelectsJunta() {
-    return `
-        <div><span class="input-label">Espaciamiento</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5">&lt;60mm</option></select></div>
-        <div><span class="input-label">Persistencia</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">&lt;1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
-        <div><span class="input-label">Apertura</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Ninguno</option><option value="4">0.1-1mm</option><option value="1">1-5mm</option><option value="0">>5mm</option></select></div>
-        <div><span class="input-label">Rugosidad</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
-        <div><span class="input-label">Relleno</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Ninguno</option><option value="4">Duro &lt;5mm</option><option value="0">Blando >5mm</option></select></div>
-        <div><span class="input-label">Alteración</span><select class="in-field j-calc" onchange="calcJuntas()"><option value="6">Sana</option><option value="3">Mod. Meteorizada</option><option value="0">Descompuesta</option></select></div>
-    `;
+// ESTA ES LA FUNCIÓN QUE FALTABA
+function nuevaJunta() {
+    // Generar nuevo ID correlativo
+    const nuevoId = listaJuntas.length > 0 ? Math.max(...listaJuntas.map(j => j.id)) + 1 : 1;
+    
+    // Crear nueva junta con valores por defecto (ISRM estándar)
+    const nuevaJ = { 
+        id: nuevoId, 
+        dip: "", 
+        dir: "", 
+        vals: [20, 6, 6, 6, 6, 6] 
+    };
+    
+    listaJuntas.push(nuevaJ);
+    idActivo = nuevoId; // Cambiar a la nueva automáticamente
+    
+    renderizarTabs();
+    cambiarAJunta(nuevoId);
+}
+
+function cambiarAJunta(id) {
+    // Antes de cambiar, podrías guardar los datos actuales si quisieras, 
+    // pero aquí lo haremos directo.
+    idActivo = id;
+    const datos = listaJuntas.find(j => j.id === id);
+    
+    if (datos) {
+        document.getElementById('ui-dip').value = datos.dip;
+        document.getElementById('ui-dir').value = datos.dir;
+        
+        const selects = document.querySelectorAll('.j-ui');
+        datos.vals.forEach((v, i) => {
+            if(selects[i]) selects[i].value = v;
+        });
+    }
+    
+    renderizarTabs();
+    actualizarPuntosUI();
+}
+
+function guardarDatosJunta() {
+    const index = listaJuntas.findIndex(j => j.id === idActivo);
+    if (index === -1) return;
+
+    listaJuntas[index].dip = document.getElementById('ui-dip').value;
+    listaJuntas[index].dir = document.getElementById('ui-dir').value;
+    
+    const selects = document.querySelectorAll('.j-ui');
+    listaJuntas[index].vals = Array.from(selects).map(s => parseInt(s.value) || 0);
+    
+    actualizarPuntosUI();
+    if (typeof runRmr === 'function') runRmr();
+}
+
+function eliminarJuntaActual() {
+    // Protección extra: No borrar la 1
+    if (idActivo === 1) return; 
+    
+    if (!confirm(`¿Eliminar la familia de juntas #${idActivo}?`)) return;
+    
+    listaJuntas = listaJuntas.filter(j => j.id !== idActivo);
+    idActivo = 1; // Siempre regresar a la 1
+    cambiarAJunta(1);
+}
+
+function actualizarPuntosUI() {
+    const datos = listaJuntas.find(j => j.id === idActivo);
+    if (!datos) return;
+    const suma = datos.vals.reduce((a, b) => a + b, 0);
+    document.getElementById('ui-puntos-junta').innerText = `J${idActivo}: ${suma} PTS`;
 }
 function calcJuntas() {
     // 1. Seleccionar todas las tarjetas de juntas que existen en el momento
@@ -1087,12 +1191,20 @@ function iniciarLecturaEstable(inDip, inDipDir) {
                 if (finalDD < 0) finalDD += 360;
                 let finalD = sumD / muestras.length;
 
-                inDip.value = Math.round(finalD);
-                inDipDir.value = Math.round(finalDD);
-                inDip.placeholder = "0-90\u00B0";
-                inDipDir.placeholder = "0-360\u00B0";
+                // 1. Inyectar valores capturados en los inputs de la interfaz única
+                const uiDip = document.getElementById('ui-dip');
+                const uiDir = document.getElementById('ui-dir');
+                
+                uiDip.value = Math.round(finalD);
+                uiDir.value = Math.round(finalDD);
+                uiDip.placeholder = "0-90°";
+                uiDir.placeholder = "0-360°";
 
-                [inDip, inDipDir].forEach(el => {
+                // 2. VITAL: Guardar estos nuevos valores en la memoria activa (listaJuntas)
+                guardarDatosJunta(); 
+
+                // 3. Feedback visual (Verde éxito)
+                [uiDip, uiDir].forEach(el => {
                     el.style.backgroundColor = "#c8e6c9"; 
                     setTimeout(() => { el.style.backgroundColor = "#ffffff"; }, 1500);
                 });
@@ -1274,15 +1386,17 @@ function procesarFotoSilenciosa(input) {
     document.getElementById('score_p2').innerText = "PTS: " + p2;
 
     // --- 3. JUNTA CRÍTICA ---
-    const tarjetasJuntas = document.querySelectorAll('.junta-card');
-    let puntosJuntaCritica = 35;
-    if (tarjetasJuntas.length > 0) {
-        tarjetasJuntas.forEach(card => {
-            let sumaJuntaActual = 0;
-            card.querySelectorAll('.j-calc').forEach(select => {
-                sumaJuntaActual += parseInt(select.value) || 0;
-            });
-            if (sumaJuntaActual < puntosJuntaCritica) puntosJuntaCritica = sumaJuntaActual;
+    let puntosJuntaCritica = 35; 
+    
+    if (listaJuntas.length > 0) {
+        listaJuntas.forEach(j => {
+            // Sumamos los valores (puntos) de los 6 parámetros guardados en la memoria de esta junta
+            let sumaActual = j.vals.reduce((a, b) => a + b, 0);
+            
+            // Si esta junta es peor (menor puntaje) que la anterior encontrada, se vuelve la crítica
+            if (sumaActual < puntosJuntaCritica) {
+                puntosJuntaCritica = sumaActual;
+            }
         });
     } else {
         puntosJuntaCritica = 0;
@@ -1302,90 +1416,106 @@ function procesarFotoSilenciosa(input) {
 
   
     function calcularClasificacionFinal() {
-        let p1 = parseInt(document.getElementById('score_p1').innerText.replace('PTS: ', '')) || 0;
-        let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
-        let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
-        
-        let minScore = 100, indexPeor = 1;
-        const sistemasJuntas = document.querySelectorAll('.junta-card');
-        
-        // 1. Identificación Junta Crítica y Generación Lista Comparativa
-        let listaHTML = `<div style="border-bottom:1px solid #ffe58f; margin-bottom:5px; padding-bottom:3px;"><b>Análisis de Sistemas (RMR Básico):</b></div>`;
-
-        sistemasJuntas.forEach((card, i) => {
-            let scoreJ = 0;
-            card.querySelectorAll('.j-calc').forEach(sel => scoreJ += parseInt(sel.value));
-            if (scoreJ < minScore) { minScore = scoreJ; indexPeor = i + 1; }
-        });
-
-        sistemasJuntas.forEach((card, i) => {
-            let sj = 0; card.querySelectorAll('.j-calc').forEach(sel => sj += parseInt(sel.value));
-            let rmrBj = p1 + p2 + sj + p5;
-            let esC = (i + 1 === indexPeor);
-            listaHTML += `
-                <div style="display:flex; justify-content:space-between; padding:2px 5px; margin:1px 0; border-radius:3px; 
-                    ${esC ? 'background:#fdf2ce; border:1px solid #f9d876; color:#c0392b; font-weight:900;' : 'color:#555;'}">
-                    <span>Fam. #${i + 1} (${card.querySelector('.j-dipdir').value || '0'}/${card.querySelector('.j-dip').value || '0'}°)</span>
-                    <span>RMRb: ${rmrBj} ${esC ? '⚠️' : ''}</span>
-                </div>`;
-        });
-
-        let rmrBase = p1 + p2 + minScore + p5;
-        const esc = document.getElementById('escenario').value;
-        const oDip = parseFloat(document.getElementById('eje_dip').value.replace('\u00B0', '')) || 0;
-		const oDir = parseFloat(document.getElementById('eje_dir').value.replace('\u00B0', '')) || 0;
-        let p6 = 0;
-
-        sistemasJuntas.forEach(card => {
-            let jDp = parseFloat(card.querySelector('.j-dip').value) || 0;
-            let jDr = parseFloat(card.querySelector('.j-dipdir').value) || 0;
-            let a = 0;
-            if (esc === 'tunel') {
-                let d = Math.abs(oDip - jDr) % 180; if (d > 90) d = 180 - d;
-                if (d < 20) a = -12; else if (d < 45) a = -5; else a = (jDp > 45) ? 0 : -2;
-            } else {
-                let dD = Math.abs(oDir - jDr); if (dD > 180) dD = 360 - dD;
-                if (dD < 20) {
-                    if (jDp > oDip) a = -5; else if (Math.abs(oDip - jDp) < 10) a = -60; else a = -25;
-                } else if (Math.abs(dD - 180) < 20) a = -25;
-            }
-            if (a < p6) p6 = a;
-        });
-
-        let rmrFinal = Math.max(0, rmrBase + p6);
-        let modE = Math.pow(10, (rmrFinal - 10) / 40).toFixed(2);
-        let clase = "", cohesion = "", friccion = "", soporte = "", color = "", tiempo = "";
-        
-        if (rmrFinal > 80) {
-            clase = "I - MUY BUENA"; cohesion = "> 400"; friccion = "> 45"; color = "#1b5e20"; tiempo = "20 años / 15m vano";
-            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Sección completa con avance de 3m.<br><b>Soporte:</b> Generalmente autosoportante. Solo pernos ocasionales en cuñas puntuales." : "<b>Estabilidad:</b> Macizo competente y estable. No requiere medidas de refuerzo; monitoreo estándar.";
-        } else if (rmrFinal > 60) {
-            clase = "II - BUENA"; cohesion = "300-400"; friccion = "35-45"; color = "#2ecc71"; tiempo = "1 año / 10m vano";
-            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Sección completa. Avance de 1.0 a 1.5m con soporte a 20m del frente.<br><b>Soporte:</b> Bulones localizados en corona (3m long) espaciados 2.5m con malla ocasional." : "<b>Estabilidad:</b> Bloques estables con riesgo de caída puntual por gravedad. Recomendable sellado de grietas.";
-        } else if (rmrFinal > 40) {
-            clase = "III - MEDIA"; cohesion = "200-300"; friccion = "25-35"; color = "#f1c40f"; tiempo = "1 semana / 5m vano";
-            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Galería y destroza. Avance de 1.5 a 3m. Iniciar soporte inmediatamente.<br><b>Soporte:</b> Bulones sistemáticos (4m) espaciados 1.5-2m en corona y hastiales. Shotcrete de 50-100mm en corona." : "<b>Estabilidad:</b> Riesgo de fallas locales por cuñas o bloques. Requiere pernos de anclaje sistemáticos.";
-        } else if (rmrFinal > 20) {
-            clase = "IV - MALA"; cohesion = "100-200"; friccion = "15-25"; color = "#e67e22"; tiempo = "10 h / 2.5m vano";
-            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Galería y destroza. Avances cortos (1.0-1.5m). Soporte simultáneo.<br><b>Soporte:</b> Bulones sistemáticos (4-5m) espaciados 1-1.5m. Shotcrete 100-150mm. Cerchas ligeras espaciadas 1.5m." : "<b>Estabilidad:</b> Talud inestable con deformaciones activas. Requiere muros de gravedad y shotcrete.";
-        } else {
-            clase = "V - MUY MALA"; cohesion = "< 100"; friccion = "< 15"; color = "#c0392b"; tiempo = "30 min / 0.5m vano";
-            soporte = (esc === 'tunel') ? "<b>Excavación:</b> Múltiples secciones. Avance mínimo 0.5m. Sostenimiento inmediato.<br><b>Soporte:</b> Bulones sistemáticos (5-6m). Shotcrete >150mm con malla. Cerchas pesadas espaciadas 0.75m." : "<b>Estabilidad:</b> Falla inminente por flujo o colapso circular. Requiere medidas urgentes de contención.";
+    // 1. Recuperar valores de P1, P2 y P5
+    let p1 = parseInt(document.getElementById('score_p1').innerText.replace('PTS: ', '')) || 0;
+    let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
+    let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
+    
+    // 2. Identificación Junta Crítica desde la Memoria (listaJuntas)
+    let minScoreJunta = 35; 
+    let indexPeor = 1;
+    
+    listaJuntas.forEach((j) => {
+        let scoreJ = j.vals.reduce((a, b) => a + b, 0);
+        if (scoreJ < minScoreJunta) { 
+            minScoreJunta = scoreJ; 
+            indexPeor = j.id; 
         }
+    });
 
-        document.getElementById('res_rmr_base').innerText = rmrBase;
-        document.getElementById('res_ajuste').innerText = p6;
-        document.getElementById('res_rmr_final').innerText = rmrFinal;
-        document.getElementById('res_clase_tag').innerText = "CLASE: " + clase;
-        document.getElementById('res_clase_tag').style.background = color;
-        document.getElementById('res_cohesion').innerText = cohesion + " kPa";
-        document.getElementById('res_friccion').innerHTML = friccion + "&deg;";
-        document.getElementById('res_modulo_e').innerText = modE + " GPa";
-        document.getElementById('res_tiempo').innerText = tiempo;
-        document.getElementById('res_peor_junta').innerHTML = listaHTML;
-        document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
-        document.getElementById('reporte-card').style.borderTopColor = color;
+    let rmrBase = p1 + p2 + minScoreJunta + p5;
+
+    // 3. Generación de la lista comparativa HTML para el reporte
+    let listaHTML = `<div style="border-bottom:1px solid #ffe58f; margin-bottom:5px; padding-bottom:3px;"><b>Análisis de Sistemas (RMR Básico):</b></div>`;
+    
+    listaJuntas.forEach(j => {
+        let scoreJuntaActual = j.vals.reduce((a, b) => a + b, 0);
+        let rmrBj = p1 + p2 + scoreJuntaActual + p5;
+        let esCritica = (j.id === indexPeor);
+        
+        listaHTML += `
+            <div style="display:flex; justify-content:space-between; padding:2px 5px; margin:1px 0; border-radius:3px; 
+                ${esCritica ? 'background:#fdf2ce; border:1px solid #f9d876; color:#c0392b; font-weight:900;' : 'color:#555;'}">
+                <span>Fam. #${j.id} (${j.dir || '0'}/${j.dip || '0'}°)</span>
+                <span>RMRb: ${rmrBj} ${esCritica ? '⚠️' : ''}</span>
+            </div>`;
+    });
+
+    // 4. Cálculo del Ajuste P6 (Orientación)
+    const esc = document.getElementById('escenario').value;
+    const oDip = parseFloat(document.getElementById('eje_dip').value) || 0;
+    const oDir = parseFloat(document.getElementById('eje_dir').value) || 0;
+    let p6 = 0;
+
+    listaJuntas.forEach(j => {
+        let jDp = parseFloat(j.dip) || 0;
+        let jDr = parseFloat(j.dir) || 0;
+        let a = 0;
+        
+        if (esc === 'tunel') {
+            let d = Math.abs(oDip - jDr) % 180; 
+            if (d > 90) d = 180 - d;
+            if (d < 20) a = -12; 
+            else if (d < 45) a = -5; 
+            else a = (jDp > 45) ? 0 : -2;
+        } else {
+            let dD = Math.abs(oDir - jDr); 
+            if (dD > 180) dD = 360 - dD;
+            if (dD < 20) {
+                if (jDp > oDip) a = -5; 
+                else if (Math.abs(oDip - jDp) < 10) a = -60; 
+                else a = -25;
+            } else if (Math.abs(dD - 180) < 20) a = -25;
+        }
+        if (a < p6) p6 = a;
+    });
+
+    // 5. Resultados Finales
+    let rmrFinal = Math.max(0, rmrBase + p6);
+    let modE = Math.pow(10, (rmrFinal - 10) / 40).toFixed(2);
+    let clase = "", cohesion = "", friccion = "", soporte = "", color = "", tiempo = "";
+    
+    if (rmrFinal > 80) {
+        clase = "I - MUY BUENA"; cohesion = "> 400"; friccion = "> 45"; color = "#1b5e20"; tiempo = "20 años / 15m vano";
+        soporte = (esc === 'tunel') ? "<b>Excavación:</b> Sección completa con avance de 3m.<br><b>Soporte:</b> Generalmente autosoportante." : "<b>Estabilidad:</b> Macizo competente y estable.";
+    } else if (rmrFinal > 60) {
+        clase = "II - BUENA"; cohesion = "300-400"; friccion = "35-45"; color = "#2ecc71"; tiempo = "1 año / 10m vano";
+        soporte = (esc === 'tunel') ? "<b>Excavación:</b> Sección completa. Avance 1.0-1.5m.<br><b>Soporte:</b> Pernos corona (3m)." : "<b>Estabilidad:</b> Bloques estables con riesgo caída puntual.";
+    } else if (rmrFinal > 40) {
+        clase = "III - MEDIA"; cohesion = "200-300"; friccion = "25-35"; color = "#f1c40f"; tiempo = "1 semana / 5m vano";
+        soporte = (esc === 'tunel') ? "<b>Excavación:</b> Galería y destroza. Avance 1.5-3m.<br><b>Soporte:</b> Pernos sistemáticos y shotcrete corona." : "<b>Estabilidad:</b> Riesgo fallas locales cuñas.";
+    } else if (rmrFinal > 20) {
+        clase = "IV - MALA"; cohesion = "100-200"; friccion = "15-25"; color = "#e67e22"; tiempo = "10 h / 2.5m vano";
+        soporte = (esc === 'tunel') ? "<b>Excavación:</b> Galería y destroza. Avances cortos.<br><b>Soporte:</b> Pernos, malla, cerchas y shotcrete." : "<b>Estabilidad:</b> Talud inestable con deformaciones.";
+    } else {
+        clase = "V - MUY MALA"; cohesion = "< 100"; friccion = "< 15"; color = "#c0392b"; tiempo = "30 min / 0.5m vano";
+        soporte = (esc === 'tunel') ? "<b>Excavación:</b> Múltiples secciones. Avance mínimo.<br><b>Soporte:</b> Pernos, shotcrete, malla y cerchas pesadas." : "<b>Estabilidad:</b> Falla inminente.";
     }
+
+    // 6. Inyección en el DOM
+    document.getElementById('res_rmr_base').innerText = rmrBase;
+    document.getElementById('res_ajuste').innerText = p6;
+    document.getElementById('res_rmr_final').innerText = rmrFinal;
+    document.getElementById('res_clase_tag').innerText = "CLASE: " + clase;
+    document.getElementById('res_clase_tag').style.background = color;
+    document.getElementById('res_cohesion').innerText = cohesion + " kPa";
+    document.getElementById('res_friccion').innerHTML = friccion + "&deg;";
+    document.getElementById('res_modulo_e').innerText = modE + " GPa";
+    document.getElementById('res_tiempo').innerText = tiempo;
+    document.getElementById('res_peor_junta').innerHTML = listaHTML;
+    document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
+    document.getElementById('reporte-card').style.borderTopColor = color;
+}
   
 // ==========================================
 // 8. GESTIÓN DE DATOS Y PERSISTENCIA
@@ -1398,20 +1528,25 @@ function registrarFichaActual(silencioso = false) {
         return false;
     }
 
-    // Captura detallada de cada Junta (solo datos, sin puntos intermedios)
-    let datosJuntas = [];
-    document.querySelectorAll('.junta-card').forEach((card) => {
-        const selects = card.querySelectorAll('.j-calc');
-        datosJuntas.push({
-            dip: card.querySelector('.j-dip').value || "0",
-            dir: card.querySelector('.j-dipdir').value || "0",
-            espac: selects[0].options[selects[0].selectedIndex].text,
-            persist: selects[1].options[selects[1].selectedIndex].text,
-            apert: selects[2].options[selects[2].selectedIndex].text,
-            rugos: selects[3].options[selects[3].selectedIndex].text,
-            rellen: selects[4].options[selects[4].selectedIndex].text,
-            alter: selects[5].options[selects[5].selectedIndex].text
-        });
+    // --- NUEVA LÓGICA PARA EXPORTAR DESDE PESTAÑAS ---
+    // Mapeamos los datos técnicos de cada junta guardada en memoria
+    let datosJuntas = listaJuntas.map(j => {
+        // Obtenemos los textos de los selects (Espaciamiento, Persistencia, etc.)
+        // Como el formulario es dinámico, recreamos la lógica de lectura
+        const dummySelect = document.createElement('select'); // Auxiliar para lectura de etiquetas
+        
+        return {
+            dip: j.dip || "0",
+            dir: j.dir || "0",
+            // Los valores de j.vals son los puntos (ej: 20, 15, 10). 
+            // Para el excel, guardamos el puntaje de cada parámetro.
+            p_espac: j.vals[0],
+            p_persist: j.vals[1],
+            p_apert: j.vals[2],
+            p_rugos: j.vals[3],
+            p_rellen: j.vals[4],
+            p_alter: j.vals[5]
+        };
     });
 
     const ficha = {
@@ -1430,7 +1565,10 @@ function registrarFichaActual(silencioso = false) {
         ucs_val: document.querySelector('#out_vis_ucs b')?.innerText || document.querySelector('#out_sch_ucs b')?.innerText || "0",
         rqd_val: document.querySelector('#out_rqd b')?.innerText || "0",
         agua_tipo: document.getElementById('p5_agua').options[document.getElementById('p5_agua').selectedIndex].text,
-        juntas: datosJuntas,
+        
+        // VITAL: Guardamos el array de juntas de la memoria
+        juntas: datosJuntas, 
+
         // Resultados Finales
         rmr_b: document.getElementById('res_rmr_base').innerText,
         p6: document.getElementById('res_ajuste').innerText,
@@ -1444,12 +1582,13 @@ function registrarFichaActual(silencioso = false) {
     const indexExistente = baseDeDatosFichas.findIndex(f => f.id === idActual);
     if (indexExistente !== -1) baseDeDatosFichas[indexExistente] = ficha;
     else baseDeDatosFichas.push(ficha);
-	localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    
+    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
     document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    
     if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
     return true;
 }
-
   function nuevaEstacion() {
     if (!confirm("¿Deseas limpiar el formulario para iniciar una nueva estación? (Los datos guardados en el consolidado no se borrarán)")) return;
 
@@ -1458,6 +1597,7 @@ function registrarFichaActual(silencioso = false) {
         window.removeEventListener('deviceorientation', procesarMovimientoGlobal, true);
         procesarMovimientoGlobal = null;
     }
+
     // 1. Limpiar inputs básicos
     document.getElementById('est_id').value = "";
     document.getElementById('coord_e').value = "";
@@ -1466,39 +1606,17 @@ function registrarFichaActual(silencioso = false) {
     document.getElementById('gps_info').innerHTML = "";
     document.getElementById('abs_desde').value = "";
     document.getElementById('abs_hasta').value = "";
+
+    // 2. REINICIAR MEMORIA DE JUNTAS (NUEVO SISTEMA)
+    // Volvemos a dejar solo la Junta #1 con valores por defecto
+    listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6] }];
+    idActivo = 1;
     
-    // 2. Resetear Juntas: Eliminar todas las extras y resetear la primera
-    const todasLasJuntas = document.querySelectorAll('.junta-card');
-    todasLasJuntas.forEach((j, index) => {
-        if (index > 0) j.remove(); 
-    });
-    
-    // Resetear valores de la Junta #1
-    sysCount = 1;
-    const j1 = document.querySelector('.junta-card');
-    
-    // DEFINIMOS CORRECTAMENTE LAS VARIABLES PARA QUE EL CÓDIGO NO SE ROMPA
-    const inputDip = j1.querySelector('.j-dip');
-    const inputDir = j1.querySelector('.j-dipdir');
+    // Refrescamos la UI: redibujamos las pestañas y cargamos la J1 al formulario
+    renderizarTabs();
+    cambiarAJunta(1);
 
-    // --- LIMPIEZA PROFUNDA Y RESTAURACIÓN DE PLACEHOLDERS ---
-    if (inputDip) {
-        inputDip.value = "";
-        // Usamos código hexadecimal universal para el símbolo de grado
-        inputDip.placeholder = "0-90\u00B0"; 
-        inputDip.style.backgroundColor = "#ffffff";
-    }
-
-    if (inputDir) {
-        inputDir.value = "";
-        inputDir.placeholder = "0-360\u00B0"; 
-        inputDir.style.backgroundColor = "#ffffff";
-    }
-
-    // Resetear los selectores de la junta
-    j1.querySelectorAll('.j-calc').forEach(sel => sel.selectedIndex = 0);
-
-    // 3. Resetear Sensores y Resultados
+    // 3. Resetear Sensores y Resultados Generales
     runRmr();
     volverAFase1();
     window.scrollTo(0,0);
@@ -1510,17 +1628,22 @@ function registrarFichaActual(silencioso = false) {
 // ==========================================  
   
 function exportarConsolidado() {
-    if (baseDeDatosFichas.length === 0) return;
+    if (baseDeDatosFichas.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
+    }
 
     const desarrollador = "Mgtr. Byron Bravo";
-    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas.length));
     
-    // Encabezados dinámicos por Sistema
+    // 1. Calculamos el máximo de juntas registradas en todo el histórico para crear las columnas necesarias
+    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
+    
+    // 2. Encabezados dinámicos por Sistema (Familias de Juntas)
     let encabezadoSistemas = "";
     let subEncabezadoDatos = "";
     for (let i = 1; i <= maxJuntas; i++) {
-        encabezadoSistemas += `<th colspan="8" style="background-color: #27ae60; color: white; border: 1px solid #000;">SISTEMA #${i}</th>`;
-        subEncabezadoDatos += `<th>DIP(°)</th><th>DIR(°)</th><th>ESPAC.</th><th>PERSIST.</th><th>APERT.</th><th>RUGOS.</th><th>RELLEN.</th><th>ALTER.</th>`;
+        encabezadoSistemas += `<th colspan="8" style="background-color: #27ae60; color: white; border: 1px solid #000;">FAMILIA #${i}</th>`;
+        subEncabezadoDatos += `<th>DIP(°)</th><th>DIR(°)</th><th>P_ESPAC</th><th>P_PERSIST</th><th>P_APERT</th><th>P_RUGOS</th><th>P_RELLEN</th><th>P_ALTER</th>`;
     }
 
     let excelTemplate = `
@@ -1557,9 +1680,10 @@ function exportarConsolidado() {
                     ${baseDeDatosFichas.map(f => {
                         let celdasJuntas = "";
                         for (let i = 0; i < maxJuntas; i++) {
-                            const j = f.juntas[i];
+                            const j = (f.juntas && f.juntas[i]) ? f.juntas[i] : null;
                             if (j) {
-                                celdasJuntas += `<td>${j.dip}</td><td>${j.dir}</td><td>${j.espac}</td><td>${j.persist}</td><td>${j.apert}</td><td>${j.rugos}</td><td>${j.rellen}</td><td>${j.alter}</td>`;
+                                // Aquí leemos las propiedades tal cual las guardamos en registrarFichaActual
+                                celdasJuntas += `<td>${j.dip}</td><td>${j.dir}</td><td>${j.p_espac}</td><td>${j.p_persist}</td><td>${j.p_apert}</td><td>${j.p_rugos}</td><td>${j.p_rellen}</td><td>${j.p_alter}</td>`;
                             } else {
                                 celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
                             }
@@ -1581,66 +1705,78 @@ function exportarConsolidado() {
             <div style="font-size: 8pt; color: #666;">Algoritmos y Desarrollo Técnico: <b>${desarrollador}</b> | Generado: ${new Date().toLocaleString()}</div>
         </body></html>`;
 
+    // 3. Generación del archivo y descarga
     const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Data_RMR_ByronBravo.xls`;
+    link.download = `Data_RMR_ByronBravo_${new Date().getTime()}.xls`;
     link.click();
-	// --- LIMPIEZA POST-EXPORTACIÓN ---
-    if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido exportado?")) {
-        baseDeDatosFichas = []; // Limpia la variable en RAM
-        localStorage.removeItem('rmr_backup_geotecnia'); // Borra el respaldo permanente
-        document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
-        alert("🧹 Memoria limpia para una nueva jornada.");
-    }
+
+    // 4. Limpieza opcional de base de datos local
+    setTimeout(() => {
+        if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido exportado?")) {
+            baseDeDatosFichas = [];
+            localStorage.removeItem('rmr_backup_geotecnia');
+            document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
+            alert("🧹 Memoria limpia para una nueva jornada.");
+        }
+    }, 1000);
 }
-  
 
 // ==========================================
 // 10. INICIALIZACIÓN Y CICLO DE VIDA
 // ==========================================
-  	
-    window.onload = function() { 
-        const backup = localStorage.getItem('rmr_backup_geotecnia');
-    	if (backup) {
+      
+window.onload = function() { 
+    // 1. Cargar respaldo de memoria de fichas guardadas
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
         baseDeDatosFichas = JSON.parse(backup);
         const btn = document.getElementById('btn_exportar');
         if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-   		}
-      	updateLitologia(); 
-        updateEscenario(); 
-        toggleRes(); 
-        calcJuntas(); 
+    }
 
-        // AQUÍ VA TU CÓDIGO DE MAYÚSCULAS
-        const inputID = document.getElementById('est_id');
-        if (inputID) {
-            inputID.addEventListener('input', function() {
-                this.value = this.value.toUpperCase();
-            });
-        }
+    // 2. Inicializar lógica de bloques 1, 2, 3 y 5
+    updateLitologia(); 
+    updateEscenario(); 
+    toggleRes(); 
+    toggleRqd();
+
+    // 3. INICIALIZAR EL NUEVO SISTEMA DE PESTAÑAS DE JUNTAS (SECCIÓN 4)
+    // Esto asegura que al abrir la app, la "Junta #1" aparezca dibujada y activa
+    renderizarTabs(); 
+    cambiarAJunta(1); 
+
+    // 4. Ejecutar primer cálculo general
+    runRmr(); 
+
+    // 5. Configuración de ID en Mayúsculas
+    const inputID = document.getElementById('est_id');
+    if (inputID) {
+        inputID.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
         
-        // --- FECHA LOCAL---
+    // 6. Configuración de Fecha Local
     const fechaInput = document.getElementById('est_fecha');
     if (fechaInput) {
         const ahora = new Date();
-        // Ajustamos la zona horaria restando el desfase en minutos
         const offset = ahora.getTimezoneOffset() * 60000;
         const localISOTime = (new Date(ahora - offset)).toISOString().slice(0, 10);
         fechaInput.value = localISOTime;
     }
 };
-
-    
-  // REGISTRO DEL SERVICE WORKER (Para Modo Avión)
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log("✅ Sistema Offline Preparado"))
-                .catch(err => console.log("❌ Error de registro sw:", err));
-        });
-    }
+	
+// REGISTRO DEL SERVICE WORKER (Para Modo Avión)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log("✅ Sistema Offline Preparado"))
+            .catch(err => console.log("❌ Error de registro sw:", err));
+    });
+}
 </script>
 </body>
 </html>

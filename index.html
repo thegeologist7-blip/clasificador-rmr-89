@@ -163,17 +163,17 @@ html, body {
     border-radius: 4px; /* Bordes un poco más rectos para verse técnico */
     cursor: pointer;
     transition: all 0.15s ease;
-    height: 28px; /* Altura fija para que todos sean simétricos */
+    height: 35px; /* Altura fija para que todos sean simétricos */
 }
 
 .sch-icon {
-    font-size: 14.5px; /* Flecha fina */
+    font-size: 15px; /* Flecha fina */
     font-weight: 600;
     margin-right:6px;
 }
 
 .sch-deg {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: -0.5px; /* Compacta el texto */
 }
@@ -184,6 +184,14 @@ html, body {
     border-color: #052c52 !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
+ 
+    /* Ajuste específico para los 10 inputs de rebotes */
+.grid-rebotes input.in-field {
+    height: 35px; /* Un poco más altos para facilitar el toque */
+    font-size: 12px !important; /* Tamaño ideal para evitar zoom en iOS y mejorar lectura */
+    text-align: center;
+    font-weight: 700;
+}
     .spinner-mini {
     display: inline-block;
     width: 12px;
@@ -193,6 +201,10 @@ html, body {
     border-top-color: #fff;
     animation: spin 0.8s ease-in-out infinite;
     margin-right: 8px;
+}
+    @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 /* Contenedor: Mantiene el scroll horizontal sin generar huecos abajo */
 .junta-tabs-wrapper {
@@ -206,7 +218,7 @@ html, body {
     overflow-y: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
-    /* Eliminamos el padding y margin negativo que causaban el hueco */
+    
 }
 
 /* Ocultar barra de scroll estéticamente */
@@ -233,7 +245,7 @@ html, body {
 /* Pestañas inactivas (Tu estilo) */
 .j-tab {
     padding: 0 15px;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     background: #f1f5f9;
     color: #64748b;
@@ -245,8 +257,9 @@ html, body {
 .j-tab.active {
     background: #052c52;
     color: #ffffff;
+  	font-size: 12px;
     border-color: #052c52;
-    height: 33px; /* Más grande que las otras (30px) */
+    height: 35px; /* Más grande que las otras (30px) */
     margin-bottom: -2px; /* Pisa la línea azul para fundirse con la caja */
     z-index: 2;
     position: relative;
@@ -255,10 +268,10 @@ html, body {
 
 /* Botón Añadir (+) Sticky (Tu estilo) */
 .btn-add-tab {
-    width: 35px;
+    width: 40px;
     background: #f1f5f9;
     color: #052c52;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     position: sticky;
     right: 0;
@@ -269,9 +282,8 @@ html, body {
 .btn-add-tab:hover, .j-tab:not(.active):hover {
     background: #cbd5e1;
 }
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+      
+
 </style>
  	
 </head>
@@ -281,38 +293,44 @@ html, body {
     <div style="background: #052c52; padding: 18px 20px; color: white; border-bottom: 4px solid #3498db; display: flex; justify-content: space-between; align-items: center;">
         
         <div style="display: flex; flex-direction: column;">
-            <h1 style="margin:0; font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #ffffff;">
+            <h1 style="margin:0; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #ffffff;">
                 CLASIFICADOR RMR <span style="color: #3498db;"><i><b>89</b></i></span>
             </h1>
-            <p style="margin: 4px 0 0; font-size: 10px; opacity: 0.9; text-transform: uppercase; font-weight: 600;">
+            <p style="margin: 4px 0 0; font-size: 11px; opacity: 0.9; text-transform: uppercase; font-weight: 600;">
                 Método Geomecánico de Bieniawski
             </p>
-            <div class="copy-txt" style="font-size: 7px; opacity: 0.8; margin-top: 2px;">
+            <div class="copy-txt" style="font-size: 8px; opacity: 0.8; margin-top: 2px;">
                 © 2026 Byron Bravo • Todos los derechos reservados
             </div>
-            <p style="margin: 6px 0 0; font-size: 7px; line-height: 1.2; color: #bdc3c7; text-align: justify; font-style: italic; opacity: 0.7; max-width: 400px;">
+            <p style="margin: 6px 0 0; font-size: 8px; line-height: 1.2; color: #bdc3c7; text-align: justify; font-style: italic; opacity: 0.7; max-width: 400px;">
                 <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
             </p>
         </div>
 
         <div class="v-box">
-            v10.0 PRO
+            v10.1 PRO
         </div>
     </div>
 
     <div class="grid-main" id="main-container">
     <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
         📋 1. DATOS E INFORMACIÓN GENERAL
     </h4>
     
     <div style="display: flex; flex-direction: column; gap: 8px;">
             <div style="display:flex; gap:6px;">
-                <div style="flex:1.8;"><div class="input-label">TÉCNICO RESPONSABLE</div><input type="text" id="est_tec" class="in-field" placeholder="NOMBRE COMPLETO"></div>
+                <div style="flex:1.8;">
+    			<div class="input-label">TÉCNICO RESPONSABLE</div>
+    			<style>#est_tec::placeholder { font-size: 11px; }</style> 
+   				 <input type="text" id="est_tec" class="in-field" placeholder="NOMBRE Y APELLIDO"></div>
                 <div style="flex:1;"><div class="input-label">FECHA</div><input type="date" id="est_fecha" class="in-field"></div>
         </div>
 
-        <div style="width:100%;"><div class="input-label">PROYECTO / OBRA</div><input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA"></div>
+       	 		<div style="width:100%;">
+    			<div class="input-label">PROYECTO / OBRA</div>
+    			<style>#proy_nom::placeholder { font-size: 11px; }</style>
+    			<input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA"></div>
 
         <div style="display:flex; gap:6px;">
             <div style="flex: 1.2;">
@@ -325,7 +343,7 @@ html, body {
             </div>
             <div style="flex: 0.9;">
                 <div class="input-label" id="lbl_dip">AZIMUT EJE</div>
-                <input type="number" id="eje_dip" class="in-field" placeholder="°" oninput="if(this.value>360)this.value=360; if(this.value<0)this.value=0;">
+                <input type="number" id="eje_dip" class="in-field" placeholder="0-360°" oninput="if(this.value>360)this.value=360; if(this.value<0)this.value=0;">
             </div>
             <div style="flex: 1;">
                 <div class="input-label" id="lbl_dir">DIR. AVANCE</div>
@@ -335,15 +353,15 @@ html, body {
 
         <div style="display:flex; gap:6px; align-items: flex-end;">
             <div style="flex:1;">
-                <div class="input-label" style="font-size: 7px;">COORD X (E)</div>
+                <div class="input-label" style="font-size:8px;">COORD X (E)</div>
         <input type="number" inputmode="decimal" id="coord_e" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
     </div>
     <div style="flex:1;">
-        <div class="input-label" style="font-size: 7px;">COORD Y (N)</div>
+        <div class="input-label" style="font-size: 8px;">COORD Y (N)</div>
         <input type="number" inputmode="decimal" id="coord_n" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
     </div>
     <div style="flex:0.7;">
-        <div class="input-label" style="font-size: 7px;">ALT (Z)</div>
+        <div class="input-label" style="font-size: 8px;">ALT (Z)</div>
         <input type="number" inputmode="decimal" id="coord_z" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
     </div>
             <button onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS">⌖</button>
@@ -353,7 +371,7 @@ html, body {
         <div style="display:flex; gap:6px;">
             <div style="flex:1;">
                 <div class="input-label">EST. GEOMECÁNICA</div>
-                <input type="text" id="est_id" class="in-field" style="border-color:#e67e22; font-weight:bold; font-size: 11px;" placeholder="ID Obligatorio">
+                <input type="text" id="est_id" class="in-field" style="border-color:#e67e22; font-weight:bold; font-size: 11px;" placeholder="EJ. CGM-001">
             </div>
             <div style="flex:1;">
                 <div class="input-label">SECTOR</div>
@@ -392,7 +410,7 @@ html, body {
 </div>
 
         <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
         🔨 2. RESISTENCIA DE LA ROCA (UCS)
     </h4>
 
@@ -404,7 +422,7 @@ html, body {
         </select>
                 <div class="method-slot">
                     <div id="ui_vis" class="hidden">
-                        <div class="input-label">RESISTENCIA EN CAMPO</div>
+                        <div class="input-label" style="margin-top: 12px;">RESISTENCIA EN CAMPO</div>
                         <select id="valVis" onchange="runRmr()" class="in-field">
                             <option value="15">R6: >250 MPa (Extremadamente Fuerte)</option>
                             <option value="12">R5: 100-250 MPa (Muy Fuerte)</option>
@@ -414,7 +432,7 @@ html, body {
                             <option value="1">R1: 1-5 MPa (Muy Débil)</option>
                         </select>
                         <div class="input-label" style="margin-top:12px; border-bottom: 1px solid #eee;">IDENTIFICACIÓN MANUAL (ISRM, 1981)</div>
-                        <span class="guide-text" style="margin-top: 5px; display: block; font-size: 9px; line-height: 1.5;">
+                        <span class="guide-text" style="margin-top: 5px; display: block; font-size: 10px; line-height: 1.5;">
                             <b>R6-R5:</b> Solo se astilla con golpes de martillo geológico.<br>
                             <b>R4:</b> Se rompe con más de un golpe firme de martillo.<br>
                             <b>R3:</b> Se rompe con un solo golpe firme. Se raya con navaja.<br>
@@ -430,7 +448,7 @@ html, body {
                     </div>
                     <div id="ui_sch" style="margin-top: 10px;">
     <div class="input-label">REBOTES R</div>
-    <span class="guide-text" style="font-size: 9px; line-height: 1.1; margin-bottom: 4px;">
+    <span class="guide-text" style="font-size: 10px; line-height: 1.1; margin-bottom: 4px;">
         Se deben tomar 10 medidas. Seleccione la orientación del ensayo para corregir el rebote.
     </span>
 
@@ -453,17 +471,17 @@ html, body {
 </div>
     <input type="hidden" id="selected_angle" value="0">
 
-    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:4px; margin: 8px 0;">
-    <input type="number" id="r1" class="in-field" placeholder="1" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r2" class="in-field" placeholder="2" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r3" class="in-field" placeholder="3" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r4" class="in-field" placeholder="4" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r5" class="in-field" placeholder="5" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r6" class="in-field" placeholder="6" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r7" class="in-field" placeholder="7" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r8" class="in-field" placeholder="8" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r9" class="in-field" placeholder="9" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r10" class="in-field" placeholder="10" inputmode="numeric" oninput="runRmr()">
+    <div class="grid-rebotes" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; margin: 10px 0;">
+    <input type="number" id="r1" class="in-field" placeholder="R1" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r2" class="in-field" placeholder="R2" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r3" class="in-field" placeholder="R3" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r4" class="in-field" placeholder="R4" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r5" class="in-field" placeholder="R5" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r6" class="in-field" placeholder="R6" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r7" class="in-field" placeholder="R7" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r8" class="in-field" placeholder="R8" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r9" class="in-field" placeholder="R9" inputmode="numeric" oninput="runRmr()">
+    <input type="number" id="r10" class="in-field" placeholder="R10" inputmode="numeric" oninput="runRmr()">
 </div>
     
                         <div style="display:flex; gap:5px; margin-bottom:8px;">
@@ -490,11 +508,15 @@ html, body {
                 </div>
             </div>
             <div id="score_p1" class="score-anchor">PTS: 0</div>
-            <div class="note"><b>Ref:</b> Estimación mediante Deere & Miller (1966) / ISRM.</div>
+            <div style="flex-grow: 1;"></div>
+
+			<div class="note" style="border-top: 1px solid #f1f5f9; margin-top: 10px; padding-top: 5px; font-size: 9.5px; color: #94a3b8;">
+   			<b>Ref:</b> Estimación mediante ISRM / Deere & Miller.
+			</div>
         </div>
 
         <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
         ✔️ 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)
     </h4>
     
@@ -536,13 +558,14 @@ html, body {
        <div id="score_p2" class="score-anchor" style="color:#27ae60; margin-top: 5px;">PTS: 0</div>
     </div>
 
-    <div class="note" style="margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f5f9; font-size: 8.5px; color: #94a3b8; line-height: 1.1; text-align: justify;">
+    <div class="note" style="margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f5f9; font-size: 9.5px; color: #94a3b8; line-height: 1.1; text-align: justify;">
         <b>RMR-2:</b> El RQD define la competencia de la roca y es el indicador crítico para la estimación inicial del sostenimiento y el tiempo de autosoporte.
     </div>
 </div>
 
-        <div class="geo-card" id="seccion-juntas">
-    <h4>▤ 4. ESTRUCTURAS GEOLÓGICAS</h4>
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+      ▤ 4. ESTRUCTURAS GEOLÓGICAS</h4>
     
     <div class="junta-tabs-wrapper" id="tabs-container">
         </div>
@@ -551,11 +574,13 @@ html, body {
         <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
             <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
                 <span class="input-label" style="margin:0;">DIP:</span>
-                <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" oninput="guardarDatosJunta()">
+                <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" min="0" max="90" inputmode="numeric"
+               oninput="validarLimites(this, 90); guardarDatosJunta()">
             </div>
             <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-                <span class="input-label" style="margin:0;">DIR:</span>
-                <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" oninput="guardarDatosJunta()">
+                <span class="input-label" style="margin:0;">DIPDIR:</span>
+                <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" min="0" max="360" inputmode="numeric"
+               oninput="validarLimites(this, 360); guardarDatosJunta()">
             </div>
             <button onclick="capturarGiroscopio()" class="btn-gyro">🧭</button>
         </div>
@@ -569,19 +594,23 @@ html, body {
             <div><span class="input-label">Alteración</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
         </div>
 
-        <div id="junta-content" style="background: #ffffff; border: 1px solid #e2e8f0; border-top: none; padding: 15px; border-radius: 0 0 8px 8px;">
-    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px;">
-        <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
-              style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; display:none; margin-right: auto;">
-            ✕ ELIMINAR FAMILIA
-        </span>
-        <div id="ui-puntos-junta" class="score-anchor" style="color:#27ae60; margin:0 !important;">J1: 35 PTS</div>
+        <div id="junta-content" style="display: flex; align-items: center; margin-top: 10px; width: 100%;">
+    
+    <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
+          style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; display:none;">
+        ✕ ELIMINAR FAMILIA
+    </span>
+
+    <div id="ui-puntos-junta" class="score-anchor" 
+         style="color:#27ae60; font-weight:800; margin-left: auto !important;">
+        J1: 35 PTS
     </div>
+    
 </div>
     </div>
 
 
-    <div class="note" style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 6px; font-size: 8.5px; color: #94a3b8; line-height: 1.2; text-align: justify;">
+    <div class="note" style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 6px; font-size: 9.5px; color: #94a3b8; line-height: 1.2; text-align: justify;">
         <b>RMR-3/4:</b> Apoye el dispositivo sobre el plano y espere 5s a que los valores se estabilicen. Evite la cercanía de elementos metálicos que alteren el sensor magnético.
     </div>
 
@@ -589,7 +618,7 @@ html, body {
 
  <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden; border-left: 4px solid #3498db;">
     
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 11px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+    <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
         💧 5. CONDICIÓN HIDROGEOLÓGICA
     </h4>
 
@@ -612,29 +641,29 @@ html, body {
         </div>
 
         <div style="background: #ffffff; border: 1px solid #eee; border-radius: 6px; padding: 8px;">
-            <div class="input-label" style="border-bottom: 1px solid #eee; padding-bottom: 3px; margin-bottom: 6px; font-size: 8.5px;">GUÍA DE CAMPO PARA RMR-5</div>
+            <div class="input-label" style="border-bottom: 1px solid #eee; padding-bottom: 3px; margin-bottom: 6px; font-size: 9.5px;">GUÍA DE CAMPO PARA RMR-5</div>
             
             <div style="display: grid; grid-template-columns: 1fr; gap: 5px;">
-                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
                     <span style="color: #27ae60; font-weight: bold; min-width: 45px;">SECO:</span>
                     <span style="color: #566573;">No hay rastro de agua ni humedad en las juntas. Macizo estable.</span>
                 </div>
-                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
                     <span style="color: #3498db; font-weight: bold; min-width: 45px;">HÚMEDO:</span>
                     <span style="color: #566573;">Superficies oscurecidas por humedad, pero no hay desprendimiento de gotas.</span>
                 </div>
-                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
                     <span style="color: #f1c40f; font-weight: bold; min-width: 45px;">MOJADO:</span>
                     <span style="color: #566573;">Goteo esporádico o continuo. Se observa agua libre en las grietas.</span>
                 </div>
-                <div style="display: flex; gap: 8px; font-size: 9px; line-height: 1.3;">
+                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
                     <span style="color: #e67e22; font-weight: bold; min-width: 45px;">FLUJO:</span>
                     <span style="color: #c0392b;">Chorros de agua saliendo de las fracturas. Dificulta la colocación de soporte.</span>
                 </div>
             </div>
         </div>
 
-        <div class="note" style="margin-top: 4px; font-size: 8px; color: #94a3b8; text-align: justify; border: none;">
+        <div class="note" style="margin-top: 4px; font-size: 9.5px; color: #94a3b8; text-align: justify; border: none;">
             <b>PARÁMETRO:</b> Rango de presión de agua en juntas / Esfuerzo principal mayor (σw / σ1). Valores basados en Bieniawski 1989 para túneles y taludes.
         </div>
     </div>
@@ -928,7 +957,14 @@ html, body {
 // ==========================================
 // 3. UTILIDADES Y VALIDACIONES
 // ==========================================  
-  
+  function validarLimites(input, maxVal) {
+    let valor = parseFloat(input.value);
+    if (valor > maxVal) {
+        input.value = maxVal;
+    } else if (valor < 0) {
+        input.value = 0;
+    }
+}
   function validarAngular(input, max) {
     // Solo permitimos números, sin símbolos que rompan el flujo
     let v = input.value.replace(/\D/g, '');
@@ -1000,7 +1036,8 @@ function renderizarTabs() {
     }
 }
 // ESTA ES LA FUNCIÓN QUE FALTABA
-function nuevaJunta() {
+
+  function nuevaJunta() {
     // Generar nuevo ID correlativo
     const nuevoId = listaJuntas.length > 0 ? Math.max(...listaJuntas.map(j => j.id)) + 1 : 1;
     
@@ -1104,17 +1141,21 @@ function calcJuntas() {
 // ==========================================
 // 5. CAPTURA DE SENSORES (GPS / BRÚJULA / FOTO)
 // ==========================================  
-function capturarGiroscopio(btn) {
-    const card = btn.closest('.junta-card');
-    if (!card) return;
-    const inDip = card.querySelector('.j-dip');
-    const inDipDir = card.querySelector('.j-dipdir');
+function capturarGiroscopio() {
+    // 1. Apuntamos directamente a los IDs de la interfaz de pestañas
+    const inDip = document.getElementById('ui-dip');
+    const inDipDir = document.getElementById('ui-dir');
 
-    // Feedback táctil inmediato para saber que el botón respondió
+    if (!inDip || !inDipDir) {
+        console.error("No se encontraron los campos de entrada DIP/DIR");
+        return;
+    }
+
+    // Feedback táctil
     if (navigator.vibrate) navigator.vibrate(20);
 
+    // 2. Gestión de permisos (iOS 13+)
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        // iOS 13+ requiere permiso explícito
         DeviceOrientationEvent.requestPermission()
             .then(response => {
                 if (response === 'granted') {
@@ -1125,7 +1166,7 @@ function capturarGiroscopio(btn) {
             })
             .catch(console.error);
     } else {
-        // Android y navegadores de escritorio (Chrome/Firefox)
+        // Android y navegadores estándar
         iniciarLecturaEstable(inDip, inDipDir);
     }
 }
@@ -1197,8 +1238,8 @@ function iniciarLecturaEstable(inDip, inDipDir) {
                 
                 uiDip.value = Math.round(finalD);
                 uiDir.value = Math.round(finalDD);
-                uiDip.placeholder = "0-90°";
-                uiDir.placeholder = "0-360°";
+                uiDip.placeholder = "0-90\u00B0"; 
+				uiDir.placeholder = "0-360\u00B0";
 
                 // 2. VITAL: Guardar estos nuevos valores en la memoria activa (listaJuntas)
                 guardarDatosJunta(); 

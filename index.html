@@ -284,6 +284,38 @@ html, body {
 }
       
 
+/* Contenedor Peine de Barton */
+.barton-box-compact {
+    background: #fffef0;
+    border: 1px dashed #f1c40f;
+    border-radius: 4px;
+    padding: 5px;
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 85px; /* Ancho fijo para alinear con las cajas de la derecha */
+}
+
+    /* Estilo del Switch */
+    .slider-barton {
+        position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #cbd5e1; transition: .3s; border-radius: 20px;
+    }
+    .slider-barton:before {
+        position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+        background-color: white; transition: .3s; border-radius: 50%;
+    }
+    /* Color Amarillo cuando está activo */
+    #chk_peine:checked + .slider-barton {
+        background-color: #f1c40f;
+    }
+    /* Movimiento del círculo */
+    #chk_peine:checked + .slider-barton:before {
+        transform: translateX(14px);
+    }
+
+
 </style>
  	
 </head>
@@ -308,7 +340,7 @@ html, body {
         </div>
 
         <div class="v-box">
-            v10.1 PRO
+            v10.2 PRO
         </div>
     </div>
 
@@ -565,57 +597,115 @@ html, body {
 
         <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
     <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
-      ▤ 4. ESTRUCTURAS GEOLÓGICAS</h4>
-    
-    <div class="junta-tabs-wrapper" id="tabs-container">
-        </div>
+    ▤ 4. ESTRUCTURAS GEOLÓGICAS
+</h4>
 
-    <div id="form-junta-unica" style="margin-top: 10px;">
-        <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
-            <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-                <span class="input-label" style="margin:0;">DIP:</span>
-                <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" min="0" max="90" inputmode="numeric"
-               oninput="validarLimites(this, 90); guardarDatosJunta()">
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-                <span class="input-label" style="margin:0;">DIPDIR:</span>
-                <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" min="0" max="360" inputmode="numeric"
-               oninput="validarLimites(this, 360); guardarDatosJunta()">
-            </div>
-            <button onclick="capturarGiroscopio()" class="btn-gyro">🧭</button>
-        </div>
+<div class="junta-tabs-wrapper" id="tabs-container"></div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;" id="ui-selects">
-            <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
-            <div><span class="input-label">Persistencia</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
-            <div><span class="input-label">Apertura</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">0.1-1mm</option><option value="1">1-5mm</option><option value="0">>5mm</option></select></div>
-            <div><span class="input-label">Rugosidad</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
-            <div><span class="input-label">Relleno</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
-            <div><span class="input-label">Alteración</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
+<div id="form-junta-unica" style="margin-top: 10px;">
+    <div style="display: flex; gap: 10px; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
+        <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
+            <span class="input-label" style="margin:0;">DIP:</span>
+            <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" oninput="validarLimites(this, 90); guardarDatosJunta()">
         </div>
+        <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
+            <span class="input-label" style="margin:0;">DIPDIR:</span>
+            <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" oninput="validarLimites(this, 360); guardarDatosJunta()">
+        </div>
+        <button onclick="capturarGiroscopio()" class="btn-gyro">🧭</button>
+    </div>
 
-        <div id="junta-content" style="display: flex; align-items: center; margin-top: 10px; width: 100%;">
-    
-    <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
-          style="color:#e74c3c; font-size:9px; font-weight:800; cursor:pointer; display:none;">
-        ✕ ELIMINAR FAMILIA
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px;">
+        <div>
+            <span class="input-label">Tipo Discontinuidad</span>
+            <select id="ui-tipo-disc" class="in-field" onchange="guardarDatosJunta()" style="font-weight: 800; color: #1a5276;">
+                <option value="diaclasa">Diaclasa</option>
+                <option value="estratificacion">Estratificación</option>
+                <option value="foliacion">Foliación</option>
+                <option value="falla">Falla</option>
+                <option value="cizalla">Cizalla</option>
+                <option value="contacto">Contacto</option>
+            </select>
+        </div>
+        <div>
+            <span class="input-label">Tipo de Relleno</span>
+            <select id="ui-tipo-relleno" class="in-field" onchange="guardarDatosJunta()" style="font-weight: 800; color: #1a5276;">
+                <option value="cuarzo">Cuarzo</option>
+                <option value="calcita">Calcita</option>
+                <option value="arcilla">Arcilla</option>
+                <option value="limo">Limo</option>
+                <option value="arena">Arena</option>
+                <option value="panizo">Milonita</option>
+                <option value="ninguno">Ninguno</option>
+            </select>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;" id="ui-selects">
+        <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
+        <div><span class="input-label">Persistencia</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
+        <div><span class="input-label">Apertura</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">0.1-1mm</option><option value="1">1-5mm</option><option value="0">>5mm</option></select></div>
+        <div><span class="input-label">Rugosidad</span><select class="in-field j-ui" id="sel_rugos_rmr" onchange="guardarDatosJunta()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
+        <div><span class="input-label">Relleno (Puntos)</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
+        <div><span class="input-label">Alteración</span><select class="in-field j-ui" id="sel_alter_junta" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
+    </div>
+
+    <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; padding: 0 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+    <label style="position: relative; display: inline-block; width: 34px; height: 20px;">
+        <input type="checkbox" id="chk_peine" 
+               onchange="const ui = document.getElementById('ui_peine'); ui.style.display = this.checked ? 'flex' : 'none'; guardarDatosJunta()" 
+               style="opacity: 0; width: 0; height: 0; position: absolute;">
+        <span class="slider-barton"></span>
+    </label>
+    <span class="input-label" style="margin:0; font-size: 9.5px; font-weight: bold; color: #475569; cursor: pointer;" onclick="document.getElementById('chk_peine').click()">
+        USAR PEINE DE BARTON
     </span>
-
-    <div id="ui-puntos-junta" class="score-anchor" 
-         style="color:#27ae60; font-weight:800; margin-left: auto !important;">
-        J1: 35 PTS
-    </div>
-    
 </div>
-    </div>
 
 
-    <div class="note" style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 6px; font-size: 9.5px; color: #94a3b8; line-height: 1.2; text-align: justify;">
-        <b>RMR-3/4:</b> Apoye el dispositivo sobre el plano y espere 5s a que los valores se estabilicen. Evite la cercanía de elementos metálicos que alteren el sensor magnético.
-    </div>
-
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 5px; width: 100%; min-height: 85px;">
+    
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <div id="ui_peine" style="display: none; flex-direction: row; gap: 4px; padding: 2px 4px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 4px; align-items: flex-end; height: 38px;">
+            
+            <div style="display: flex; flex-direction: column; width: 62px;">
+                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1;">AMP. (a)</span>
+                <input type="number" id="in_amp" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; padding: 5; border-radius: 3px;" placeholder="mm" oninput="guardarDatosJunta()">
+            </div>
+            
+            <div style="display: flex; flex-direction: column; width: 62px;">
+                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1;">LONG. (L)</span>
+                <input type="number" id="in_len" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; padding: 5; border-radius: 3px;" value="mm" oninput="guardarDatosJunta()">
+            </div>
         </div>
 
+        <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
+              style="color:#e74c3c; font-size:9.5px; font-weight:800; cursor:pointer; display:none; text-transform: uppercase; padding-left: 2px; margin-top: 15px;">
+            ✕ Eliminar Sistema
+        </span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end; margin-left: auto;">
+        <div style="display:flex; align-items:center; height: 38px;">
+            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JRC</span>
+            <div class="res-val-matrix" style="height:26px !important; min-width:65px;">
+                <b id="out_jrc" style="font-size: 11px;">-</b>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; height: 30px;">
+            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JCS</span>
+            <div class="res-val-matrix" style="height:26px !important; min-width:65px;">
+                <b id="out_jcs" style="font-size: 11px;">-</b><span class="res-unit-tag" style="font-size: 7px;">MPa</span>
+            </div>
+        </div>
+
+        <div id="ui-puntos-junta" class="score-anchor" style="color:#27ae60; font-weight:900; font-size: 10px; margin-top: 5px; text-align: right; width: 100%;">
+            J1: 35 PTS
+        </div>
+    </div>
+</div>
+</div>
+          </div>
  <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden; border-left: 4px solid #3498db;">
     
     <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
@@ -982,11 +1072,33 @@ function formatearAlSalir(input) {
         input.value = input.value + "°";
     }
 }
+function syncBartonUI() {
+    const chk = document.getElementById('chk_peine');
+    const ui = document.getElementById('ui_peine');
+    const outJrc = document.getElementById('out_jrc');
 
+    if (chk && ui) {
+        // Mostramos u ocultamos la caja amarilla
+        ui.style.display = chk.checked ? 'flex' : 'none';
+        
+        // Si el usuario apaga el Switch, limpiamos el JRC visual
+        if (!chk.checked && outJrc) {
+            outJrc.innerText = "-";
+        }
+    }
+    
+    // Forzamos la actualización de las cajas de resultados de la Sección 4
+    actualizarPuntosUI();
+    
+    // Recalculamos el RMR total para que los puntos visuales cambien al instante
+    if (typeof runRmr === 'function') runRmr();
+}
 // 4. Función para limpiar el símbolo al entrar al campo (para poder editar)
 function limpiarAlEntrar(input) {
     input.value = input.value.replace("°", "");
 }
+  // Ejecutar al cargar la página
+window.addEventListener('load', syncBartonUI);
   
 // ==========================================
 // 4. DINÁMICA DE JUNTAS (DOM)
@@ -1104,40 +1216,61 @@ function eliminarJuntaActual() {
 function actualizarPuntosUI() {
     const datos = listaJuntas.find(j => j.id === idActivo);
     if (!datos) return;
+
+    // --- 1. LÓGICA JRC (Peine o Visual) ---
+    const chkPeine = document.getElementById('chk_peine');
+    const outJrc = document.getElementById('out_jrc');
+    const selRugosRMR = document.getElementById('sel_rugos_rmr');
+
+    if (chkPeine && chkPeine.checked) {
+        let amp = parseFloat(document.getElementById('in_amp').value) || 0;
+        let len = parseFloat(document.getElementById('in_len').value) || 100;
+        let jrcCalc = (amp > 0) ? Math.min(20, 400 * (amp / len)) : 0;
+        outJrc.innerText = jrcCalc.toFixed(1);
+    } else {
+        let ptsRugos = parseInt(selRugosRMR.value); 
+        let jrcMedia = (ptsRugos === 6) ? "18.0" : (ptsRugos === 5) ? "12.0" : (ptsRugos === 1) ? "6.0" : "2.0";
+        outJrc.innerText = jrcMedia;
+    }
+
+    // --- 2. LÓGICA JCS (LECTURA Y CÁLCULO DINÁMICO) ---
+    let ucsMatriz = 0;
+    const metodoActivo = document.getElementById('m_res').value;
+
+    // Leemos el valor actual calculado en la Sección 2
+    const selectorUCS = (metodoActivo === 'sch') ? '#out_sch_ucs b' : '#out_vis_ucs b';
+    const elUCS = document.querySelector(selectorUCS);
+    
+    if (elUCS && elUCS.innerText !== "-") {
+        ucsMatriz = parseFloat(elUCS.innerText) || 0;
+    }
+
+    // --- APLICACIÓN DEL FACTOR ---
+    const selAlt = document.getElementById('sel_alter_junta');
+    let factorAlt = 1.0; 
+    
+    if (selAlt) {
+        // Forzamos la comparación como String por si el valor viene del HTML
+        if (selAlt.value === "3") factorAlt = 0.75;      // Moderadamente meteorizada
+        else if (selAlt.value === "0") factorAlt = 0.50; // Descompuesta
+        else factorAlt = 1.0;                            // Sana (value 6)
+    }
+
+    const outJcs = document.getElementById('out_jcs');
+    if (outJcs) {
+        let jcsFinal = ucsMatriz * factorAlt;
+        // Si el factor es 1, jcsFinal será igual a ucsMatriz.
+        // Si es 0.75 o 0.50, el valor DEBE cambiar.
+        outJcs.innerText = jcsFinal > 0 ? jcsFinal.toFixed(1) : "-";
+    }
+
+    // --- 3. PUNTOS TOTALES ---
     const suma = datos.vals.reduce((a, b) => a + b, 0);
-    document.getElementById('ui-puntos-junta').innerText = `J${idActivo}: ${suma} PTS`;
-}
-function calcJuntas() {
-    // 1. Seleccionar todas las tarjetas de juntas que existen en el momento
-    const tarjetas = document.querySelectorAll('.junta-card');
-    let totalPuntosJuntas = 0;
-
-    tarjetas.forEach((tarjeta, index) => {
-        let sumaFila = 0;
-        // Buscamos todos los selectores de esa tarjeta específica
-        const selectores = tarjeta.querySelectorAll('.j-calc');
-        
-        selectores.forEach(sel => {
-            sumaFila += parseInt(sel.value) || 0;
-        });
-
-        // Actualizamos el texto de puntaje de ESA tarjeta
-        const txtPuntaje = tarjeta.querySelector('.j-score-text');
-        if (txtPuntaje) {
-            txtPuntaje.innerText = `J${index + 1}: ${sumaFila} PTS`;
-        }
-
-        // Para el RMR Final, normalmente se usa el valor de la junta más desfavorable
-        // o el promedio. Aquí acumularemos para que decidas cómo procesarlo.
-        totalPuntosJuntas += sumaFila; 
-    });
-
-    // 2. Llamamos al cálculo general del RMR
-    if (typeof runRmr === 'function') {
-        runRmr();
+    const elPuntos = document.getElementById('ui-puntos-junta');
+    if (elPuntos) {
+        elPuntos.innerText = `J${idActivo}: ${suma} PTS`;
     }
 }
-  
 // ==========================================
 // 5. CAPTURA DE SENSORES (GPS / BRÚJULA / FOTO)
 // ==========================================  
@@ -1426,15 +1559,32 @@ function procesarFotoSilenciosa(input) {
     if(document.getElementById('out_rqd')) document.getElementById('out_rqd').querySelector('b').innerText = Math.round(rqd);
     document.getElementById('score_p2').innerText = "PTS: " + p2;
 
-    // --- 3. JUNTA CRÍTICA ---
+    // --- 3. JUNTA CRÍTICA Y CÁLCULO DE JRC (Barton) ---
     let puntosJuntaCritica = 35; 
     
     if (listaJuntas.length > 0) {
         listaJuntas.forEach(j => {
-            // Sumamos los valores (puntos) de los 6 parámetros guardados en la memoria de esta junta
+            // Lógica del Peine de Barton: Solo si es la junta que estamos viendo y el switch está ON
+            if (j.id === idActivo && document.getElementById('chk_peine').checked) {
+                let amp = parseFloat(document.getElementById('in_amp').value) || 0;
+                let len = parseFloat(document.getElementById('in_len').value) || 100;
+
+                if (amp > 0) {
+                    // 1. Cálculo del JRC (Solo informativo/visual)
+                    let jrcCalc = 400 * (amp / len);
+                    if (jrcCalc > 20) jrcCalc = 20;
+                    
+                    document.getElementById('out_jrc').innerText = jrcCalc.toFixed(1);
+
+                    // NOTA: Se eliminaron las líneas que cambiaban j.vals[3] y selRugos.value.
+                    // Ahora el peine NO altera los puntos del RMR ni mueve el selector.
+                }
+            }
+
+            // Cálculo del puntaje total de la junta actual
             let sumaActual = j.vals.reduce((a, b) => a + b, 0);
             
-            // Si esta junta es peor (menor puntaje) que la anterior encontrada, se vuelve la crítica
+            // Identificación de la junta más desfavorable
             if (sumaActual < puntosJuntaCritica) {
                 puntosJuntaCritica = sumaActual;
             }
@@ -1451,10 +1601,9 @@ function procesarFotoSilenciosa(input) {
     let rmrBasico = p1 + p2 + puntosJuntaCritica + p5;
     const lblRmrBase = document.getElementById('res_rmr_base');
     if(lblRmrBase) lblRmrBase.innerText = rmrBasico;
-
+	actualizarPuntosUI();
     return rmrBasico;
 }
-
   
     function calcularClasificacionFinal() {
     // 1. Recuperar valores de P1, P2 y P5
@@ -1462,19 +1611,39 @@ function procesarFotoSilenciosa(input) {
     let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
     let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
     
-    // 2. Identificación Junta Crítica desde la Memoria (listaJuntas)
+    // 2. Identificación Junta Crítica y Cálculos de Barton (JRC/JCS)
     let minScoreJunta = 35; 
     let indexPeor = 1;
+
+    // --- CÁLCULO DE JCS (Joint Wall Compressive Strength) ---
+    // Obtenemos el UCS de la matriz calculado en la Fase 1
+    let ucsMatriz = parseFloat(document.querySelector('#out_sch_ucs b')?.innerText) || 
+                    parseFloat(document.querySelector('#out_vis_ucs b')?.innerText) || 0;
     
+    // Castigo por alteración: Sana (100%), Moderada (75%), Descompuesta (50%)
+    let alterVal = parseInt(document.getElementById('sel_alter_junta').value);
+    let factorJCS = (alterVal === 6) ? 1.0 : (alterVal === 3) ? 0.75 : 0.5;
+    let jcsFinal = ucsMatriz * factorJCS;
+    document.getElementById('out_jcs').innerText = jcsFinal.toFixed(1);
+
     listaJuntas.forEach((j) => {
+        // --- CÁLCULO DE JRC (Solo si el switch está activo) ---
+        if (document.getElementById('chk_peine').checked && j.id === idActivo) {
+            let amp = parseFloat(document.getElementById('in_amp').value) || 0;
+            let len = parseFloat(document.getElementById('in_len').value) || 100;
+            if (amp > 0) {
+                let jrcCalc = 400 * (amp / len);
+                if (jrcCalc > 20) jrcCalc = 20;
+                document.getElementById('out_jrc').innerText = jrcCalc.toFixed(1);
+            }
+        }
+
         let scoreJ = j.vals.reduce((a, b) => a + b, 0);
         if (scoreJ < minScoreJunta) { 
             minScoreJunta = scoreJ; 
             indexPeor = j.id; 
         }
     });
-
-    let rmrBase = p1 + p2 + minScoreJunta + p5;
 
     // 3. Generación de la lista comparativa HTML para el reporte
     let listaHTML = `<div style="border-bottom:1px solid #ffe58f; margin-bottom:5px; padding-bottom:3px;"><b>Análisis de Sistemas (RMR Básico):</b></div>`;
@@ -1556,6 +1725,17 @@ function procesarFotoSilenciosa(input) {
     document.getElementById('res_peor_junta').innerHTML = listaHTML;
     document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
     document.getElementById('reporte-card').style.borderTopColor = color;
+      
+    // --- NUEVAS LÍNEAS PARA BARTON (JRC/JCS) ---
+    // Inyecta el JCS calculado
+    const jcsBox = document.getElementById('out_jcs');
+    if(jcsBox) jcsBox.innerText = (typeof jcsFinal !== 'undefined') ? jcsFinal.toFixed(1) : "-";
+
+    // Inyecta el JRC (si no se calculó por peine, mantenemos el guión o valor previo)
+    const jrcBox = document.getElementById('out_jrc');
+    if(jrcBox && !document.getElementById('chk_peine').checked) {
+        jrcBox.innerText = "-";
+    }
 }
   
 // ==========================================
@@ -1817,6 +1997,7 @@ if ('serviceWorker' in navigator) {
             .then(reg => console.log("✅ Sistema Offline Preparado"))
             .catch(err => console.log("❌ Error de registro sw:", err));
     });
+  
 }
 </script>
 </body>

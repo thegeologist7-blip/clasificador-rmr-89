@@ -102,13 +102,16 @@ input[type="date"].in-field {
 }
 /* FLECHA NÍTIDA Y VISIBLE PARA TODOS LOS SELECT */
 select.in-field {
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%231a5276" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 6px center;
-    background-size: 15px;
-    padding-right: 24px !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background-color: #ffffff !important;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%231a5276" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: calc(100% - 6px) center !important;
+    background-size: 13px !important;
+    padding-left: 6px !important;
+    padding-right: 22px !important;
+    text-align: left !important;
     cursor: pointer;
 }
 .input-label { font-size: 8px; color: #1a5276; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
@@ -307,7 +310,7 @@ select.in-field {
                 <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
             </p>
         </div>
-        <div class="v-box">v10.8 PRO </div>
+        <div class="v-box">v10.9 PRO </div>
     </div>
 
     <div class="grid-main" id="main-container">
@@ -485,19 +488,19 @@ select.in-field {
                         </div>
                         
                         <div style="display: flex; gap: 8px; margin-bottom: 12px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; padding: 10px; align-items: center;">
-                            <div style="flex: 1; display: flex; flex-direction: column;">
-                                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Grupo</span>
-                                <select id="grupoRoca" onchange="updateLitologia()" class="in-field" style="height: 26px !important; font-size: 10px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
-                                    <option value="ignea">Ígnea</option>
-                                    <option value="metamorfica">Metamórfica</option>
-                                    <option value="sedimentaria">Sedimentaria</option>
-                                </select>
-                            </div>
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                            <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Grupo</span>
+                            <select id="grupoRoca" onchange="updateLitologia()" class="in-field" style="height: 28px !important; font-size: 10px; border-radius: 4px; color: #1a5276; font-weight: 800;">
+                                <option value="ignea">Ígnea</option>
+                                <option value="metamorfica">Metamórfica</option>
+                                <option value="sedimentaria">Sedimentaria</option>
+                            </select>
+                        </div>
 
-                            <div style="flex: 1.5; display: flex; flex-direction: column;">
-                                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Litología / Densidad</span>
-                                <select id="tipoRoca" onchange="runRmr()" class="in-field" style="height: 26px !important; font-size: 10px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;"></select>
-                            </div>
+                        <div style="flex: 1.5; min-width: 0; display: flex; flex-direction: column;">
+                            <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Litología / Densidad</span>
+                            <select id="tipoRoca" onchange="runRmr()" class="in-field" style="height: 28px !important; font-size: 10px; border-radius: 4px; color: #1a5276; font-weight: 800;"></select>
+                        </div>
                         </div>
 
                         <div style="display:flex; justify-content:flex-end; margin-bottom:5px;">

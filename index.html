@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
-	<link rel="apple-touch-icon" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
     <meta name="theme-color" content="#052c52">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">	
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="screen-orientation" content="any">	
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="screen-orientation" content="any">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Clasificador RMR 89</title>
     <style>
 /* 1. RESETEO Y FUENTE GLOBAL */
-#rmr-master-suite, #rmr-master-suite * { box-sizing: border-box; }
+#rmr-master-suite, #rmr-master-suite * { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent;
+}
 
 html, body {
     margin: 0 !important;
@@ -21,31 +24,24 @@ html, body {
     height: 100%;
     overscroll-behavior: none; 
     background: #f4f7f9;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 2. AJUSTE DEL CONTENEDOR (BASE PARA MÓVIL) */
-/* Se cambia FLEX por BLOCK para que el iPhone no comprima las cajas verticalmente */
 #rmr-master-suite {
     background: #f4f7f9; 
-    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0 auto !important;
     width: 100% !important;
     max-width: 100%;
-    border-radius: 0 !important;
-    border: none !important;
     min-height: 100vh;
     overflow-x: hidden; 
-    display: block; /* Cambiado de flex a block para permitir scroll natural */
+    display: block;
+    padding-bottom: 30px;
 }
 
-/* 3. AJUSTE PARA TABLET HORIZONTAL / PC */
 @media (min-width: 1000px) {
     #rmr-master-suite {
         margin: 0 !important;
         max-width: 100% !important; 
-        border-radius: 0 !important;
-        border: none !important;
         min-height: 100vh;
     }
 }
@@ -53,32 +49,37 @@ html, body {
 /* GRID DINÁMICO */
 .grid-main {  
     display: grid; 
-    /* La magia está aquí: minmax define el ancho mínimo de cada tarjeta */
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
     gap: 12px; 
     padding: 10px; 
     width: 100%;
 }
 
-/* Las filas que deben ser siempre anchas (Reporte, Botones de control) */
 .full-row { 
     grid-column: 1 / -1; 
 }
 
 /* --- ESTÉTICA DE COMPONENTES --- */
 .geo-card {
-    background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e1e8ed;
-    min-height: 255px; display: flex; flex-direction: column; position: relative;
+    background: #ffffff; 
+    padding: 10px 12px; 
+    border-radius: 8px; 
+    border: 1px solid #e1e8ed;
+    min-height: 255px; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative;
     width: 100%;
     overflow: hidden;
 }
 
 .lbl-compact { font-size: 8.5px; color: #1a5276; font-weight: 800; min-width: 55px; text-align: right; text-transform: uppercase; margin-right: 5px; }
 
+/* REGLAS ESPECÍFICAS PARA COMPATIBILIDAD CON SAFARI / IPHONE */
 .in-field { 
     flex: 1; 
     width: 100%; 
-    min-width: 0; /* Clave: evita que flexbox expulse los inputs fuera del margen en iOS */
+    min-width: 0; /* Clave para flexbox en iOS */
     padding: 4px 6px; 
     border: 1px solid #cbd5e1; 
     border-radius: 4px; 
@@ -86,30 +87,30 @@ html, body {
     outline: none; 
     height: 30px; 
     background-color: #ffffff;
+    
 }
 
-/* 1. Reset solo para fecha en iPhone (para que no rompa el margen) */
+/* FIX CRÍTICO PARA INPUT DATE EN IPHONE */
 input[type="date"].in-field {
-    -webkit-appearance: none;
-    appearance: none;
     min-height: 30px;
     line-height: 1.2;
     padding: 2px 4px;
     font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    -webkit-appearance: none;
 }
-
-/* 2. Flecha personalizada y visible para todos los <select> */
+/* FLECHA NÍTIDA Y VISIBLE PARA TODOS LOS SELECT */
 select.in-field {
     -webkit-appearance: none;
     appearance: none;
     background-image: url('data:image/svg+xml;utf8,<svg fill="%231a5276" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 6px center;
-    background-size: 14px;
-    padding-right: 22px !important;
+    background-size: 15px;
+    padding-right: 24px !important;
     cursor: pointer;
 }
-
 .input-label { font-size: 8px; color: #1a5276; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
 
 .res-val-matrix { 
@@ -124,15 +125,9 @@ select.in-field {
 
 .score-anchor { text-align: right; color: #27ae60; font-size: 10px; font-weight: 900; padding-right: 2px; margin-bottom: 2px; text-transform: uppercase; }
 .guide-text { font-size: 8.5px; color: #7f8c8d; font-style: italic; margin-bottom: 6px; line-height: 1.2; display: block; }
-.hidden { display: none; }
+.hidden { display: none !important; }
 .method-slot { min-height: 95px; margin-top: 5px; }
 .note { font-size: 8.5px; color: #566573; border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: auto; }
-
-.btn-add-system {
-    background: #052c52; color: white; border: none; padding: 10px;
-    border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer;
-    text-transform: uppercase; letter-spacing: 1px;
-}
 
 .btn-gps-tactil {
     flex: 0 0 38px; height: 30px; background: #ffffff; color: #1a5276; 
@@ -176,11 +171,11 @@ select.in-field {
     height: 32px;
     flex: none;   
 }  
-    .schmidt-container {
+.schmidt-container {
     display: flex;
     justify-content: space-between;
     gap: 3px;
-    margin: 6px 0 10px 0; /* Menos margen superior */
+    margin: 6px 0 10px 0;
 }
 
 .btn-schmidt {
@@ -192,24 +187,15 @@ select.in-field {
     background: #ffffff;
     border: 1px solid #cbd5e1;
     color: #475569;
-    padding: 4px 0; /* Altura reducida al mínimo funcional */
-    border-radius: 4px; /* Bordes un poco más rectos para verse técnico */
+    padding: 4px 0;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s ease;
-    height: 30px; /* Altura fija para que todos sean simétricos */
+    height: 30px;
 }
 
-.sch-icon {
-    font-size: 15px; /* Flecha fina */
-    font-weight: 600;
-    margin-right:6px;
-}
-
-.sch-deg {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: -0.5px; /* Compacta el texto */
-}
+.sch-icon { font-size: 15px; font-weight: 600; margin-right:6px; }
+.sch-deg { font-size: 12px; font-weight: 600; letter-spacing: -0.5px; }
 
 .btn-schmidt-active {
     background: #052c52 !important;
@@ -218,28 +204,13 @@ select.in-field {
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
  
-    /* Ajuste específico para los 10 inputs de rebotes */
 .grid-rebotes input.in-field {
-    height: 30px; /* Un poco más altos para facilitar el toque */
-    font-size: 12px !important; /* Tamaño ideal para evitar zoom en iOS y mejorar lectura */
+    height: 30px;
+    font-size: 12px !important;
     text-align: center;
     font-weight: 700;
 }
-    .spinner-mini {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 0.8s ease-in-out infinite;
-    margin-right: 8px;
-}
-    @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-/* Contenedor: Mantiene el scroll horizontal sin generar huecos abajo */
+
 .junta-tabs-wrapper {
     display: flex;
     align-items: flex-end;
@@ -251,16 +222,13 @@ select.in-field {
     overflow-y: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
-    
 }
 
-/* Ocultar barra de scroll estéticamente */
 .junta-tabs-wrapper::-webkit-scrollbar {
     height: 0px;
     display: none;
 }
 
-/* Base común (Tu estilo) */
 .j-tab, .btn-add-tab {
     height: 30px;
     display: flex;
@@ -275,7 +243,6 @@ select.in-field {
     flex-shrink: 0;
 }
 
-/* Pestañas inactivas (Tu estilo) */
 .j-tab {
     padding: 0 15px;
     font-size: 11px;
@@ -286,20 +253,18 @@ select.in-field {
     margin-right: 1px;
 }
 
-/* Pestaña ACTIVA: Un poco más grande y pegada a la base */
 .j-tab.active {
     background: #052c52;
     color: #ffffff;
-  	font-size: 12px;
+    font-size: 12px;
     border-color: #052c52;
-    height: 35px; /* Más grande que las otras (30px) */
-    margin-bottom: -2px; /* Pisa la línea azul para fundirse con la caja */
+    height: 35px;
+    margin-bottom: -2px;
     z-index: 2;
     position: relative;
-    top: 0; /* Eliminado el desplazamiento de 8px */
+    top: 0;
 }
 
-/* Botón Añadir (+) Sticky (Tu estilo) */
 .btn-add-tab {
     width: 40px;
     background: #f1f5f9;
@@ -312,51 +277,22 @@ select.in-field {
     box-shadow: -4px 0 8px -4px rgba(0,0,0,0.2);
 }
 
-.btn-add-tab:hover, .j-tab:not(.active):hover {
-    background: #cbd5e1;
+.slider-barton {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #cbd5e1; transition: .3s; border-radius: 20px;
 }
-      
-
-/* Contenedor Peine de Barton */
-.barton-box-compact {
-    background: #fffef0;
-    border: 1px dashed #f1c40f;
-    border-radius: 4px;
-    padding: 5px;
-    margin-top: 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 85px; /* Ancho fijo para alinear con las cajas de la derecha */
+.slider-barton:before {
+    position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+    background-color: white; transition: .3s; border-radius: 50%;
 }
-
-    /* Estilo del Switch */
-    .slider-barton {
-        position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-        background-color: #cbd5e1; transition: .3s; border-radius: 20px;
-    }
-    .slider-barton:before {
-        position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
-        background-color: white; transition: .3s; border-radius: 50%;
-    }
-    /* Color Amarillo cuando está activo */
-    #chk_peine:checked + .slider-barton {
-        background-color: #f1c40f;
-    }
-    /* Movimiento del círculo */
-    #chk_peine:checked + .slider-barton:before {
-        transform: translateX(14px);
-    }
-
-
+#chk_peine:checked + .slider-barton { background-color: #f1c40f; }
+#chk_peine:checked + .slider-barton:before { transform: translateX(14px); }
 </style>
- 	
 </head>
 <body>
 
 <div id="rmr-master-suite">
     <div style="background: #052c52; padding: 18px 20px; color: white; border-bottom: 4px solid #3498db; display: flex; justify-content: space-between; align-items: center;">
-        
         <div style="display: flex; flex-direction: column;">
             <h1 style="margin:0; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #ffffff;">
                 CLASIFICADOR RMR <span style="color: #3498db;"><i><b>89</b></i></span>
@@ -371,207 +307,199 @@ select.in-field {
                 <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
             </p>
         </div>
-
-        <div class="v-box">
-            v10.7 PRO
-        </div>
+        <div class="v-box">v10.2 PRO iOS</div>
     </div>
 
     <div class="grid-main" id="main-container">
-    <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
-        📋 1. DATOS E INFORMACIÓN GENERAL
-    </h4>
-    
-    <div style="display:flex; gap:6px; width: 100%;">
-    <div style="flex: 1.6; min-width: 0;">
-        <div class="input-label">TÉCNICO RESPONSABLE</div>
-        <input type="text" id="est_tec" class="in-field" placeholder="NOMBRE Y APELLIDO">
-    </div>
-    <div style="flex: 1.1; min-width: 0;">
-        <div class="input-label">FECHA</div>
-        <input type="date" id="est_fecha" class="in-field"></div>
-        </div>
-
-       	 		<div style="width:100%;">
-    			<div class="input-label">PROYECTO / OBRA</div>
-    			<style>#proy_nom::placeholder { font-size: 11px; }</style>
-    			<input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA"></div>
-
-        <div style="display:flex; gap:6px;">
-            <div style="flex: 1.2;">
-    <div class="input-label">FRENTE:</div>
-    <select id="escenario" onchange="updateEscenario(); runRmr();" class="in-field" 
-            style="font-weight: 800; color: #3498db; font-size: 10px; height: 26px; text-align: center; text-align-last: center; padding: 0;">
-        <option value="tunel">TÚNEL / GALERÍA</option>
-        <option value="talud">TALUD / MACIZO</option>
-    </select>
-            </div>
-            <div style="flex: 0.9;">
-                <div class="input-label" id="lbl_dip">AZIMUT EJE</div>
-                <input type="number" id="eje_dip" class="in-field" placeholder="0-360°" oninput="if(this.value>360)this.value=360; if(this.value<0)this.value=0;">
-            </div>
-            <div style="flex: 1;">
-                <div class="input-label" id="lbl_dir">DIR. AVANCE</div>
-                <input type="number" id="eje_dir" class="in-field" placeholder="">
-            </div>
-        </div>
-
-        <div style="display:flex; gap:6px; align-items: flex-end;">
-            <div style="flex:1;">
-                <div class="input-label" style="font-size:8px;">COORD X (E)</div>
-        <input type="number" inputmode="decimal" id="coord_e" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
-    </div>
-    <div style="flex:1;">
-        <div class="input-label" style="font-size: 8px;">COORD Y (N)</div>
-        <input type="number" inputmode="decimal" id="coord_n" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
-    </div>
-    <div style="flex:0.7;">
-        <div class="input-label" style="font-size: 8px;">ALT (Z)</div>
-        <input type="number" inputmode="decimal" id="coord_z" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
-    </div>
-            <button onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS">⌖</button>
-        </div>
-        <div id="gps_info" style="font-size: 7px; color: #94a3b8; text-align: right; margin-top: -4px; font-style: italic; min-height: 8px;"></div>
-
-        <div style="display:flex; gap:6px;">
-            <div style="flex:1;">
-                <div class="input-label">EST. GEOMECÁNICA</div>
-                <input type="text" id="est_id" class="in-field" style="border-color:#e67e22; font-weight:bold; font-size: 11px;" placeholder="EJ. CGM-001">
-            </div>
-            <div style="flex:1;">
-                <div class="input-label">SECTOR</div>
-                <input type="text" id="loc_sector" class="in-field">
-            </div>
-        </div>
-
-        <div style="display:flex; gap:6px;">
-            <div style="flex:1;">
-                <div class="input-label" id="lbl_ubi_tec">NIVEL</div>
-                <input type="text" id="ubi_val" class="in-field">
-            </div>
-            <div style="flex:1;">
-                <div class="input-label">DESDE (m)</div>
-                <input type="number" id="abs_desde" class="in-field" step="0.01">
-            </div>
-            <div style="flex:1;">
-                <div class="input-label">HASTA (m)</div>
-                <input type="number" id="abs_hasta" class="in-field" step="0.01">
-            </div>
-        </div>
-
-        <div style="margin-top: 10px; display: flex; gap: 4px;">
-            <input type="file" id="foto_input" accept="image/*" capture="environment" style="display: none;" onchange="procesarFotoSilenciosa(this)">
+        <!-- 1. DATOS GENERALES -->
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; width: calc(100% + 24px); line-height: 1.4; height: 32px; align-items: center;">
+                📋 1. DATOS E INFORMACIÓN GENERAL
+            </h4>
             
-            <button onclick="document.getElementById('foto_input').click()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px 2px 2px 6px; padding: 12px; font-weight: 800; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 3px 0 #1e8449; transition: 0.1s;" onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 1px 0 #1e8449'" onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 #1e8449'">
-                📷 REGISTRO FOTOGRÁFICO
-            </button>
-            
-            <button onclick="document.getElementById('foto_input').click()" style="width: 45px; background: #2ecc71; color: white; border: none; border-radius: 2px 6px 6px 2px; font-weight: 900; cursor: pointer; font-size: 18px; box-shadow: 0 3px 0 #27ae60; display: flex; align-items: center; justify-content: center;" title="Añadir otra foto">
-                +
-            </button>
-            <canvas id="canvas_foto" style="display: none;"></canvas>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Corrección de ancho en flex para iOS -->
+                <div style="display:flex; gap:6px; width: 100%;">
+                    <div style="flex: 1.6; min-width: 0;">
+                        <div class="input-label">TÉCNICO RESPONSABLE</div>
+                        <input type="text" id="est_tec" class="in-field" placeholder="NOMBRE Y APELLIDO">
+                    </div>
+                    <div style="flex: 1.1; min-width: 0;">
+                        <div class="input-label">FECHA</div>
+                        <input type="date" id="est_fecha" class="in-field">
+                    </div>
+                </div>
+
+                <div style="width:100%;">
+                    <div class="input-label">PROYECTO / OBRA</div>
+                    <input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA">
+                </div>
+
+                <div style="display:flex; gap:6px;">
+                    <div style="flex: 1.2; min-width: 0;">
+                        <div class="input-label">FRENTE:</div>
+                        <select id="escenario" onchange="updateEscenario(); runRmr();" class="in-field" 
+                                style="font-weight: 800; color: #3498db; font-size: 10px; height: 30px; text-align: center; text-align-last: center; padding: 0;">
+                            <option value="tunel">TÚNEL / GALERÍA</option>
+                            <option value="talud">TALUD / MACIZO</option>
+                        </select>
+                    </div>
+                    <div style="flex: 0.9; min-width: 0;">
+                        <div class="input-label" id="lbl_dip">AZIMUT EJE</div>
+                        <input type="number" id="eje_dip" class="in-field" placeholder="0-360°" oninput="if(this.value>360)this.value=360; if(this.value<0)this.value=0;">
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="input-label" id="lbl_dir">DIR. AVANCE</div>
+                        <input type="number" id="eje_dir" class="in-field">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:6px; align-items: flex-end;">
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label" style="font-size:8px;">COORD X (E)</div>
+                        <input type="number" inputmode="decimal" id="coord_e" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+                    </div>
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label" style="font-size: 8px;">COORD Y (N)</div>
+                        <input type="number" inputmode="decimal" id="coord_n" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+                    </div>
+                    <div style="flex:0.7; min-width: 0;">
+                        <div class="input-label" style="font-size: 8px;">ALT (Z)</div>
+                        <input type="number" inputmode="decimal" id="coord_z" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
+                    </div>
+                    <button onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS">⌖</button>
+                </div>
+                <div id="gps_info" style="font-size: 7px; color: #94a3b8; text-align: right; margin-top: -4px; font-style: italic; min-height: 8px;"></div>
+
+                <div style="display:flex; gap:6px;">
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">EST. GEOMECÁNICA</div>
+                        <input type="text" id="est_id" class="in-field" style="border-color:#e67e22; font-weight:bold; font-size: 11px;" placeholder="EJ. CGM-001">
+                    </div>
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">SECTOR</div>
+                        <input type="text" id="loc_sector" class="in-field">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:6px;">
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label" id="lbl_ubi_tec">NIVEL</div>
+                        <input type="text" id="ubi_val" class="in-field">
+                    </div>
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">DESDE (m)</div>
+                        <input type="number" id="abs_desde" class="in-field" step="0.01">
+                    </div>
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">HASTA (m)</div>
+                        <input type="number" id="abs_hasta" class="in-field" step="0.01">
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px; display: flex; gap: 4px;">
+                    <input type="file" id="foto_input" accept="image/*" capture="environment" style="display: none;" onchange="procesarFotoSilenciosa(this)">
+                    
+                    <button type="button" onclick="document.getElementById('foto_input').click()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px 2px 2px 6px; padding: 12px; font-weight: 800; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 3px 0 #1e8449;">
+                        📷 REGISTRO FOTOGRÁFICO
+                    </button>
+                    
+                    <button type="button" onclick="document.getElementById('foto_input').click()" style="width: 45px; background: #2ecc71; color: white; border: none; border-radius: 2px 6px 6px 2px; font-weight: 900; cursor: pointer; font-size: 18px; box-shadow: 0 3px 0 #27ae60; display: flex; align-items: center; justify-content: center;" title="Añadir otra foto">
+                        +
+                    </button>
+                    <canvas id="canvas_foto" style="display: none;"></canvas>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-    <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: block; width: calc(100% + 24px); line-height: 1.4; height: 32px; display: flex; align-items: center;">
-        🔨 2. RESISTENCIA DE LA ROCA (UCS)
-    </h4>
+        <!-- 2. RESISTENCIA DE LA ROCA (UCS) -->
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; width: calc(100% + 24px); line-height: 1.4; height: 32px; align-items: center;">
+                🔨 2. RESISTENCIA DE LA ROCA (UCS)
+            </h4>
 
-    <div style="display: flex; flex-direction: column; gap: 4px;">
-        <div class="input-label">MÉTODO DE ESTIMACIÓN</div>
-        <select id="m_res" onchange="toggleRes()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52; height: 30px;">
-            <option value="sch">Uso del Esclerómetro (Schmidt)</option>
-            <option value="vis">Estimación Visual/Manual (ISRM)</option>
-        </select>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="input-label">MÉTODO DE ESTIMACIÓN</div>
+                <select id="m_res" onchange="toggleRes()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52; height: 30px;">
+                    <option value="sch">Uso del Esclerómetro (Schmidt)</option>
+                    <option value="vis">Estimación Visual/Manual (ISRM)</option>
+                </select>
                 <div class="method-slot">
-                   <div id="ui_vis" class="hidden">
-    <div class="input-label" style="margin-top: 12px;">RESISTENCIA EN CAMPO</div>
-    <select id="valVis" onchange="runRmr()" class="in-field">
-        <option value="15">R6: >250 MPa</option>
-        <option value="12">R5: 100-250 MPa</option>
-        <option value="7">R4: 50-100 MPa</option>
-        <option value="4">R3: 25-50 MPa</option>
-        <option value="2">R2: 5-25 MPa</option>
-        <option value="1">R1: 1-5 MPa</option>
-    </select>
+                    <div id="ui_vis" class="hidden">
+                        <div class="input-label" style="margin-top: 12px;">RESISTENCIA EN CAMPO</div>
+                        <select id="valVis" onchange="runRmr()" class="in-field">
+                            <option value="15">R6: >250 MPa</option>
+                            <option value="12">R5: 100-250 MPa</option>
+                            <option value="7">R4: 50-100 MPa</option>
+                            <option value="4">R3: 25-50 MPa</option>
+                            <option value="2">R2: 5-25 MPa</option>
+                            <option value="1">R1: 1-5 MPa</option>
+                        </select>
 
-    <div class="input-label" style="margin-top:12px; border-bottom: 1px solid #eee;">IDENTIFICACIÓN MANUAL (ISRM, 1981)</div>
-    
-    <div style="min-height: 180px;">
-        <span class="guide-text" style="padding-top: 5px; display: block; font-size: 10.2px; line-height: 1.5;">
-            <b>R6-R5:</b> Solo se astilla con golpes de martillo geológico.<br>
-            <b>R4:</b> Se rompe con más de un golpe firme de martillo.<br>
-            <b>R3:</b> Se rompe con un solo golpe firme. Se raya con navaja.<br>
-            <b>R2:</b> Se rompe con golpe leve. Se raya fácilmente con navaja.<br>
-            <b>R1-R0:</b> Se desmorona con el martillo. Se raya con la uña.
-        </span>
-    </div>
+                        <div class="input-label" style="margin-top:12px; border-bottom: 1px solid #eee;">IDENTIFICACIÓN MANUAL (ISRM, 1981)</div>
+                        
+                        <div style="min-height: 180px;">
+                            <span class="guide-text" style="padding-top: 5px; display: block; font-size: 10.2px; line-height: 1.5;">
+                                <b>R6-R5:</b> Solo se astilla con golpes de martillo geológico.<br>
+                                <b>R4:</b> Se rompe con más de un golpe firme de martillo.<br>
+                                <b>R3:</b> Se rompe con un solo golpe firme. Se raya con navaja.<br>
+                                <b>R2:</b> Se rompe con golpe leve. Se raya fácilmente con navaja.<br>
+                                <b>R1-R0:</b> Se desmorona con el martillo. Se raya con la uña.
+                            </span>
+                        </div>
 
-    <div style="display:flex; justify-content:flex-end; margin-top:0px;">
-        <div style="display:flex; align-items:center;">
-            <span class="input-label" style="margin-right:5px; margin-bottom:0;">UCS EST.</span>
-            <div id="out_vis_ucs" class="res-val-matrix"><b>-</b><span class="res-unit-tag">MPa</span></div>
-        </div>
-    </div>
-</div>
-    <div id="ui_sch" style="margin-top: 10px;">
-    <div class="input-label">REBOTES R</div>
-    <span class="guide-text" style="font-size: 10px; line-height: 1.1; margin-bottom: 4px;">
-        Se deben tomar 10 medidas. Seleccione la orientación del ensayo para corregir el rebote.
-    </span>
+                        <div style="display:flex; justify-content:flex-end; margin-top:0px;">
+                            <div style="display:flex; align-items:center;">
+                                <span class="input-label" style="margin-right:5px; margin-bottom:0;">UCS EST.</span>
+                                <div id="out_vis_ucs" class="res-val-matrix"><b>-</b><span class="res-unit-tag">MPa</span></div>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="schmidt-container">
-    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(90, this)">
-        <span class="sch-icon">↑</span><span class="sch-deg">+90°</span>
-    </button>
-    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(45, this)">
-        <span class="sch-icon">↗</span><span class="sch-deg">+45°</span>
-    </button>
-    <button type="button" class="btn-schmidt btn-schmidt-active" onclick="setSchmidtAngle(0, this)">
-        <span class="sch-icon">→</span><span class="sch-deg">0°</span>
-    </button>
-    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-45, this)">
-        <span class="sch-icon">↘</span><span class="sch-deg">-45°</span>
-    </button>
-    <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-90, this)">
-        <span class="sch-icon">↓</span><span class="sch-deg">-90°</span>
-    </button>
-</div>
-    <input type="hidden" id="selected_angle" value="0">
+                    <div id="ui_sch" style="margin-top: 10px;">
+                        <div class="input-label">REBOTES R</div>
+                        <span class="guide-text" style="font-size: 10px; line-height: 1.1; margin-bottom: 4px;">
+                            Se deben tomar 10 medidas. Seleccione la orientación del ensayo para corregir el rebote.
+                        </span>
 
-    <div class="grid-rebotes" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; margin: 10px 0;">
-    <input type="number" id="r1" class="in-field" placeholder="R1" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r2" class="in-field" placeholder="R2" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r3" class="in-field" placeholder="R3" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r4" class="in-field" placeholder="R4" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r5" class="in-field" placeholder="R5" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r6" class="in-field" placeholder="R6" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r7" class="in-field" placeholder="R7" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r8" class="in-field" placeholder="R8" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r9" class="in-field" placeholder="R9" inputmode="numeric" oninput="runRmr()">
-    <input type="number" id="r10" class="in-field" placeholder="R10" inputmode="numeric" oninput="runRmr()">
-</div>
-    
-     <div style="display: flex; gap: 8px; margin-bottom: 12px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; padding: 10px; align-items: center;">
-    
-    <div style="flex: 1; display: flex; flex-direction: column;">
-        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1; color: #856404; font-weight: 800; text-transform: uppercase;">Grupo</span>
-        <select id="grupoRoca" onchange="updateLitologia()" class="in-field" style="height: 26px !important; font-size: 10px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
-            <option value="ignea">Ígnea</option>
-            <option value="metamorfica">Metamórfica</option>
-            <option value="sedimentaria">Sedimentaria</option>
-        </select>
-    </div>
+                        <div class="schmidt-container">
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(90, this)"><span class="sch-icon">↑</span><span class="sch-deg">+90°</span></button>
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(45, this)"><span class="sch-icon">↗</span><span class="sch-deg">+45°</span></button>
+                            <button type="button" class="btn-schmidt btn-schmidt-active" onclick="setSchmidtAngle(0, this)"><span class="sch-icon">→</span><span class="sch-deg">0°</span></button>
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-45, this)"><span class="sch-icon">↘</span><span class="sch-deg">-45°</span></button>
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-90, this)"><span class="sch-icon">↓</span><span class="sch-deg">-90°</span></button>
+                        </div>
+                        <input type="hidden" id="selected_angle" value="0">
 
-    <div style="flex: 1.5; display: flex; flex-direction: column;">
-        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1; color: #856404; font-weight: 800; text-transform: uppercase;">Litología / Densidad</span>
-        <select id="tipoRoca" onchange="runRmr()" class="in-field" style="height: 26px !important; font-size: 10px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
-            </select>
-    </div>
-</div>
+                        <div class="grid-rebotes" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; margin: 10px 0;">
+                            <input type="number" id="r1" class="in-field" placeholder="R1" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r2" class="in-field" placeholder="R2" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r3" class="in-field" placeholder="R3" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r4" class="in-field" placeholder="R4" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r5" class="in-field" placeholder="R5" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r6" class="in-field" placeholder="R6" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r7" class="in-field" placeholder="R7" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r8" class="in-field" placeholder="R8" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r9" class="in-field" placeholder="R9" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r10" class="in-field" placeholder="R10" inputmode="numeric" oninput="runRmr()">
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; padding: 10px; align-items: center;">
+                            <div style="flex: 1; display: flex; flex-direction: column;">
+                                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Grupo</span>
+                                <select id="grupoRoca" onchange="updateLitologia()" class="in-field" style="height: 26px !important; font-size: 10px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
+                                    <option value="ignea">Ígnea</option>
+                                    <option value="metamorfica">Metamórfica</option>
+                                    <option value="sedimentaria">Sedimentaria</option>
+                                </select>
+                            </div>
+
+                            <div style="flex: 1.5; display: flex; flex-direction: column;">
+                                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Litología / Densidad</span>
+                                <select id="tipoRoca" onchange="runRmr()" class="in-field" style="height: 26px !important; font-size: 10px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;"></select>
+                            </div>
+                        </div>
+
                         <div style="display:flex; justify-content:flex-end; margin-bottom:5px;">
                             <div style="display:flex; align-items:center;"><span class="input-label" style="margin-right:3px; margin-bottom:0;">R. PROM</span><div id="out_sch_r" class="res-val-matrix"><b>-</b></div></div>
                         </div>
@@ -583,259 +511,250 @@ select.in-field {
             </div>
             <div id="score_p1" class="score-anchor">PTS: 0</div>
             <div style="flex-grow: 1;"></div>
-
-			<div class="note" style="border-top: 1px solid #f1f5f9; margin-top: 10px; padding-top: 5px; font-size: 9.5px; color: #94a3b8;">
-   			<b>Ref:</b> Estimación mediante ISRM / Deere & Miller.
-			</div>
+            <div class="note" style="border-top: 1px solid #f1f5f9; margin-top: 10px; padding-top: 5px; font-size: 9.5px; color: #94a3b8;">
+               <b>Ref:</b> Estimación mediante ISRM / Deere & Miller.
+            </div>
         </div>
 
+        <!-- 3. RQD -->
         <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
-        ✔️ 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)
-    </h4>
-    
-    <div style="display: flex; flex-direction: column; gap: 4px;">
-        <div class="input-label" style="margin-top: 0;">MÉTODO</div>
-        <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52; height: 26px !important;">
-            <option value="deere">Estimación Visual (Deere 1989)</option>
-            <option value="pal">Ecuación de Palmström (Jv)</option>
-        </select>
-
-        <div class="method-slot">
-            <div id="ui_deere">
-                <div class="input-label">Fracturamiento</div>
-                <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
-                El RQD se estima visualmente en función del grado de fracturamiento observable en el afloramiento.</span>
-                <select id="valDeere" onchange="runRmr()" class="in-field" style="height: 26px !important;">
-                    <option value="20">Muy Macizo (> 2.0 m)</option>
-                    <option value="17">Levemente Fracturado (0.6 - 2.0 m)</option>
-                    <option value="13">Moderadamente Fracturado (0.2 - 0.6 m)</option>
-                    <option value="8">Muy Fracturado (0.06 - 0.2 m)</option>
-                    <option value="3">Triturado / Suelo (< 0.06 m)</option>
-                </select>
-            </div>
-            <div id="ui_pal" class="hidden">
-                <div class="input-label">Jv (Palmström)</div>
-                <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
-                El Jv es el número de juntas por metro cúbico. Ecuación: RQD = 115 - 3.3 * Jv.</span>
-                <input type="number" id="valJv" oninput="runRmr()" class="in-field" placeholder="Juntas/m³" style="height: 26px !important;">
-            </div>
-        </div>
-
-        <div style="margin: 12px 0; background: #fdfdfd; border: 1px solid #f1f5f9; border-radius: 12px; padding: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
-    
-    <div style="display: flex; padding: 6px 10px; border-bottom: 2px solid #e9f7ef; margin-bottom: 4px;">
-        <span style="flex: 1; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">RQD (%)</span>
-        <span style="flex: 1.5; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: center;">Calidad Geológica</span>
-        <span style="flex: 0.8; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: right;">PTS</span>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 2px;">
-        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(39, 174, 96, 0.03);">
-            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">90 - 100</span>
-            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #27ae60; text-align: center;">Excelente</span>
-            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">20</span>
-        </div>
-        <div style="display: flex; padding: 5px 10px; align-items: center;">
-            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">75 - 90</span>
-            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #2ecc71; text-align: center;">Buena</span>
-            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">17</span>
-        </div>
-        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(241, 196, 15, 0.03);">
-            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">50 - 75</span>
-            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #d4ac0d; text-align: center;">Regular</span>
-            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">13</span>
-        </div>
-        <div style="display: flex; padding: 5px 10px; align-items: center;">
-            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">25 - 50</span>
-            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #e67e22; text-align: center;">Mala</span>
-            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">8</span>
-        </div>
-        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(231, 76, 60, 0.03);">
-            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">0 - 25</span>
-            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #e74c3c; text-align: center;">Muy Mala</span>
-            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">3</span>
-        </div>
-    </div>
-</div>
-        <div style="display:flex; justify-content:flex-end; align-items: center; gap: 10px;">
-            <div style="display:flex; align-items:center;">
-                <span class="input-label" style="margin-right:5px; margin-bottom:0; font-size: 9px;">RQD EST.</span>
-                <div id="out_rqd" class="res-val-matrix" style="height: 24px !important; min-width: 60px;"><b>-</b><span class="res-unit-tag">%</span></div>
-            </div>
-            <div id="score_p2" class="score-anchor" style="color:#27ae60; font-weight: 900; min-width: 60px; text-align: right;">PTS: 0</div>
-        </div>
-
-        <div class="note" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9; font-size: 9px; color: #94a3b8; line-height: 1.2; text-align: justify;">
-            <b>RMR-2:</b> El RQD define la competencia de la roca y es el indicador crítico para el sostenimiento.
-        </div>
-    </div>
-</div>
-        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
-    ▤ 4. SISTEMAS DE DISCONTINUIDADES
-</h4>
-
-<div class="junta-tabs-wrapper" id="tabs-container"></div>
-
-<div id="form-junta-unica" style="margin-top: 10px;">
-    <div style="display: flex; gap: 10px; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
-        <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-            <span class="input-label" style="margin:0;">DIP:</span>
-            <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" oninput="validarLimites(this, 90); guardarDatosJunta()">
-        </div>
-        <div style="display: flex; align-items: center; gap: 6px; flex: 1.2;">
-            <span class="input-label" style="margin:0;">DIPDIR:</span>
-            <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" oninput="validarLimites(this, 360); guardarDatosJunta()">
-        </div>
-        <button onclick="capturarGiroscopio()" class="btn-gyro">🧭</button>
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; padding: 10px; align-items: center;">
-    
-    <div style="display: flex; flex-direction: column;">
-        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1; color: #856404; font-weight: 800; text-transform: uppercase;">Tipo Discontinuidad</span>
-        <select id="ui-tipo-disc" class="in-field" onchange="guardarDatosJunta()" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
-            <option value="diaclasa">Diaclasa</option>
-            <option value="estratificacion">Estratificación</option>
-            <option value="foliacion">Foliación</option>
-            <option value="falla">Falla</option>
-            <option value="cizalla">Cizalla</option>
-            <option value="contacto">Contacto</option>
-        </select>
-    </div>
-
-    <div style="display: flex; flex-direction: column;">
-        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1; color: #856404; font-weight: 800; text-transform: uppercase;">Tipo de Relleno</span>
-        <select id="ui-tipo-relleno" class="in-field" onchange="guardarDatosJunta()" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
-            <option value="cuarzo">Cuarzo</option>
-            <option value="calcita">Calcita</option>
-            <option value="arcilla">Arcilla</option>
-            <option value="limo">Limo</option>
-            <option value="arena">Arena</option>
-            <option value="panizo">Milonita</option>
-            <option value="ninguno">Ninguno</option>
-        </select>
-    </div>
-</div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;" id="ui-selects">
-        <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
-        <div><span class="input-label">Persistencia</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
-        <div><span class="input-label">Apertura</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">0.1-1mm</option><option value="1">1-5mm</option><option value="0">>5mm</option></select></div>
-        <div><span class="input-label">Rugosidad</span><select class="in-field j-ui" id="sel_rugos_rmr" onchange="guardarDatosJunta()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
-        <div><span class="input-label">Relleno (Puntos)</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
-        <div><span class="input-label">Alteración</span><select class="in-field j-ui" id="sel_alter_junta" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
-    </div>
-
-    <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; padding: 0 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
-    <label style="position: relative; display: inline-block; width: 34px; height: 20px;">
-        <input type="checkbox" id="chk_peine" 
-               onchange="refrescarVistaPeine(); guardarDatosJunta();"
-               style="opacity: 0; width: 0; height: 0; position: absolute;"> 
-        <span class="slider-barton"></span>
-    </label>
-    <span class="input-label" style="margin:0; font-size: 9.5px; font-weight: bold; color: #475569; cursor: pointer;" onclick="document.getElementById('chk_peine').click()">
-        USAR PEINE DE BARTON
-    </span>
-</div>
-
-<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 5px; width: 100%; min-height: 85px; position: relative;">
-    
-    <div style="display: flex; flex-direction: column; gap: 5px;">
-        <div id="ui_peine" style="display: none; flex-direction: row; gap: 4px; padding: 2px 4px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 4px; align-items: flex-end; height: 38px;">
-            <div style="display: flex; flex-direction: column; width: 62px;">
-                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1;">AMP. (a)</span>
-                <input type="number" id="in_amp" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; padding: 5; border-radius: 3px;" placeholder="mm" oninput="guardarDatosJunta()">
-            </div>
-            <div style="display: flex; flex-direction: column; width: 62px;">
-                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; line-height: 1;">LONG. (L)</span>
-                <input type="number" id="in_len" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; padding: 5; border-radius: 3px;" value="100" oninput="guardarDatosJunta()">
-            </div>
-        </div>
-        </div>
-
-    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end; margin-left: auto;">
-        <div style="display:flex; align-items:center; height: 38px;">
-            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JRC</span>
-            <div class="res-val-matrix" style="height:26px !important; min-width:65px;"><b id="out_jrc" style="font-size: 11px;">-</b></div>
-        </div>
-        <div style="display:flex; align-items:center; height: 30px;">
-            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JCS</span>
-            <div class="res-val-matrix" style="height:26px !important; min-width:65px;"><b id="out_jcs" style="font-size: 11px;">-</b><span class="res-unit-tag" style="font-size: 7px;">MPa</span></div>
-        </div>
-        <div id="ui-puntos-junta" class="score-anchor" style="color:#27ae60; font-weight:900; font-size: 10px; margin-top: 5px; text-align: right; width: 100%;">J1: 35 PTS</div>
-    </div>
-
-    <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
-          style="color:#e74c3c; font-size:9.5px; font-weight:800; cursor:pointer; display:none; text-transform: uppercase; position: absolute; left: 2px; bottom: 24px;">
-        ✕ Eliminar Sistema
-    </span>
-        </div>
-      </div>
-    </div>
-
- 
-   
-   
- <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden; border-left: 4px solid #3498db;">
-    
-    <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
-        💧 5. CONDICIÓN HIDROGEOLÓGICA
-    </h4>
-
-    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
-            <div style="width: 230px;"> <div class="input-label">INFILTRACIÓN</div>
-                <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 100%; font-size: 11px; height: 30px; font-weight: 800; color: #052c52;">
-                    <option value="15">Seco (Sin humedad)</option>
-           			 <option value="10">Húmedo (Superficie oscura, sin goteo)</option>
-           			 <option value="7">Mojado (Goteo esporádico)</option>
-            		 <option value="4">Goteo persistente / Chorro leve</option>
-           			 <option value="0">Fluyente (Chorro a presión)</option>
-                </select>
-            </div>
-
-            <div id="score_p5" style="margin-top: 12px; font-size: 10.2px; font-weight: 900; color: #27ae60; white-space: nowrap;">
-                PTS: 15
-            </div>
-        </div>
-
-        <div style="background: #ffffff; border: 1px solid #eee; border-radius: 6px; padding: 8px;">
-            <div class="input-label" style="border-bottom: 1px solid #eee; padding-bottom: 3px; margin-bottom: 6px; font-size: 9.5px;">GUÍA DE CAMPO PARA RMR-5</div>
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+                ✔️ 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)
+            </h4>
             
-            <div style="display: grid; grid-template-columns: 1fr; gap: 5px;">
-                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
-                    <span style="color: #27ae60; font-weight: bold; min-width: 45px;">SECO:</span>
-                    <span style="color: #566573;">No hay rastro de agua ni humedad en las juntas. Macizo estable.</span>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="input-label" style="margin-top: 0;">MÉTODO</div>
+                <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52; height: 26px !important;">
+                    <option value="deere">Estimación Visual (Deere 1989)</option>
+                    <option value="pal">Ecuación de Palmström (Jv)</option>
+                </select>
+
+                <div class="method-slot">
+                    <div id="ui_deere">
+                        <div class="input-label">Fracturamiento</div>
+                        <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
+                            El RQD se estima visualmente en función del grado de fracturamiento observable en el afloramiento.</span>
+                        <select id="valDeere" onchange="runRmr()" class="in-field" style="height: 26px !important;">
+                            <option value="20">Muy Macizo (> 2.0 m)</option>
+                            <option value="17">Levemente Fracturado (0.6 - 2.0 m)</option>
+                            <option value="13">Moderadamente Fracturado (0.2 - 0.6 m)</option>
+                            <option value="8">Muy Fracturado (0.06 - 0.2 m)</option>
+                            <option value="3">Triturado / Suelo (< 0.06 m)</option>
+                        </select>
+                    </div>
+                    <div id="ui_pal" class="hidden">
+                        <div class="input-label">Jv (Palmström)</div>
+                        <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
+                            El Jv es el número de juntas por metro cúbico. Ecuación: RQD = 115 - 3.3 * Jv.</span>
+                        <input type="number" id="valJv" oninput="runRmr()" class="in-field" placeholder="Juntas/m³" style="height: 26px !important;">
+                    </div>
                 </div>
-                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
-                    <span style="color: #3498db; font-weight: bold; min-width: 45px;">HÚMEDO:</span>
-                    <span style="color: #566573;">Superficies oscurecidas por humedad, pero no hay desprendimiento de gotas.</span>
+
+                <div style="margin: 12px 0; background: #fdfdfd; border: 1px solid #f1f5f9; border-radius: 12px; padding: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="display: flex; padding: 6px 10px; border-bottom: 2px solid #e9f7ef; margin-bottom: 4px;">
+                        <span style="flex: 1; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">RQD (%)</span>
+                        <span style="flex: 1.5; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: center;">Calidad Geológica</span>
+                        <span style="flex: 0.8; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: right;">PTS</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(39, 174, 96, 0.03);">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">90 - 100</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #27ae60; text-align: center;">Excelente</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">20</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center;">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">75 - 90</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #2ecc71; text-align: center;">Buena</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">17</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(241, 196, 15, 0.03);">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">50 - 75</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #d4ac0d; text-align: center;">Regular</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">13</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center;">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">25 - 50</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #e67e22; text-align: center;">Mala</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">8</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(231, 76, 60, 0.03);">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">0 - 25</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #e74c3c; text-align: center;">Muy Mala</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">3</span>
+                        </div>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
-                    <span style="color: #f1c40f; font-weight: bold; min-width: 45px;">MOJADO:</span>
-                    <span style="color: #566573;">Goteo esporádico o continuo. Se observa agua libre en las grietas.</span>
+
+                <div style="display:flex; justify-content:flex-end; align-items: center; gap: 10px;">
+                    <div style="display:flex; align-items:center;">
+                        <span class="input-label" style="margin-right:5px; margin-bottom:0; font-size: 9px;">RQD EST.</span>
+                        <div id="out_rqd" class="res-val-matrix" style="height: 24px !important; min-width: 60px;"><b>-</b><span class="res-unit-tag">%</span></div>
+                    </div>
+                    <div id="score_p2" class="score-anchor" style="color:#27ae60; font-weight: 900; min-width: 60px; text-align: right;">PTS: 0</div>
                 </div>
-                <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
-                    <span style="color: #e67e22; font-weight: bold; min-width: 45px;">FLUJO:</span>
-                    <span style="color: #c0392b;">Chorros de agua saliendo de las fracturas. Dificulta la colocación de soporte.</span>
+
+                <div class="note" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9; font-size: 9px; color: #94a3b8; line-height: 1.2; text-align: justify;">
+                    <b>RMR-2:</b> El RQD define la competencia de la roca y es el indicador crítico para el sostenimiento.
                 </div>
             </div>
         </div>
 
-        <div class="note" style="margin-top: 4px; font-size: 9.5px; color: #94a3b8; text-align: justify; border: none;">
-            <b>PARÁMETRO:</b> Rango de presión de agua en juntas / Esfuerzo principal mayor (σw / σ1). Valores basados en Bieniawski 1989 para túneles y taludes.
+        <!-- 4. SISTEMAS DE DISCONTINUIDADES -->
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+                ▤ 4. SISTEMAS DE DISCONTINUIDADES
+            </h4>
+
+            <div class="junta-tabs-wrapper" id="tabs-container"></div>
+
+            <div id="form-junta-unica" style="margin-top: 10px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
+                    <div style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;">
+                        <span class="input-label" style="margin:0;">DIP:</span>
+                        <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" oninput="validarLimites(this, 90); guardarDatosJunta()">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex: 1.2; min-width: 0;">
+                        <span class="input-label" style="margin:0;">DIPDIR:</span>
+                        <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" oninput="validarLimites(this, 360); guardarDatosJunta()">
+                    </div>
+                    <button type="button" onclick="capturarGiroscopio()" class="btn-gyro">🧭</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; padding: 10px; align-items: center;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Tipo Discontinuidad</span>
+                        <select id="ui-tipo-disc" class="in-field" onchange="guardarDatosJunta()" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
+                            <option value="diaclasa">Diaclasa</option>
+                            <option value="estratificacion">Estratificación</option>
+                            <option value="foliacion">Foliación</option>
+                            <option value="falla">Falla</option>
+                            <option value="cizalla">Cizalla</option>
+                            <option value="contacto">Contacto</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Tipo de Relleno</span>
+                        <select id="ui-tipo-relleno" class="in-field" onchange="guardarDatosJunta()" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
+                            <option value="cuarzo">Cuarzo</option>
+                            <option value="calcita">Calcita</option>
+                            <option value="arcilla">Arcilla</option>
+                            <option value="limo">Limo</option>
+                            <option value="arena">Arena</option>
+                            <option value="panizo">Milonita</option>
+                            <option value="ninguno">Ninguno</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;" id="ui-selects">
+                    <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
+                    <div><span class="input-label">Persistencia</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
+                    <div><span class="input-label">Apertura</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">0.1-1mm</option><option value="1">1-5mm</option><option value="0">>5mm</option></select></div>
+                    <div><span class="input-label">Rugosidad</span><select class="in-field j-ui" id="sel_rugos_rmr" onchange="guardarDatosJunta()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
+                    <div><span class="input-label">Relleno (Puntos)</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
+                    <div><span class="input-label">Alteración</span><select class="in-field j-ui" id="sel_alter_junta" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
+                </div>
+
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; padding: 0 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <label style="position: relative; display: inline-block; width: 34px; height: 20px;">
+                        <input type="checkbox" id="chk_peine" onchange="refrescarVistaPeine(); guardarDatosJunta();" style="opacity: 0; width: 0; height: 0; position: absolute;"> 
+                        <span class="slider-barton"></span>
+                    </label>
+                    <span class="input-label" style="margin:0; font-size: 9.5px; font-weight: bold; color: #475569; cursor: pointer;" onclick="document.getElementById('chk_peine').click()">
+                        USAR PEINE DE BARTON
+                    </span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 5px; width: 100%; min-height: 85px; position: relative;">
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <div id="ui_peine" style="display: none; flex-direction: row; gap: 4px; padding: 2px 4px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 4px; align-items: flex-end; height: 38px;">
+                            <div style="display: flex; flex-direction: column; width: 62px;">
+                                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center;">AMP. (a)</span>
+                                <input type="number" id="in_amp" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px;" placeholder="mm" oninput="guardarDatosJunta()">
+                            </div>
+                            <div style="display: flex; flex-direction: column; width: 62px;">
+                                <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center;">LONG. (L)</span>
+                                <input type="number" id="in_len" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px;" value="100" oninput="guardarDatosJunta()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end; margin-left: auto;">
+                        <div style="display:flex; align-items:center; height: 38px;">
+                            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JRC</span>
+                            <div class="res-val-matrix" style="height:26px !important; min-width:65px;"><b id="out_jrc" style="font-size: 11px;">-</b></div>
+                        </div>
+                        <div style="display:flex; align-items:center; height: 30px;">
+                            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JCS</span>
+                            <div class="res-val-matrix" style="height:26px !important; min-width:65px;"><b id="out_jcs" style="font-size: 11px;">-</b><span class="res-unit-tag" style="font-size: 7px;">MPa</span></div>
+                        </div>
+                        <div id="ui-puntos-junta" class="score-anchor" style="color:#27ae60; font-weight:900; font-size: 10px; margin-top: 5px; text-align: right; width: 100%;">J1: 35 PTS</div>
+                    </div>
+
+                    <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
+                          style="color:#e74c3c; font-size:9.5px; font-weight:800; cursor:pointer; display:none; text-transform: uppercase; position: absolute; left: 2px; bottom: 24px;">
+                        ✕ Eliminar Sistema
+                    </span>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+
+        <!-- 5. CONDICIÓN HIDROGEOLÓGICA -->
+        <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden; border-left: 4px solid #3498db;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+                💧 5. CONDICIÓN HIDROGEOLÓGICA
+            </h4>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                    <div style="width: 230px;">
+                        <div class="input-label">INFILTRACIÓN</div>
+                        <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 100%; font-size: 11px; height: 30px; font-weight: 800; color: #052c52;">
+                            <option value="15">Seco (Sin humedad)</option>
+                            <option value="10">Húmedo (Superficie oscura, sin goteo)</option>
+                            <option value="7">Mojado (Goteo esporádico)</option>
+                            <option value="4">Goteo persistente / Chorro leve</option>
+                            <option value="0">Fluyente (Chorro a presión)</option>
+                        </select>
+                    </div>
+                    <div id="score_p5" style="margin-top: 12px; font-size: 10.2px; font-weight: 900; color: #27ae60; white-space: nowrap;">PTS: 15</div>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #eee; border-radius: 6px; padding: 8px;">
+                    <div class="input-label" style="border-bottom: 1px solid #eee; padding-bottom: 3px; margin-bottom: 6px; font-size: 9.5px;">GUÍA DE CAMPO PARA RMR-5</div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 5px;">
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #27ae60; font-weight: bold; min-width: 45px;">SECO:</span>
+                            <span style="color: #566573;">No hay rastro de agua ni humedad en las juntas. Macizo estable.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #3498db; font-weight: bold; min-width: 45px;">HÚMEDO:</span>
+                            <span style="color: #566573;">Superficies oscurecidas por humedad, pero no hay desprendimiento de gotas.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #f1c40f; font-weight: bold; min-width: 45px;">MOJADO:</span>
+                            <span style="color: #566573;">Goteo esporádico o continuo. Se observa agua libre en las grietas.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #e67e22; font-weight: bold; min-width: 45px;">FLUJO:</span>
+                            <span style="color: #c0392b;">Chorros de agua saliendo de las fracturas. Dificulta la colocación de soporte.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="controles-fase1" class="full-row" style="display: flex; justify-content: flex-end; padding: 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
-    <button onclick="prepararYIrAFase2()" style="width: 160px; height: 40px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #1e8449;">
-        VER REPORTE >>
-    </button>
-</div>
-    </div> <div id="fase2-container" style="display: none; padding: 12px; background: #ebf2f7;">
+            <button type="button" onclick="prepararYIrAFase2()" style="width: 160px; height: 40px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #1e8449;">
+                VER REPORTE >>
+            </button>
+        </div>
+    </div> 
+
+    <!-- FASE 2: REPORTE -->
+    <div id="fase2-container" style="display: none; padding: 12px; background: #ebf2f7;">
         <div id="reporte-card" class="geo-card full-row" style="border-top: 5px solid #27ae60; min-height: auto; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
             <h4 style="margin: 0 0 15px; color: #052c52; font-size: 13px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px;">📊 REPORTE TÉCNICO GEOMECÁNICO RMR</h4>
             
@@ -886,166 +805,131 @@ select.in-field {
                     </div>
                 </div>
             </div>
-			<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-    
-    <div style="display: flex; gap: 8px;">
-        <button onclick="registrarFichaActual(false)" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
-        
-        <button onclick="nuevaEstacion()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">➕ NUEVA ESTACIÓN</button>
-    </div>
 
-    <button onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📥 EXPORTAR EXCEL (0 FICHAS)</button>
-    
-    <button onclick="volverAFase1()" style="width: 100%; background: #64748b; color: white; border: none; border-radius: 6px; padding: 10px; font-size: 9px; cursor: pointer; text-transform: uppercase;">« EDITAR DATOS DE ESTACIÓN</button>
-</div>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="registrarFichaActual(false)" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
+                    <button type="button" onclick="nuevaEstacion()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">➕ NUEVA ESTACIÓN</button>
+                </div>
+
+                <button type="button" onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📥 EXPORTAR EXCEL (0 FICHAS)</button>
+                <button type="button" onclick="volverAFase1()" style="width: 100%; background: #64748b; color: white; border: none; border-radius: 6px; padding: 10px; font-size: 9px; cursor: pointer; text-transform: uppercase;">« EDITAR DATOS DE ESTACIÓN</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-  
 // ==========================================
 // 1. ESTADO Y MEMORIA GLOBAL
 // ==========================================  
-    let sysCount = 1;
-    let baseDeDatosFichas = [];
+let sysCount = 1;
+let baseDeDatosFichas = [];
+let listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+let idActivo = 1;
+
 // ==========================================
 // 2. CONTROL DE INTERFAZ Y ESCENARIOS
 // ==========================================  
+function toggleRes() {
+    let m = document.getElementById('m_res').value;
+    document.getElementById('ui_sch').classList.toggle('hidden', m !== 'sch');
+    document.getElementById('ui_vis').classList.toggle('hidden', m !== 'vis');
+    runRmr();
+}
 
-    function toggleRes() {
-        let m = document.getElementById('m_res').value;
-        document.getElementById('ui_sch').classList.toggle('hidden', m !== 'sch');
-        document.getElementById('ui_vis').classList.toggle('hidden', m !== 'vis');
-        runRmr();
-    }
+function toggleRqd() {
+    let m = document.getElementById('m_rqd').value;
+    document.getElementById('ui_deere').classList.toggle('hidden', m !== 'deere');
+    document.getElementById('ui_pal').classList.toggle('hidden', m !== 'pal');
+    runRmr();
+}
 
-    function toggleRqd() {
-        let m = document.getElementById('m_rqd').value;
-        document.getElementById('ui_deere').classList.toggle('hidden', m !== 'deere');
-        document.getElementById('ui_pal').classList.toggle('hidden', m !== 'pal');
-        runRmr();
-    }
-
-    function updateLitologia() {
-        const grupo = document.getElementById('grupoRoca').value;
-        const tipoSel = document.getElementById('tipoRoca');
-        const lit = {
-            ignea: [
-            {n:"Granito (2.65)", v:2.65},
-            {n:"Basalto (2.85)", v:2.85},
-            {n:"Andesita (2.60)", v:2.60},
-            {n:"Diorita (2.75)", v:2.75},
-            {n:"Riolita (2.50)", v:2.50},
-            {n:"Gabro (2.95)", v:2.95},
-            {n:"Sienita (2.70)", v:2.70},
-            {n:"Obsidiana (2.40)", v:2.40}
+function updateLitologia() {
+    const grupo = document.getElementById('grupoRoca').value;
+    const tipoSel = document.getElementById('tipoRoca');
+    const lit = {
+        ignea: [
+            {n:"Granito (2.65)", v:2.65}, {n:"Basalto (2.85)", v:2.85},
+            {n:"Andesita (2.60)", v:2.60}, {n:"Diorita (2.75)", v:2.75},
+            {n:"Riolita (2.50)", v:2.50}, {n:"Gabro (2.95)", v:2.95},
+            {n:"Sienita (2.70)", v:2.70}, {n:"Obsidiana (2.40)", v:2.40}
         ],
         metamorfica: [
-            {n:"Gneiss (2.70)", v:2.70},
-            {n:"Esquisto (2.60)", v:2.60},
-            {n:"Mármol (2.75)", v:2.75},
-            {n:"Cuarcita (2.65)", v:2.65},
-            {n:"Pizarra (2.75)", v:2.75},
-            {n:"Filita (2.70)", v:2.70}
+            {n:"Gneiss (2.70)", v:2.70}, {n:"Esquisto (2.60)", v:2.60},
+            {n:"Mármol (2.75)", v:2.75}, {n:"Cuarcita (2.65)", v:2.65},
+            {n:"Pizarra (2.75)", v:2.75}, {n:"Filita (2.70)", v:2.70}
         ],
         sedimentaria: [
-            {n:"Caliza (2.55)", v:2.55},
-            {n:"Arenisca (2.30)", v:2.30},
-            {n:"Lutita (2.40)", v:2.40},
-            {n:"Dolomía (2.80)", v:2.80},
-            {n:"Conglomerado (2.50)", v:2.50},
-            {n:"Brecha (2.45)", v:2.45}
+            {n:"Caliza (2.55)", v:2.55}, {n:"Arenisca (2.30)", v:2.30},
+            {n:"Lutita (2.40)", v:2.40}, {n:"Dolomía (2.80)", v:2.80},
+            {n:"Conglomerado (2.50)", v:2.50}, {n:"Brecha (2.45)", v:2.45}
         ]
     };
-        tipoSel.innerHTML = "";
-        lit[grupo].forEach(r => {
-            let opt = document.createElement('option'); opt.value = r.v; opt.innerText = r.n;
-            tipoSel.appendChild(opt);
-        });
-        runRmr();
-    }
+    tipoSel.innerHTML = "";
+    lit[grupo].forEach(r => {
+        let opt = document.createElement('option'); opt.value = r.v; opt.innerText = r.n;
+        tipoSel.appendChild(opt);
+    });
+    runRmr();
+}
 
-  function updateEscenario() {
+function updateEscenario() {
     const esc = document.getElementById('escenario').value;
     const isT = esc === 'tunel';
-    
     const inputDip = document.getElementById('eje_dip');
     const inputDir = document.getElementById('eje_dir');
     const labelDip = document.getElementById('lbl_dip');
     const labelDir = document.getElementById('lbl_dir');
     const labelUbi = document.getElementById('lbl_ubi_tec');
 
-    // Cambiamos los textos de las etiquetas
     labelDip.innerText = isT ? "AZIMUT EJE" : "INCL. TALUD";
     labelDir.innerText = isT ? "DIR. AVANCE" : "DIRECC. TALUD";
     labelUbi.innerText = isT ? "NIVEL" : "TRAMO";
 
     if (isT) {
-        // --- MODO TÚNEL ---
-        inputDip.placeholder = "0-360\u00B0";
-        // IMPORTANTE: En túnel el Azimut llega a 360
-        inputDip.setAttribute("oninput", "validarAngular(this, 360)");
-        
+        inputDip.placeholder = "0-360°";
         inputDir.value = ""; 
         inputDir.disabled = true; 
         inputDir.style.backgroundColor = "#f1f5f9"; 
         inputDir.style.opacity = "0.6";
         inputDir.placeholder = "N/A";
     } else {
-        // --- MODO TALUD ---
-        inputDip.placeholder = "0-90\u00B0";
-        // IMPORTANTE: En talud la inclinación solo llega a 90
-        inputDip.setAttribute("oninput", "validarAngular(this, 90)");
-        
+        inputDip.placeholder = "0-90°";
         inputDir.disabled = false;
         inputDir.style.backgroundColor = "#ffffff";
         inputDir.style.opacity = "1";
-        inputDir.placeholder = "0-360\u00B0";
-        // Dirección de talud siempre hasta 360
-        inputDir.setAttribute("oninput", "validarAngular(this, 360)");
+        inputDir.placeholder = "0-360°";
     }
     runRmr();
 }
-	function prepararYIrAFase2() {
-    // 1. Forzamos el guardado de la pestaña de junta que el usuario tiene abierta actualmente
+
+function prepararYIrAFase2() {
     guardarDatosJunta(); 
-
-    // 2. Ejecutamos el motor de cálculo una última vez para asegurar coherencia
     runRmr();
-
-    // 3. Llamamos a tu función original de validación y cambio de pantalla
-    // (Asegúrate de que esta función 'irAFase2' sea la que oculta el main-container)
     irAFase2(); 
 }
-  function irAFase2() {
+
+function irAFase2() {
     const esc = document.getElementById('escenario').value;
     const isT = esc === 'tunel';
     
-    // 1. Definición de campos obligatorios básicos
     const camposValidar = [
         { id: 'est_id', nombre: 'ID de Estación' },
         { id: 'est_tec', nombre: 'Técnico Responsable' },
-        { id: 'est_fecha', nombre: 'Fecha' }
+        { id: 'est_fecha', nombre: 'Fecha' },
+        { id: 'eje_dip', nombre: document.getElementById('lbl_dip').innerText }
     ];
 
-    // 2. Añadir campos de orientación de estación (según escenario)
-    // El Dip (Inclinación o Azimut Eje) siempre es obligatorio
-    camposValidar.push({ id: 'eje_dip', nombre: document.getElementById('lbl_dip').innerText });
-    
-    // La Dirección solo es obligatoria en modo TALUD
     if (!isT) {
         camposValidar.push({ id: 'eje_dir', nombre: 'DIRECCIÓN DEL TALUD' });
     }
 
     let faltantes = [];
 
-    // 3. Validación de campos con resalte visual y limpieza de vacuna
     camposValidar.forEach(campo => {
         let el = document.getElementById(campo.id);
-        // "Vacuna": quitamos el símbolo de grado para ver si hay un valor real
         let valorLimpio = el.value.toString().replace('°', '').trim();
-        
         if (!valorLimpio) {
             faltantes.push(campo.nombre);
             el.style.border = "2px solid #e74c3c";
@@ -1057,50 +941,21 @@ select.in-field {
     });
 
     const j1 = listaJuntas[0];
-    const elUiDip = document.getElementById('ui-dip');
-    const elUiDir = document.getElementById('ui-dir');
-    
-    // Limpiamos los valores de grados para validar
     const valJ1Dip = (j1.dip || "").toString().replace('°', '').trim();
     const valJ1Dir = (j1.dir || "").toString().replace('°', '').trim();
     
     if (!valJ1Dip || !valJ1Dir) {
         faltantes.push("Medición Dip/Dir de la Junta #1 (Es obligatoria)");
-        
-        // Si el usuario no está en la Junta 1, lo llevamos allá para que corrija
-        if (idActivo !== 1) {
-            cambiarAJunta(1);
-        }
-
-        // Resaltamos los campos físicos que ve el usuario
-        if (!valJ1Dip) {
-            elUiDip.style.border = "2px solid #e74c3c";
-            elUiDip.style.backgroundColor = "#fdf2f2";
-        }
-        if (!valJ1Dir) {
-            elUiDir.style.border = "2px solid #e74c3c";
-            elUiDir.style.backgroundColor = "#fdf2f2";
-        }
-    } else {
-        // Restauramos el estilo si todo está correcto
-        elUiDip.style.border = "1px solid #cbd5e1";
-        elUiDip.style.backgroundColor = "#ffffff";
-        elUiDir.style.border = "1px solid #cbd5e1";
-        elUiDir.style.backgroundColor = "#ffffff";
+        if (idActivo !== 1) cambiarAJunta(1);
     }
 
-    // 5. Bloqueo si hay campos vacíos
     if (faltantes.length > 0) {
         alert("⚠️ ATENCIÓN: Faltan datos críticos para el reporte:\n\n- " + faltantes.join("\n- "));
-        return; // Detiene la función aquí
+        return;
     }
 
-    // 6. Procesamiento y Transición (Si todo está lleno)
     runRmr(); 
-    
-    if (typeof registrarFichaActual === 'function') {
-        registrarFichaActual(true); 
-    }
+    registrarFichaActual(true); 
 
     document.getElementById('main-container').style.display = 'none';
     document.getElementById('fase2-container').style.display = 'block';
@@ -1111,121 +966,43 @@ select.in-field {
 
     window.scrollTo(0,0);
 }
-    function volverAFase1() {
-        document.getElementById('main-container').style.display = 'grid';
-        document.getElementById('fase2-container').style.display = 'none';
-    }
 
-// ==========================================
-// 3. UTILIDADES Y VALIDACIONES
-// ==========================================  
-  function validarLimites(input, maxVal) {
+function volverAFase1() {
+    document.getElementById('main-container').style.display = 'grid';
+    document.getElementById('fase2-container').style.display = 'none';
+}
+
+function validarLimites(input, maxVal) {
     let valor = parseFloat(input.value);
-    if (valor > maxVal) {
-        input.value = maxVal;
-    } else if (valor < 0) {
-        input.value = 0;
-    }
+    if (valor > maxVal) input.value = maxVal;
+    else if (valor < 0) input.value = 0;
 }
-  function validarAngular(input, max) {
-    // Solo permitimos números, sin símbolos que rompan el flujo
-    let v = input.value.replace(/\D/g, '');
-    if (v !== "") {
-        let num = parseInt(v);
-        if (num > max) num = max;
-        input.value = num; 
-    }
-    runRmr();
-}
-  
- // 3. Función extra para poner el símbolo SOLO al salir del campo
-function formatearAlSalir(input) {
-    if (input.value !== "" && !input.value.includes("°")) {
-        input.value = input.value + "°";
-    }
-}
-function syncBartonUI() {
-    const chk = document.getElementById('chk_peine');
-    const ui = document.getElementById('ui_peine');
-    const outJrc = document.getElementById('out_jrc');
 
-    if (chk && ui) {
-        // Mostramos u ocultamos la caja amarilla
-        ui.style.display = chk.checked ? 'flex' : 'none';
-        
-        // Si el usuario apaga el Switch, limpiamos el JRC visual
-        if (!chk.checked && outJrc) {
-            outJrc.innerText = "-";
-        }
-    }
-    
-    // Forzamos la actualización de las cajas de resultados de la Sección 4
-    actualizarPuntosUI();
-    
-    // Recalculamos el RMR total para que los puntos visuales cambien al instante
-    if (typeof runRmr === 'function') runRmr();
-}
-// 4. Función para limpiar el símbolo al entrar al campo (para poder editar)
-function limpiarAlEntrar(input) {
-    input.value = input.value.replace("°", "");
-}
-  // Ejecutar al cargar la página
-window.addEventListener('load', syncBartonUI);
-  
-  function refrescarVistaPeine() {
-    const chk = document.getElementById('chk_peine');
-    const ui = document.getElementById('ui_peine'); // El ID que tienes en tu HTML
-    
-    if (chk && ui) {
-        // Usamos 'flex' porque es lo que tienes en tu onchange del HTML
-        ui.style.display = chk.checked ? 'flex' : 'none';
-    }
-}
 // ==========================================
-// 4. DINÁMICA DE JUNTAS (DOM)
+// 4. DINÁMICA DE JUNTAS
 // ==========================================  
-  
-// --- MEMORIA DE JUNTAS ---
-let listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6] }];
-let idActivo = 1;
-
-// Inicializar al cargar
-window.addEventListener('load', () => {
-    renderizarTabs();
-    cambiarAJunta(1);
-});
-
 function renderizarTabs() {
     const container = document.getElementById('tabs-container');
     if (!container) return;
 
     let html = '';
-    
-    // 1. Poner la junta activa siempre de primera
     const juntaActiva = listaJuntas.find(j => j.id === idActivo);
     if (juntaActiva) {
         html += `<div class="j-tab active" onclick="cambiarAJunta(${juntaActiva.id})">SISTEMA #${juntaActiva.id}</div>`;
     }
 
-    // 2. Las demás juntas después
     listaJuntas.forEach(j => {
         if (j.id !== idActivo) {
             html += `<div class="j-tab" onclick="cambiarAJunta(${j.id})">S#${j.id}</div>`;
         }
     });
     
-    // 3. Botón MAS con clase sticky
     html += `<div class="btn-add-tab" onclick="nuevaJunta()">+</div>`;
-    
     container.innerHTML = html;
-    
-    // 4. Scroll automático al inicio para ver la activa
     container.scrollLeft = 0;
 
-    // --- CONTROL DEL BOTÓN ELIMINAR (Anclado al fondo para evitar saltos) ---
     const btnEliminar = document.getElementById('btn-eliminar-junta');
     if (btnEliminar) {
-        // Solo mostramos eliminar si no es el Sistema 1 y hay más de uno
         if (idActivo !== 1 && listaJuntas.length > 1) {
             btnEliminar.style.display = 'block';
             btnEliminar.innerHTML = `✖ ELIMINAR SISTEMA #${idActivo}`;
@@ -1235,25 +1012,19 @@ function renderizarTabs() {
     }
 }
 
-  function nuevaJunta() {
-    // Generar nuevo ID correlativo
+function nuevaJunta() {
     const nuevoId = listaJuntas.length > 0 ? Math.max(...listaJuntas.map(j => j.id)) + 1 : 1;
-    
-    // Crear nueva junta con valores por defecto (ISRM estándar)
     const nuevaJ = { 
         id: nuevoId, 
         dip: "", 
         dir: "", 
         vals: [20, 6, 6, 6, 6, 6],
-        // --- NUEVA MEMORIA PARA EL PEINE ---
         amp: 0,
         len: 100,
         usePeine: false
     };
-    
     listaJuntas.push(nuevaJ);
-    idActivo = nuevoId; // Cambiar a la nueva automáticamente
-    
+    idActivo = nuevoId;
     renderizarTabs();
     cambiarAJunta(nuevoId);
 }
@@ -1261,11 +1032,9 @@ function renderizarTabs() {
 function cambiarAJunta(id) {
     idActivo = id;
     const datos = listaJuntas.find(j => j.id === id);
-    
     if (datos) {
         document.getElementById('ui-dip').value = datos.dip;
         document.getElementById('ui-dir').value = datos.dir;
-        
         const selects = document.querySelectorAll('.j-ui');
         datos.vals.forEach((v, i) => {
             if(selects[i]) selects[i].value = v;
@@ -1284,20 +1053,11 @@ function cambiarAJunta(id) {
     actualizarPuntosUI();
 }
 
-
 function refrescarVistaPeine() {
     const chk = document.getElementById('chk_peine');
     const ui = document.getElementById('ui_peine'); 
-    const outJrc = document.getElementById('out_jrc');
-
     if (chk && ui) {
-        // Mantenemos el 'flex' que pide tu diseño
         ui.style.display = chk.checked ? 'flex' : 'none';
-        
-        // Si se apaga, el JRC visual debe resetearse para no confundir
-        if (!chk.checked && outJrc) {
-            // Se actualizará automáticamente por el else de actualizarPuntosUI()
-        }
     }
     actualizarPuntosUI();
 }
@@ -1306,16 +1066,12 @@ function guardarDatosJunta() {
     const index = listaJuntas.findIndex(j => j.id === idActivo);
     if (index === -1) return;
 
-    // Guardar Dip y Dir
     listaJuntas[index].dip = document.getElementById('ui-dip').value;
     listaJuntas[index].dir = document.getElementById('ui-dir').value;
-    
-    // --- NUEVAS LÍNEAS PARA EL PEINE ---
     listaJuntas[index].amp = document.getElementById('in_amp').value;
     listaJuntas[index].len = document.getElementById('in_len').value;
     listaJuntas[index].usePeine = document.getElementById('chk_peine').checked;
     
-    // Guardar Selectores RMR
     const selects = document.querySelectorAll('.j-ui');
     listaJuntas[index].vals = Array.from(selects).map(s => parseInt(s.value) || 0);
     
@@ -1325,10 +1081,7 @@ function guardarDatosJunta() {
 
 function eliminarJuntaActual() {
     if (idActivo === 1) return; 
-    
-    // Nomenclatura corregida a Sistema
     if (!confirm(`¿Confirma eliminar el SISTEMA #${idActivo}?\nEsta acción no se puede deshacer.`)) return;
-    
     listaJuntas = listaJuntas.filter(j => j.id !== idActivo);
     idActivo = 1; 
     cambiarAJunta(1);
@@ -1338,7 +1091,6 @@ function actualizarPuntosUI() {
     const datos = listaJuntas.find(j => j.id === idActivo);
     if (!datos) return;
 
-    // --- 1. LÓGICA JRC (Peine o Visual) ---
     const chkPeine = document.getElementById('chk_peine');
     const outJrc = document.getElementById('out_jrc');
     const selRugosRMR = document.getElementById('sel_rugos_rmr');
@@ -1354,61 +1106,45 @@ function actualizarPuntosUI() {
         outJrc.innerText = jrcMedia;
     }
 
-    // --- 2. LÓGICA JCS (LECTURA Y CÁLCULO DINÁMICO) ---
     let ucsMatriz = 0;
     const metodoActivo = document.getElementById('m_res').value;
-
-    // Leemos el valor actual calculado en la Sección 2
     const selectorUCS = (metodoActivo === 'sch') ? '#out_sch_ucs b' : '#out_vis_ucs b';
     const elUCS = document.querySelector(selectorUCS);
-    
     if (elUCS && elUCS.innerText !== "-") {
         ucsMatriz = parseFloat(elUCS.innerText) || 0;
     }
 
-    // --- APLICACIÓN DEL FACTOR ---
     const selAlt = document.getElementById('sel_alter_junta');
     let factorAlt = 1.0; 
-    
     if (selAlt) {
-        // Forzamos la comparación como String por si el valor viene del HTML
-        if (selAlt.value === "3") factorAlt = 0.75;      // Moderadamente meteorizada
-        else if (selAlt.value === "0") factorAlt = 0.50; // Descompuesta
-        else factorAlt = 1.0;                            // Sana (value 6)
+        if (selAlt.value === "3") factorAlt = 0.75;      
+        else if (selAlt.value === "0") factorAlt = 0.50; 
+        else factorAlt = 1.0;                            
     }
 
     const outJcs = document.getElementById('out_jcs');
     if (outJcs) {
         let jcsFinal = ucsMatriz * factorAlt;
-        // Si el factor es 1, jcsFinal será igual a ucsMatriz.
-        // Si es 0.75 o 0.50, el valor DEBE cambiar.
         outJcs.innerText = jcsFinal > 0 ? jcsFinal.toFixed(1) : "-";
     }
 
-    // --- 3. PUNTOS TOTALES ---
     const suma = datos.vals.reduce((a, b) => a + b, 0);
     const elPuntos = document.getElementById('ui-puntos-junta');
     if (elPuntos) {
         elPuntos.innerText = `S${idActivo}: ${suma} PTS`;
     }
 }
+
 // ==========================================
-// 5. CAPTURA DE SENSORES (GPS / BRÚJULA / FOTO)
+// 5. SENSORES Y FOTOGRAFÍA (OPTIMIZADO iOS)
 // ==========================================  
 function capturarGiroscopio() {
-    // 1. Apuntamos directamente a los IDs de la interfaz de pestañas
     const inDip = document.getElementById('ui-dip');
     const inDipDir = document.getElementById('ui-dir');
+    if (!inDip || !inDipDir) return;
 
-    if (!inDip || !inDipDir) {
-        console.error("No se encontraron los campos de entrada DIP/DIR");
-        return;
-    }
-
-    // Feedback táctil
     if (navigator.vibrate) navigator.vibrate(20);
 
-    // 2. Gestión de permisos (iOS 13+)
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
             .then(response => {
@@ -1420,7 +1156,6 @@ function capturarGiroscopio() {
             })
             .catch(console.error);
     } else {
-        // Android y navegadores estándar
         iniciarLecturaEstable(inDip, inDipDir);
     }
 }
@@ -1428,9 +1163,7 @@ function capturarGiroscopio() {
 function iniciarLecturaEstable(inDip, inDipDir) {
     let muestras = [];
     const tiempoInicio = Date.now();
-    const DURACION = 5000;
-
-    // MEJORA: Detectar si el móvil soporta orientación ABSOLUTA (Norte Real)
+    const DURACION = 4000;
     const tipoEvento = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
 
     [inDip, inDipDir].forEach(el => {
@@ -1441,14 +1174,10 @@ function iniciarLecturaEstable(inDip, inDipDir) {
 
     const procesarMovimiento = (e) => {
         const ahora = Date.now();
-        
-        // OBTENCIÓN DEL NORTE REAL (Brunton Style)
         let heading = null;
         if (e.webkitCompassHeading) {
-            heading = e.webkitCompassHeading; // iOS (Perfecto)
+            heading = e.webkitCompassHeading;
         } else {
-            // Android: 'alpha' en evento absoluto es el Norte Magnético
-            // Restamos de 360 porque alpha aumenta en sentido antihorario
             heading = (360 - e.alpha) % 360; 
         }
 
@@ -1457,12 +1186,10 @@ function iniciarLecturaEstable(inDip, inDipDir) {
         const beta = e.beta * (Math.PI / 180);
         const gamma = e.gamma * (Math.PI / 180);
 
-        // DIP (0-90) - Tu fórmula es excelente
         let dipRad = Math.acos(Math.cos(beta) * Math.cos(gamma));
         let dipGrados = dipRad * (180 / Math.PI);
         if (dipGrados > 90) dipGrados = 180 - dipGrados;
 
-        // DIP DIRECTION (Compensado)
         let y_comp = -Math.sin(beta) * Math.cos(gamma);
         let x_comp = -Math.sin(gamma);
         let anguloRelativo = Math.atan2(x_comp, y_comp) * (180 / Math.PI);
@@ -1471,9 +1198,7 @@ function iniciarLecturaEstable(inDip, inDipDir) {
         muestras.push({ d: dipGrados, dd: dipDirFinal });
 
         if (ahora - tiempoInicio >= DURACION) {
-            // IMPORTANTE: Quitar el evento correcto
             window.removeEventListener(tipoEvento, procesarMovimiento, true);
-            
             if (muestras.length > 0) {
                 let sS = 0, sC = 0, sumD = 0;
                 muestras.forEach(m => {
@@ -1486,20 +1211,14 @@ function iniciarLecturaEstable(inDip, inDipDir) {
                 if (finalDD < 0) finalDD += 360;
                 let finalD = sumD / muestras.length;
 
-                // 1. Inyectar valores capturados en los inputs de la interfaz única
-                const uiDip = document.getElementById('ui-dip');
-                const uiDir = document.getElementById('ui-dir');
-                
-                uiDip.value = Math.round(finalD);
-                uiDir.value = Math.round(finalDD);
-                uiDip.placeholder = "0-90\u00B0"; 
-				uiDir.placeholder = "0-360\u00B0";
+                inDip.value = Math.round(finalD);
+                inDipDir.value = Math.round(finalDD);
+                inDip.placeholder = "0-90°"; 
+                inDipDir.placeholder = "0-360°";
 
-                // 2. VITAL: Guardar estos nuevos valores en la memoria activa (listaJuntas)
                 guardarDatosJunta(); 
 
-                // 3. Feedback visual (Verde éxito)
-                [uiDip, uiDir].forEach(el => {
+                [inDip, inDipDir].forEach(el => {
                     el.style.backgroundColor = "#c8e6c9"; 
                     setTimeout(() => { el.style.backgroundColor = "#ffffff"; }, 1500);
                 });
@@ -1509,46 +1228,34 @@ function iniciarLecturaEstable(inDip, inDipDir) {
             }
         }
     };
-    // ESCUCHAR EL EVENTO SEGURO
     window.addEventListener(tipoEvento, procesarMovimiento, true);
-} //
+}
 
-// --- FUNCION GPS INTELIGENTE 30s ---
 function obtenerUbicacion() {
     const info = document.getElementById('gps_info');
     const btn = document.querySelector('.btn-gps-tactil');
-    
-    // 1. CAMBIO: El texto visual para el usuario
     info.style.fontSize = "8.5px";
-  	info.innerHTML = "⏳ Sincronizando satélites (30s)..."; 
-    btn.style.animation = "pulse-gps 1.5s infinite";
+    info.innerHTML = "⏳ Sincronizando satélites (30s)..."; 
 
     let mejorPos = null;
     const watchId = navigator.geolocation.watchPosition(
         (pos) => {
             mejorPos = pos;
-            // Si llega a la perfección rápido, corta antes (eficiencia)
             if (pos.coords.accuracy <= 3) finalizarGPS(pos, watchId);
             else info.innerHTML = `⏳ Calibrando: ±${pos.coords.accuracy.toFixed(1)}m`;
         },
         () => {}, 
-        { 
-            enableHighAccuracy: true, 
-            timeout: 30000, // 2. CAMBIO: Tiempo de espera del sensor (en milisegundos)
-            maximumAge: 0 
-        }
+        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
     );
 
-    // 3. CAMBIO: El temporizador de "rendición" forzosa
     setTimeout(() => {
         if (mejorPos) {
             finalizarGPS(mejorPos, watchId);
         } else {
             navigator.geolocation.clearWatch(watchId);
             info.innerHTML = "❌ Tiempo agotado. Ingrese manual.";
-            btn.style.animation = "none";
         }
-    }, 30000); // 30 segundos exactos
+    }, 30000);
 }
 
 function finalizarGPS(pos, watchId) {
@@ -1556,15 +1263,12 @@ function finalizarGPS(pos, watchId) {
     document.getElementById('coord_e').value = pos.coords.longitude.toFixed(6);
     document.getElementById('coord_n').value = pos.coords.latitude.toFixed(6);
     if (pos.coords.altitude) document.getElementById('coord_z').value = Math.round(pos.coords.altitude);
-    
     const acc = pos.coords.accuracy;
     document.getElementById('gps_info').innerHTML = `✅ Precisión lograda: ±${acc.toFixed(1)}m`;
     document.getElementById('gps_info').style.color = acc < 10 ? "#27ae60" : "#f1c40f";
-    document.querySelector('.btn-gps-tactil').style.animation = "none";
 }
 
-
-// --- PROCESAMIENTO DE FOTO CON MARCA DE AGUA ---
+/* FIX CRÍTICO PARA GUARDAR FOTOGRAFÍAS EN IPHONE / SAFARI */
 function procesarFotoSilenciosa(input) {
     if (!input.files || !input.files[0]) return;
 
@@ -1576,12 +1280,18 @@ function procesarFotoSilenciosa(input) {
     reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-            // Escalar para que Safari no agote la memoria RAM con fotos de 12MP/48MP
+            // Escalar para evitar colapso de memoria en Safari móvil
             const MAX_DIM = 1800;
-            let w = img.width, h = img.height;
+            let w = img.width;
+            let h = img.height;
             if (w > MAX_DIM || h > MAX_DIM) {
-                if (w > h) { h = Math.round((h * MAX_DIM) / w); w = MAX_DIM; }
-                else { w = Math.round((w * MAX_DIM) / h); h = MAX_DIM; }
+                if (w > h) {
+                    h = Math.round((h * MAX_DIM) / w);
+                    w = MAX_DIM;
+                } else {
+                    w = Math.round((w * MAX_DIM) / h);
+                    h = MAX_DIM;
+                }
             }
 
             const canvas = document.getElementById('canvas_foto');
@@ -1598,20 +1308,29 @@ function procesarFotoSilenciosa(input) {
             ctx.fillStyle = "#ffffff";
             ctx.fillText(`ID: ${idEst} | FECHA: ${fecha} | GEOTECNIA RMR89`, 20, h - (hTag * 0.35));
 
-            // toBlob en vez de toDataURL (DataURL está bloqueado para descargas en Safari iOS)
+            // Exportación con Blob compatible con iOS
             canvas.toBlob(function(blob) {
-                if (!blob) return;
+                if (!blob) {
+                    alert("Error procesando imagen.");
+                    return;
+                }
+
                 const blobUrl = URL.createObjectURL(blob);
+                const filename = `RMR_${idEst}_${Date.now()}.jpg`;
+
+                // Método 1: Enlace temporal anexado al DOM
                 const link = document.createElement('a');
                 link.href = blobUrl;
-                link.download = `RMR_${idEst}_${Date.now()}.jpg`;
+                link.download = filename;
                 link.target = '_blank';
-                document.body.appendChild(link); // Obligatorio anexar al DOM en iOS
+                document.body.appendChild(link);
                 link.click();
+
                 setTimeout(() => {
                     document.body.removeChild(link);
-                    window.URL.revokeObjectURL(blobUrl);
-                }, 200);
+                    // Si el navegador bloquea la descarga directa, abrir la imagen
+                    // para que el usuario mantenga pulsado y elija "Guardar en Fotos"
+                }, 150);
 
                 input.value = "";
             }, 'image/jpeg', 0.85);
@@ -1619,32 +1338,20 @@ function procesarFotoSilenciosa(input) {
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
-} 
-  
- // ==========================================
-// 6. MÓDULOS DE CÁLCULO ESPECÍFICO (SCHMIDT / UCS)
-// ========================================== 
-  
-  	function setSchmidtAngle(angulo, elemento) {
-    // 1. Gestionar el resaltado de los botones
+}
+
+// ==========================================
+// 6. MOTOR RMR Y ESCLERÓMETRO
+// ==========================================
+function setSchmidtAngle(angulo, elemento) {
     document.querySelectorAll('.btn-schmidt').forEach(btn => btn.classList.remove('btn-schmidt-active'));
     elemento.classList.add('btn-schmidt-active');
-    
-    // 2. Guardar el ángulo en el input oculto
     const hiddenInput = document.getElementById('selected_angle');
-    if (hiddenInput) {
-        hiddenInput.value = angulo; }
-    
-    // 3. Disparar el cálculo general
+    if (hiddenInput) hiddenInput.value = angulo;
     runRmr(); 
 }
-    
-    
-// ==========================================
-// 7. MOTOR DE RESULTADOS Y CLASIFICACIÓN
-// ==========================================    
-  function runRmr() {
-    // --- 1. CÁLCULO DE RESISTENCIA (p1) ---
+
+function runRmr() {
     let mRes = document.getElementById('m_res').value;
     let ucs = 0, p1 = 0;
 
@@ -1653,43 +1360,34 @@ function procesarFotoSilenciosa(input) {
         ucs = p1 === 15 ? 250 : p1 === 12 ? 150 : p1 === 7 ? 75 : p1 === 4 ? 35 : p1 === 2 ? 15 : 3;
         if(document.getElementById('out_vis_ucs')) document.getElementById('out_vis_ucs').querySelector('b').innerText = ucs;
     } else {
-        // --- LÓGICA PRO SCHMIDT ---
         let rVals = [1,2,3,4,5,6,7,8,9,10].map(i => parseFloat(document.getElementById('r'+i).value)||0).filter(v => v > 0);
         let rAvg = rVals.length > 0 ? rVals.reduce((a,b)=>a+b)/rVals.length : 0;
-        
-        // Capturamos el ángulo de los nuevos botones
         let angulo = parseInt(document.getElementById('selected_angle')?.value || 0);
         
-        // Tabla de corrección Delta R (ISRM/Proceq)
         let deltaR = 0;
         if (rAvg > 0) {
-            if (angulo === 90)  deltaR = -3.2;
-            else if (angulo === 45)  deltaR = -1.8;
-            else if (angulo === 0)   deltaR = 0;
+            if (angulo === 90) deltaR = -3.2;
+            else if (angulo === 45) deltaR = -1.8;
+            else if (angulo === 0) deltaR = 0;
             else if (angulo === -45) deltaR = 2.1;
             else if (angulo === -90) deltaR = 3.4;
         }
 
         let rCorregido = rAvg + deltaR;
-             
-        // Densidad (gamma) desde el selector de litología
         let gamma = parseFloat(document.getElementById('tipoRoca').value) || 2.7;
         
-        // Fórmula de Miller: log10(UCS) = 0.00088 * gamma * R_corr + 1.01
         if (rCorregido > 0) {
             let logUCS = (0.00088 * (gamma * 9.81) * rCorregido) + 1.01; 
             ucs = Math.pow(10, logUCS);
         }
 
-        // Puntaje RMR (Bieniawski 1989)
         p1 = ucs > 250 ? 15 : ucs > 100 ? 12 : ucs > 50 ? 7 : ucs > 25 ? 4 : ucs > 5 ? 2 : 1;
 
         if(document.getElementById('out_sch_r')) document.getElementById('out_sch_r').querySelector('b').innerText = rCorregido.toFixed(1);
         if(document.getElementById('out_sch_ucs')) document.getElementById('out_sch_ucs').querySelector('b').innerText = ucs.toFixed(1);
     }
     document.getElementById('score_p1').innerText = "PTS: " + p1;
-	
-    // --- 2. CÁLCULO DE CALIDAD RQD (p2) ---
+
     let mRqd = document.getElementById('m_rqd').value;
     let p2 = 0, rqd = 0;
     if(mRqd === 'deere') {
@@ -1703,32 +1401,10 @@ function procesarFotoSilenciosa(input) {
     if(document.getElementById('out_rqd')) document.getElementById('out_rqd').querySelector('b').innerText = Math.round(rqd);
     document.getElementById('score_p2').innerText = "PTS: " + p2;
 
-    // --- 3. JUNTA CRÍTICA Y CÁLCULO DE JRC (Barton) ---
     let puntosJuntaCritica = 35; 
-    
     if (listaJuntas.length > 0) {
         listaJuntas.forEach(j => {
-            // Lógica del Peine de Barton: Solo si es la junta que estamos viendo y el switch está ON
-            if (j.id === idActivo && document.getElementById('chk_peine').checked) {
-                let amp = parseFloat(document.getElementById('in_amp').value) || 0;
-                let len = parseFloat(document.getElementById('in_len').value) || 100;
-
-                if (amp > 0) {
-                    // 1. Cálculo del JRC (Solo informativo/visual)
-                    let jrcCalc = 400 * (amp / len);
-                    if (jrcCalc > 20) jrcCalc = 20;
-                    
-                    document.getElementById('out_jrc').innerText = jrcCalc.toFixed(1);
-
-                    // NOTA: Se eliminaron las líneas que cambiaban j.vals[3] y selRugos.value.
-                    // Ahora el peine NO altera los puntos del RMR ni mueve el selector.
-                }
-            }
-
-            // Cálculo del puntaje total de la junta actual
             let sumaActual = j.vals.reduce((a, b) => a + b, 0);
-            
-            // Identificación de la junta más desfavorable
             if (sumaActual < puntosJuntaCritica) {
                 puntosJuntaCritica = sumaActual;
             }
@@ -1737,40 +1413,34 @@ function procesarFotoSilenciosa(input) {
         puntosJuntaCritica = 0;
     }
 
-    // --- 4. AGUA ---
     let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
     document.getElementById('score_p5').innerText = "PTS: " + p5;
 
-    // --- 5. FINAL ---
     let rmrBasico = p1 + p2 + puntosJuntaCritica + p5;
     const lblRmrBase = document.getElementById('res_rmr_base');
     if(lblRmrBase) lblRmrBase.innerText = rmrBasico;
-	actualizarPuntosUI();
+    actualizarPuntosUI();
     return rmrBasico;
 }
-  
-    function calcularClasificacionFinal() {
+
+function calcularClasificacionFinal() {
     let p1 = parseInt(document.getElementById('score_p1').innerText.replace('PTS: ', '')) || 0;
     let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
     let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
     let ucsMatriz = parseFloat(document.querySelector('#out_sch_ucs b')?.innerText) || 
                     parseFloat(document.querySelector('#out_vis_ucs b')?.innerText) || 0;
 
-    // --- PASO 1: IDENTIFICAR LA PEOR JUNTA (UNA SOLA) ---
     let minScoreEncontrado = 100; 
     let indexPeorJunta = 1;
 
     listaJuntas.forEach(j => {
         let scoreJ = j.vals.reduce((a, b) => a + b, 0);
-        // Usamos < para que solo se quede con la PRIMERA que encuentre. 
-        // Si hay empate, la primera tiene prioridad.
         if (scoreJ < minScoreEncontrado) {
             minScoreEncontrado = scoreJ;
             indexPeorJunta = j.id;
         }
     });
 
-    // --- PASO 2: GENERAR LISTA Y CÁLCULOS BARTON ---
     let listaHTML = `<div style="border-bottom:1px solid #ffe58f; margin-bottom:5px; padding-bottom:3px;"><b>Análisis de Resistencia de Sistemas:</b></div>`;
 
     listaJuntas.forEach((j) => {
@@ -1781,8 +1451,6 @@ function procesarFotoSilenciosa(input) {
         let factorAlt = (j.vals[5] === 6) ? 1.0 : (j.vals[5] === 3) ? 0.75 : 0.5;
         let jcsLocal = ucsMatriz * factorAlt;
         let scoreJ = j.vals.reduce((a, b) => a + b, 0);
-        
-        // La condición de "Peor Junta" ahora es estricta por ID
         let esCritica = (j.id === indexPeorJunta);
         
         listaHTML += `
@@ -1798,10 +1466,8 @@ function procesarFotoSilenciosa(input) {
             </div>`;
     });
 
-    // --- PASO 3: CÁLCULOS FINALES ---
     let rmrBasicoTotal = p1 + p2 + minScoreEncontrado + p5;
 
-    // Ajuste P6 (Orientación)
     const esc = document.getElementById('escenario').value;
     const oDip = parseFloat(document.getElementById('eje_dip').value) || 0;
     const oDir = parseFloat(document.getElementById('eje_dir').value) || 0;
@@ -1825,7 +1491,6 @@ function procesarFotoSilenciosa(input) {
         if (a < p6) p6 = a;
     });
 
-    // 5. Resultados Finales
     let rmrFinal = Math.max(0, rmrBasicoTotal + p6);
     let modE = Math.pow(10, (rmrFinal - 10) / 40).toFixed(2);
     
@@ -1848,7 +1513,6 @@ function procesarFotoSilenciosa(input) {
         soporte = "<b>Soporte:</b> Cerchas pesadas, shotcrete inmediato y malla.";
     }
 
-    // 6. Inyección en el DOM
     document.getElementById('res_rmr_base').innerText = rmrBasicoTotal;
     document.getElementById('res_ajuste').innerText = p6;
     document.getElementById('res_rmr_final').innerText = rmrFinal;
@@ -1861,19 +1525,10 @@ function procesarFotoSilenciosa(input) {
     document.getElementById('res_peor_junta').innerHTML = listaHTML;
     document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
 }
-  // Sincronizar la salida de JCS de la interfaz principal con la junta que el usuario está viendo
-    const jActiva = listaJuntas.find(j => j.id === idActivo);
-    if(jActiva) {
-        let fAlt = (jActiva.vals[5] === 6) ? 1.0 : (jActiva.vals[5] === 3) ? 0.75 : 0.5;
-        const elJcs = document.getElementById('out_jcs');
-        if (elJcs) elJcs.innerText = (ucsMatriz * fAlt).toFixed(1);
-    }
 
-  
 // ==========================================
-// 8. GESTIÓN DE DATOS Y PERSISTENCIA
+// 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL (FIX iOS)
 // ==========================================
-
 function registrarFichaActual(silencioso = false) {
     const idActual = document.getElementById('est_id').value.trim();
     if (!idActual) {
@@ -1881,43 +1536,33 @@ function registrarFichaActual(silencioso = false) {
         return false;
     }
 
-    // --- NUEVA LÓGICA PARA EXPORTAR CON RESISTENCIA DE JUNTAS ---
-let datosJuntas = listaJuntas.map(j => {
-    // 1. Cálculo de JRC específico (si usó peine o tabla)
-    let amp = parseFloat(j.amp) || 0;
-    let len = parseFloat(j.len) || 100;
-    let jrcValor = j.usePeine ? Math.min(20, 400 * (amp / len)) : 0;
-    
-    // Si no usó peine, estimamos el JRC según sus puntos de rugosidad (vals[3])
-    if (!j.usePeine) {
-        jrcValor = (j.vals[3] === 6) ? 18 : (j.vals[3] === 5) ? 12 : (j.vals[3] === 1) ? 6 : 2;
-    }
+    let datosJuntas = listaJuntas.map(j => {
+        let amp = parseFloat(j.amp) || 0;
+        let len = parseFloat(j.len) || 100;
+        let jrcValor = j.usePeine ? Math.min(20, 400 * (amp / len)) : 0;
+        if (!j.usePeine) {
+            jrcValor = (j.vals[3] === 6) ? 18 : (j.vals[3] === 5) ? 12 : (j.vals[3] === 1) ? 6 : 2;
+        }
 
-    // 2. Cálculo de JCS (Resistencia de la pared)
-    // Obtenemos el UCS de la matriz que calculamos en la Fase 1
-    let ucsMatriz = parseFloat(document.querySelector('#out_sch_ucs b')?.innerText) || 
-                    parseFloat(document.querySelector('#out_vis_ucs b')?.innerText) || 0;
-    
-    // Factor de alteración según sus puntos (vals[5])
-    let factorAlt = (j.vals[5] === 6) ? 1.0 : (j.vals[5] === 3) ? 0.75 : 0.5;
-    let jcsValor = ucsMatriz * factorAlt;
+        let ucsMatriz = parseFloat(document.querySelector('#out_sch_ucs b')?.innerText) || 
+                        parseFloat(document.querySelector('#out_vis_ucs b')?.innerText) || 0;
+        let factorAlt = (j.vals[5] === 6) ? 1.0 : (j.vals[5] === 3) ? 0.75 : 0.5;
+        let jcsValor = ucsMatriz * factorAlt;
 
-    return {
-        dip: j.dip || "0",
-        dir: j.dir || "0",
-        // Puntos RMR
-        p_espac: j.vals[0],
-        p_persist: j.vals[1],
-        p_apert: j.vals[2],
-        p_rugos: j.vals[3],
-        p_rellen: j.vals[4],
-        p_alter: j.vals[5],
-        // VALORES BARTON (Para el reporte y Excel)
-        val_jrc: jrcValor.toFixed(1),
-        val_jcs: jcsValor.toFixed(1),
-        metodo_jrc: j.usePeine ? "PEINE" : "TABLA"
-    };
-});
+        return {
+            dip: j.dip || "0",
+            dir: j.dir || "0",
+            p_espac: j.vals[0],
+            p_persist: j.vals[1],
+            p_apert: j.vals[2],
+            p_rugos: j.vals[3],
+            p_rellen: j.vals[4],
+            p_alter: j.vals[5],
+            val_jrc: jrcValor.toFixed(1),
+            val_jcs: jcsValor.toFixed(1),
+            metodo_jrc: j.usePeine ? "PEINE" : "TABLA"
+        };
+    });
 
     const ficha = {
         id: idActual,
@@ -1931,15 +1576,10 @@ let datosJuntas = listaJuntas.map(j => {
         nivel: document.getElementById('ubi_val').value,
         desde: document.getElementById('abs_desde').value,
         hasta: document.getElementById('abs_hasta').value,
-        // Datos de Roca y Agua
         ucs_val: document.querySelector('#out_vis_ucs b')?.innerText || document.querySelector('#out_sch_ucs b')?.innerText || "0",
         rqd_val: document.querySelector('#out_rqd b')?.innerText || "0",
         agua_tipo: document.getElementById('p5_agua').options[document.getElementById('p5_agua').selectedIndex].text,
-        
-        // VITAL: Guardamos el array de juntas de la memoria
         juntas: datosJuntas, 
-
-        // Resultados Finales
         rmr_b: document.getElementById('res_rmr_base').innerText,
         p6: document.getElementById('res_ajuste').innerText,
         rmr_f: document.getElementById('res_rmr_final').innerText,
@@ -1959,16 +1599,10 @@ let datosJuntas = listaJuntas.map(j => {
     if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
     return true;
 }
-  function nuevaEstacion() {
+
+function nuevaEstacion() {
     if (!confirm("¿Deseas limpiar el formulario para iniciar una nueva estación? (Los datos guardados en el consolidado no se borrarán)")) return;
 
-    // --- INJERTO 1: APAGAR EL SENSOR INMEDIATAMENTE ---
-    if (typeof procesarMovimientoGlobal !== 'undefined' && procesarMovimientoGlobal) {
-        window.removeEventListener('deviceorientation', procesarMovimientoGlobal, true);
-        procesarMovimientoGlobal = null;
-    }
-
-    // 1. Limpiar inputs básicos
     document.getElementById('est_id').value = "";
     document.getElementById('coord_e').value = "";
     document.getElementById('coord_n').value = "";
@@ -1977,38 +1611,27 @@ let datosJuntas = listaJuntas.map(j => {
     document.getElementById('abs_desde').value = "";
     document.getElementById('abs_hasta').value = "";
 
-    // 2. REINICIAR MEMORIA DE JUNTAS (NUEVO SISTEMA)
-    // Volvemos a dejar solo la Junta #1 con valores por defecto
-    listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6] }];
+    listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
     idActivo = 1;
     
-    // Refrescamos la UI: redibujamos las pestañas y cargamos la J1 al formulario
     renderizarTabs();
     cambiarAJunta(1);
-
-    // 3. Resetear Sensores y Resultados Generales
     runRmr();
     volverAFase1();
     window.scrollTo(0,0);
     alert("✨ Formulario listo para nueva estación.");
 }
-  
-// ==========================================
-// 9. EXPORTACIÓN Y REPORTES EXTERNOS
-// ==========================================  
-  
+
+/* FIX CRÍTICO PARA EXPORTAR EXCEL EN IPHONE / SAFARI */
 function exportarConsolidado() {
     if (baseDeDatosFichas.length === 0) {
-        alert("No hay datos para exportar.");
+        alert("No hay estaciones guardadas para exportar. Guarde al menos una ficha.");
         return;
     }
 
     const desarrollador = "Mgtr. Byron Bravo";
-    
-    // 1. Calculamos el máximo de juntas registradas en todo el histórico para crear las columnas necesarias
     const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
     
-    // 2. Encabezados dinámicos por Sistema (Familias de Juntas)
     let encabezadoSistemas = "";
     let subEncabezadoDatos = "";
     for (let i = 1; i <= maxJuntas; i++) {
@@ -2019,10 +1642,11 @@ function exportarConsolidado() {
     let excelTemplate = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head><meta charset="utf-8">
+        <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Base_RMR</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
         <style>
             table { border-collapse: collapse; }
-            th { border: 1px solid #000; text-align: center; font-family: Arial; font-size: 9pt; padding: 5px; }
-            td { border: 1px solid #666; text-align: center; font-family: Arial; font-size: 8pt; padding: 4px; }
+            th { border: 1px solid #000; text-align: center; font-family: Arial, sans-serif; font-size: 9pt; padding: 5px; }
+            td { border: 1px solid #666; text-align: center; font-family: Arial, sans-serif; font-size: 8pt; padding: 4px; }
             .azul { background-color: #052c52; color: white; }
             .naranja { background-color: #d35400; color: white; }
         </style></head>
@@ -2052,7 +1676,6 @@ function exportarConsolidado() {
                         for (let i = 0; i < maxJuntas; i++) {
                             const j = (f.juntas && f.juntas[i]) ? f.juntas[i] : null;
                             if (j) {
-                                // Aquí leemos las propiedades tal cual las guardamos en registrarFichaActual
                                 celdasJuntas += `<td>${j.dip}</td><td>${j.dir}</td><td>${j.p_espac}</td><td>${j.p_persist}</td><td>${j.p_apert}</td><td>${j.p_rugos}</td><td>${j.p_rellen}</td><td>${j.p_alter}</td>`;
                             } else {
                                 celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
@@ -2075,16 +1698,16 @@ function exportarConsolidado() {
             <div style="font-size: 8pt; color: #666;">Algoritmos y Desarrollo Técnico: <b>${desarrollador}</b> | Generado: ${new Date().toLocaleString()}</div>
         </body></html>`;
 
-    // 3. Generación del archivo y descarga
-    // AÑADIDO: '\uFEFF' (BOM UTF-8 para compatibilidad) y anexar al DOM antes del click
+    // Empaquetado Blob con BOM UTF-8 para garantizar compatibilidad con Excel y Safari
     const blob = new Blob(['\uFEFF', excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = `Data_RMR_ByronBravo_${Date.now()}.xls`;
-    link.target = '_blank'; // Ayuda a Safari a reconocer la descarga
+    link.target = '_blank';
     
-    document.body.appendChild(link); // En iOS es obligatorio tener el nodo en el árbol del documento
+    // Anexar forzosamente al DOM antes del click (requisito estricto en WebKit / iOS)
+    document.body.appendChild(link);
     link.click();
     
     setTimeout(() => {
@@ -2092,23 +1715,20 @@ function exportarConsolidado() {
         window.URL.revokeObjectURL(url);
     }, 500);
 
-    // 4. Limpieza opcional de base de datos local
     setTimeout(() => {
-        if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido exportado?")) {
+        if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido generado?")) {
             baseDeDatosFichas = [];
             localStorage.removeItem('rmr_backup_geotecnia');
             document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
             alert("🧹 Memoria limpia para una nueva jornada.");
         }
-    }, 1000);
+    }, 1500);
 }
 
 // ==========================================
-// 10. INICIALIZACIÓN Y CICLO DE VIDA
+// 8. CICLO DE VIDA E INICIALIZACIÓN
 // ==========================================
-      
 window.onload = function() { 
-    // 1. Cargar respaldo de memoria de fichas guardadas
     const backup = localStorage.getItem('rmr_backup_geotecnia');
     if (backup) {
         baseDeDatosFichas = JSON.parse(backup);
@@ -2116,21 +1736,14 @@ window.onload = function() {
         if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
     }
 
-    // 2. Inicializar lógica de bloques 1, 2, 3 y 5
     updateLitologia(); 
     updateEscenario(); 
     toggleRes(); 
     toggleRqd();
-
-    // 3. INICIALIZAR EL NUEVO SISTEMA DE PESTAÑAS DE JUNTAS (SECCIÓN 4)
-    // Esto asegura que al abrir la app, la "Junta #1" aparezca dibujada y activa
     renderizarTabs(); 
     cambiarAJunta(1); 
-
-    // 4. Ejecutar primer cálculo general
     runRmr(); 
 
-    // 5. Configuración de ID en Mayúsculas
     const inputID = document.getElementById('est_id');
     if (inputID) {
         inputID.addEventListener('input', function() {
@@ -2138,7 +1751,6 @@ window.onload = function() {
         });
     }
         
-    // 6. Configuración de Fecha Local
     const fechaInput = document.getElementById('est_fecha');
     if (fechaInput) {
         const ahora = new Date();
@@ -2147,15 +1759,13 @@ window.onload = function() {
         fechaInput.value = localISOTime;
     }
 };
-	
-// REGISTRO DEL SERVICE WORKER (Para Modo Avión)
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log("✅ Sistema Offline Preparado"))
+            .then(() => console.log("✅ Sistema Offline Preparado"))
             .catch(err => console.log("❌ Error de registro sw:", err));
     });
-  
 }
 </script>
 </body>

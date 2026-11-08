@@ -5,6 +5,8 @@
     <link rel="manifest" href="manifest.json">
 	<link rel="apple-touch-icon" href="icon-512.png">
     <meta name="theme-color" content="#052c52">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="RMR 89">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">	
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="screen-orientation" content="any">	
@@ -35,6 +37,8 @@ html, body {
     border-radius: 0 !important;
     border: none !important;
     min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     overflow-x: hidden; 
     display: block; /* Cambiado de flex a block para permitir scroll natural */
 }
@@ -54,7 +58,7 @@ html, body {
 .grid-main {  
     display: grid; 
     /* La magia está aquí: minmax define el ancho mínimo de cada tarjeta */
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); 
     gap: 12px; 
     padding: 10px; 
     width: 100%;
@@ -875,6 +879,20 @@ html, body {
 // ==========================================  
     let sysCount = 1;
     let baseDeDatosFichas = [];
+
+    // Persistencia protegida: no interrumpe el trabajo si el navegador bloquea
+    // el almacenamiento o si se alcanza la cuota disponible.
+    function guardarRespaldoRMR() {
+        try {
+            localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+            return true;
+        } catch (error) {
+            console.error("No se pudo guardar el respaldo RMR:", error);
+            alert("⚠️ La ficha está en memoria, pero el navegador no pudo guardar el respaldo local. Exporta el consolidado cuanto antes y revisa el espacio disponible.");
+            return false;
+        }
+    }
+
 // ==========================================
 // 2. CONTROL DE INTERFAZ Y ESCENARIOS
 // ==========================================  
@@ -1896,7 +1914,7 @@ let datosJuntas = listaJuntas.map(j => {
     if (indexExistente !== -1) baseDeDatosFichas[indexExistente] = ficha;
     else baseDeDatosFichas.push(ficha);
     
-    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    guardarRespaldoRMR();
     document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
     
     if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
@@ -1940,6 +1958,15 @@ let datosJuntas = listaJuntas.map(j => {
 // 9. EXPORTACIÓN Y REPORTES EXTERNOS
 // ==========================================  
   
+function escaparCeldaExcel(valor) {
+    const texto = (valor === null || valor === undefined) ? "" : String(valor);
+    // Evita que valores ingresados por el usuario se interpreten como etiquetas HTML.
+    return texto.replace(/[&<>"']/g, caracter => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+    })[caracter]);
+}
+
 function exportarConsolidado() {
     if (baseDeDatosFichas.length === 0) {
         alert("No hay datos para exportar.");
@@ -1996,20 +2023,20 @@ function exportarConsolidado() {
                             const j = (f.juntas && f.juntas[i]) ? f.juntas[i] : null;
                             if (j) {
                                 // Aquí leemos las propiedades tal cual las guardamos en registrarFichaActual
-                                celdasJuntas += `<td>${j.dip}</td><td>${j.dir}</td><td>${j.p_espac}</td><td>${j.p_persist}</td><td>${j.p_apert}</td><td>${j.p_rugos}</td><td>${j.p_rellen}</td><td>${j.p_alter}</td>`;
+                                celdasJuntas += `<td>${escaparCeldaExcel(j.dip)}</td><td>${escaparCeldaExcel(j.dir)}</td><td>${escaparCeldaExcel(j.p_espac)}</td><td>${escaparCeldaExcel(j.p_persist)}</td><td>${escaparCeldaExcel(j.p_apert)}</td><td>${escaparCeldaExcel(j.p_rugos)}</td><td>${escaparCeldaExcel(j.p_rellen)}</td><td>${escaparCeldaExcel(j.p_alter)}</td>`;
                             } else {
                                 celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
                             }
                         }
                         return `
                             <tr>
-                                <td style="font-weight:bold;">${f.id}</td><td>${f.fecha}</td><td>${f.tecnico}</td><td>${f.proyecto}</td>
-                                <td>${f.x}</td><td>${f.y}</td><td>${f.z}</td><td>${f.sector}</td><td>${f.nivel}</td><td>${f.desde}</td><td>${f.hasta}</td>
-                                <td>${f.ucs_val}</td><td>${f.rqd_val}</td>
+                                <td style="font-weight:bold;">${escaparCeldaExcel(f.id)}</td><td>${escaparCeldaExcel(f.fecha)}</td><td>${escaparCeldaExcel(f.tecnico)}</td><td>${escaparCeldaExcel(f.proyecto)}</td>
+                                <td>${escaparCeldaExcel(f.x)}</td><td>${escaparCeldaExcel(f.y)}</td><td>${escaparCeldaExcel(f.z)}</td><td>${escaparCeldaExcel(f.sector)}</td><td>${escaparCeldaExcel(f.nivel)}</td><td>${escaparCeldaExcel(f.desde)}</td><td>${escaparCeldaExcel(f.hasta)}</td>
+                                <td>${escaparCeldaExcel(f.ucs_val)}</td><td>${escaparCeldaExcel(f.rqd_val)}</td>
                                 ${celdasJuntas}
-                                <td>${f.agua_tipo}</td>
-                                <td style="font-weight:bold;">${f.rmr_b}</td><td>${f.p6}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f}</td>
-                                <td style="font-weight:bold;">${f.clase}</td><td>${f.cohesion}</td><td>${f.friccion}</td><td>${f.modulo}</td>
+                                <td>${escaparCeldaExcel(f.agua_tipo)}</td>
+                                <td style="font-weight:bold;">${escaparCeldaExcel(f.rmr_b)}</td><td>${escaparCeldaExcel(f.p6)}</td><td style="background:#eee; font-weight:bold;">${escaparCeldaExcel(f.rmr_f)}</td>
+                                <td style="font-weight:bold;">${escaparCeldaExcel(f.clase)}</td><td>${escaparCeldaExcel(f.cohesion)}</td><td>${escaparCeldaExcel(f.friccion)}</td><td>${escaparCeldaExcel(f.modulo)}</td>
                             </tr>`;
                     }).join('')}
                 </tbody>
@@ -2019,22 +2046,15 @@ function exportarConsolidado() {
         </body></html>`;
 
     // 3. Generación del archivo y descarga
-    const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const blob = new Blob(["\uFEFF", excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = `Data_RMR_ByronBravo_${new Date().getTime()}.xls`;
     link.click();
-
-    // 4. Limpieza opcional de base de datos local
-    setTimeout(() => {
-        if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido exportado?")) {
-            baseDeDatosFichas = [];
-            localStorage.removeItem('rmr_backup_geotecnia');
-            document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
-            alert("🧹 Memoria limpia para una nueva jornada.");
-        }
-    }, 1000);
+    // Liberar la URL temporal sin afectar las fichas guardadas.
+    setTimeout(() => window.URL.revokeObjectURL(url), 1500);
+    alert("✅ Se solicitó la descarga del consolidado. Las fichas permanecen guardadas en este dispositivo. Verifica el archivo antes de limpiar la base de datos.");
 }
 
 // ==========================================
@@ -2043,12 +2063,23 @@ function exportarConsolidado() {
       
 window.onload = function() { 
     // 1. Cargar respaldo de memoria de fichas guardadas
-    const backup = localStorage.getItem('rmr_backup_geotecnia');
-    if (backup) {
-        baseDeDatosFichas = JSON.parse(backup);
-        const btn = document.getElementById('btn_exportar');
-        if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    try {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+        if (backup) {
+            const datosRecuperados = JSON.parse(backup);
+            if (Array.isArray(datosRecuperados)) {
+                baseDeDatosFichas = datosRecuperados;
+            } else {
+                throw new Error("El respaldo no contiene una lista de fichas.");
+            }
+        }
+    } catch (error) {
+        console.error("No se pudo recuperar el respaldo RMR:", error);
+        alert("⚠️ No se pudo leer el respaldo local de fichas. No guardes nuevas fichas hasta revisar o recuperar el almacenamiento del navegador.");
+        baseDeDatosFichas = [];
     }
+    const btn = document.getElementById('btn_exportar');
+    if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
 
     // 2. Inicializar lógica de bloques 1, 2, 3 y 5
     updateLitologia(); 
@@ -2086,7 +2117,10 @@ window.onload = function() {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log("✅ Sistema Offline Preparado"))
+            .then(reg => {
+                console.log("✅ Sistema Offline Preparado");
+                reg.update().catch(err => console.warn("No se pudo comprobar actualización:", err));
+            })
             .catch(err => console.log("❌ Error de registro sw:", err));
     });
   
@@ -2094,3 +2128,4 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+

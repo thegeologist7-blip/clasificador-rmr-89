@@ -1,43 +1,71 @@
-const cacheName = 'rmr-v10.4'; // Cambia el número cada vez que actualices tu App
-const staticAssets = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-512.png'
+const CACHE_PREFIX = "rmr-";
+const CACHE_NAME = "rmr-v10.5";
+
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icon-512.png"
 ];
 
-// INSTALACIÓN: Guarda los archivos
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(cacheName).then(cache => cache.addAll(staticAssets))
+// Instalación: precarga el núcleo de la aplicación.
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
   );
-  self.skipWaiting(); // Obliga al nuevo SW a tomar el control de inmediato
+  self.skipWaiting();
 });
 
-// ACTIVACIÓN: Borra la caché vieja (v9.4) y deja solo la nueva (v9.5)
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== cacheName).map(key => caches.delete(key))
-      );
-    })
-  );
+// Activación: elimina únicamente versiones anteriores de esta aplicación.
+self.addEventListener("activate", event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+        .map(key => caches.delete(key))
+    );
+    await self.clients.claim();
+  })());
 });
 
-// FETCH: Estrategia "Cache First"
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(res => {
-      return res || fetch(e.request);
-    })
-  );
+// Navegación: intenta obtener la versión actualizada; si no hay conexión,
+// sirve la última copia almacenada.
+self.addEventListener("fetch", event => {
+  const request = event.request;
+  const url = new URL(request.url);
+
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  if (request.mode === "navigate") {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(request);
+        const cache = await caches.open(CACHE_NAME);
+        cache.put("./index.html", fresh.clone()).catch(() => {});
+        return fresh;
+      } catch (error) {
+        return (await caches.match(request)) ||
+               (await caches.match("./index.html")) ||
+               Response.error();
+      }
+    })());
+    return;
+  }
+
+  event.respondWith((async () => {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+
+    try {
+      const fresh = await fetch(request);
+      if (fresh && fresh.ok) {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(request, fresh.clone()).catch(() => {});
+      }
+      return fresh;
+    } catch (error) {
+      return Response.error();
+    }
+  })());
 });
-
-
-
-
-
-
-
-

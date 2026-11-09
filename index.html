@@ -1618,7 +1618,7 @@ function calcularClasificacionFinal() {
 }
 
 // ==========================================
-// 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL (FIX iOS)
+// 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL 
 // ==========================================
 function registrarFichaActual(silencioso = false) {
     const idActual = document.getElementById('est_id').value.trim();
@@ -1664,6 +1664,9 @@ function registrarFichaActual(silencioso = false) {
         fecha: document.getElementById('est_fecha').value,
         tecnico: document.getElementById('est_tec').value,
         proyecto: document.getElementById('proy_nom').value,
+        frente_tipo: escTexto,
+        frente_dip: document.getElementById('eje_dip').value || "0", // Azimut Eje (túnel) o Inclinación (talud)
+        frente_dir: escVal === 'tunel' ? "N/A" : (document.getElementById('eje_dir').value || "0"), // Dirección avance / talud
         x: document.getElementById('coord_e').value,
         y: document.getElementById('coord_n').value,
         z: document.getElementById('coord_z').value,
@@ -1727,7 +1730,7 @@ function exportarConsolidado() {
     const desarrollador = "Mgtr. Byron Bravo";
     const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
     
-    // 10 columnas por cada sistema / familia
+    // 10 columnas dinámicas por cada familia registrada
     let encabezadoSistemas = "";
     let subEncabezadoDatos = "";
     for (let i = 1; i <= maxJuntas; i++) {
@@ -1752,14 +1755,21 @@ function exportarConsolidado() {
             <table border="1">
                 <thead>
                     <tr>
-                        <th colspan="11" class="azul">INFORMACIÓN GENERAL</th>
+                        <!-- Se cambia colspan de 11 a 14 por los 3 nuevos campos -->
+                        <th colspan="14" class="azul">INFORMACIÓN GENERAL Y GEOMETRÍA DEL FRENTE</th>
                         <th colspan="2" class="azul">PROPIEDADES MATRIZ</th>
                         ${encabezadoSistemas}
                         <th style="background-color: #27ae60; color: white;">HIDRO.</th>
                         <th colspan="7" class="naranja">RESULTADOS GEOMECÁNICOS</th>
                     </tr>
                     <tr>
-                        <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th><th>COORD X</th><th>COORD Y</th><th>COORD Z</th><th>SECTOR</th><th>NIVEL</th><th>DESDE</th><th>HASTA</th>
+                        <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th>
+                        <!-- NUEVAS COLUMNAS -->
+                        <th style="background:#eaf2f8; color:#052c52;">TIPO FRENTE</th>
+                        <th style="background:#eaf2f8; color:#052c52;">EJE / INCL(°)</th>
+                        <th style="background:#eaf2f8; color:#052c52;">DIR. TALUD / AVANCE(°)</th>
+                        
+                        <th>COORD X</th><th>COORD Y</th><th>COORD Z</th><th>SECTOR</th><th>NIVEL</th><th>DESDE</th><th>HASTA</th>
                         <th>UCS(MPa)</th><th>RQD(%)</th>
                         ${subEncabezadoDatos}
                         <th>AGUA</th>
@@ -1780,6 +1790,12 @@ function exportarConsolidado() {
                         return `
                             <tr>
                                 <td style="font-weight:bold;">${f.id}</td><td>${f.fecha}</td><td>${f.tecnico}</td><td>${f.proyecto}</td>
+                                
+                                <!-- NUEVAS CELDAS DE FRENTE -->
+                                <td style="background:#f4f6f8; font-weight:600;">${f.frente_tipo || "TALUD / MACIZO"}</td>
+                                <td style="background:#f4f6f8;">${f.frente_dip || "0"}°</td>
+                                <td style="background:#f4f6f8;">${f.frente_dir !== undefined ? f.frente_dir : "-"}</td>
+                                
                                 <td>${f.x}</td><td>${f.y}</td><td>${f.z}</td><td>${f.sector}</td><td>${f.nivel}</td><td>${f.desde}</td><td>${f.hasta}</td>
                                 <td>${f.ucs_val}</td><td>${f.rqd_val}</td>
                                 ${celdasJuntas}
@@ -1818,7 +1834,6 @@ function exportarConsolidado() {
         }
     }, 1500);
 }
-
 // ==========================================
 // 8. CICLO DE VIDA E INICIALIZACIÓN
 // ==========================================

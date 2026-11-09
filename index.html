@@ -359,18 +359,18 @@ select.in-field {
 
                 <div style="display:flex; gap:6px; align-items: flex-end;">
                     <div style="flex:1; min-width: 0;">
-                        <div class="input-label" style="font-size:8px;">COORD X (E)</div>
-                        <input type="number" inputmode="decimal" id="coord_e" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
-                    </div>
-                    <div style="flex:1; min-width: 0;">
-                        <div class="input-label" style="font-size: 8px;">COORD Y (N)</div>
-                        <input type="number" inputmode="decimal" id="coord_n" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
-                    </div>
-                    <div style="flex:0.7; min-width: 0;">
-                        <div class="input-label" style="font-size: 8px;">ALT (Z)</div>
-                        <input type="number" inputmode="decimal" id="coord_z" class="in-field" step="any" style="font-size: 11px; padding: 4px 2px;">
-                    </div>
-                    <button onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS">⌖</button>
+                        <div class="input-label" style="font-size:8px;">ESTE X (m)</div>
+                        <input type="number" inputmode="decimal" id="coord_e" class="in-field" step="0.01" placeholder="Ej. 680450.25" style="font-size: 11px; padding: 4px 4px; font-weight: 700;">
+                </div>
+                <div style="flex:1; min-width: 0;">
+                    <div class="input-label" style="font-size: 8px;">NORTE Y (m)</div>
+                    <input type="number" inputmode="decimal" id="coord_n" class="in-field" step="0.01" placeholder="Ej. 9592400.10" style="font-size: 11px; padding: 4px 4px; font-weight: 700;">
+                </div>
+                <div style="flex:0.7; min-width: 0;">
+                    <div class="input-label" style="font-size: 8px;">COTA Z (m)</div>
+                    <input type="number" inputmode="decimal" id="coord_z" class="in-field" step="1" placeholder="msnm" style="font-size: 11px; padding: 4px 2px; font-weight: 700;">
+                </div>
+                <button type="button" onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS en UTM">⌖</button>
                 </div>
                 <div id="gps_info" style="font-size: 7px; color: #94a3b8; text-align: right; margin-top: -4px; font-style: italic; min-height: 8px;"></div>
 
@@ -1247,41 +1247,98 @@ function iniciarLecturaEstable(inDip, inDipDir) {
     window.addEventListener(tipoEvento, procesarMovimiento, true);
 }
 
+// ==========================================
+// CAPTURA GPS EN UTM (WGS84) OFFLINE
+// ==========================================
 function obtenerUbicacion() {
     const info = document.getElementById('gps_info');
     const btn = document.querySelector('.btn-gps-tactil');
-    info.style.fontSize = "8.5px";
-    info.innerHTML = "⏳ Sincronizando satélites (30s)..."; 
+    
+    info.style.fontSize = "8px";
+    info.style.color = "#1a5276";
+    info.innerHTML = "⏳ Calibrando satélites (buscando < 5m)...";
+    if (btn) btn.style.borderColor = "#f1c40f";
 
-    let mejorPos = null;
-    const watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-            mejorPos = pos;
-            if (pos.coords.accuracy <= 3) finalizarGPS(pos, watchId);
-            else info.innerHTML = `⏳ Calibrando: ±${pos.coords.accuracy.toFixed(1)}m`;
-        },
-        () => {}, 
-        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-    );
+    let terminado = false;
 
-    setTimeout(() => {
-        if (mejorPos) {
-            finalizarGPS(mejorPos, watchId);
-        } else {
-            navigator.geolocation.clearWatch(watchId);
-            info.innerHTML = "❌ Tiempo agotado. Ingrese manual.";
+    const watchId = navigator.geolocation.watchPosition(pos => {
+        const acc = pos.coords.accuracy;
+        info.innerHTML = `⏳ Calibrando: ±${acc.toFixed(1)}m`;
+
+        // Si la señal es óptima (<= 5.5 m), captura y desconecta el sensor
+        if (acc <= 5.5 && !terminado) {
+            terminado = true;
+            finalizarGPS_UTM(pos, watchId);
         }
-    }, 30000);
+    }, err => {
+        info.innerHTML = "❌ Error: Activa GPS de alta precisión";
+        info.style.color = "#e74c3c";
+        if (btn) btn.style.borderColor = "#cbd5e1";
+        navigator.geolocation.clearWatch(watchId);
+    }, { 
+        enableHighAccuracy: true, 
+        timeout: 20000, 
+        maximumAge: 0 
+    });
+
+    // Timeout de seguridad a los 15s si no alcanza los 5.5m
+    setTimeout(() => {
+        if (!terminado) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                if (!terminado) {
+                    terminado = true;
+                    finalizarGPS_UTM(pos, watchId);
+                }
+            }, null, { enableHighAccuracy: true });
+        }
+    }, 15000);
 }
 
-function finalizarGPS(pos, watchId) {
+function finalizarGPS_UTM(pos, watchId) {
     navigator.geolocation.clearWatch(watchId);
-    document.getElementById('coord_e').value = pos.coords.longitude.toFixed(6);
-    document.getElementById('coord_n').value = pos.coords.latitude.toFixed(6);
-    if (pos.coords.altitude) document.getElementById('coord_z').value = Math.round(pos.coords.altitude);
+
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    
+    // --- ALGORITMO DE PROYECCIÓN UTM (ELIPSOIDE WGS84) ---
+    const a = 6378137.0; 
+    const eccSq = 0.00669438; 
+    const k0 = 0.9996;
+    
+    let zone = Math.floor((lon + 180) / 6) + 1;
+    let lonOR = ((zone - 1) * 6 - 180 + 3) * Math.PI / 180;
+    let latR = lat * Math.PI / 180; 
+    let lonR = lon * Math.PI / 180;
+    
+    let N = a / Math.sqrt(1 - eccSq * Math.sin(latR)**2);
+    let T = Math.tan(latR)**2;
+    let C = eccSq * Math.cos(latR)**2 / (1 - eccSq);
+    let A = (lonR - lonOR) * Math.cos(latR);
+    
+    let M = a * ((1 - eccSq/4 - 3*eccSq**2/64) * latR - (3*eccSq/8 + 3*eccSq**2/32) * Math.sin(2*latR) + (15*eccSq**2/256) * Math.sin(4*latR));
+    let x = k0 * N * (A + (1 - T + C) * A**3 / 6 + (5 - 18 * T + T**2 + 72 * C) * A**5 / 120) + 500000.0;
+    let y = k0 * (M + N * Math.tan(latR) * (A**2 / 2 + (5 - T + 9 * C + 4 * C**2) * A**4 / 24 + (61 - 58 * T + T**2 + 600 * C) * A**6 / 720));
+    
+    let hemisferio = "N";
+    if (lat < 0) {
+        y += 10000000.0; // Falso Norte en Hemisferio Sur
+        hemisferio = "S";
+    }
+
+    // Inyectar en inputs con precisión milimétrica/centimétrica (2 decimales)
+    document.getElementById('coord_e').value = x.toFixed(2);
+    document.getElementById('coord_n').value = y.toFixed(2);
+    if (pos.coords.altitude !== null) {
+        document.getElementById('coord_z').value = Math.round(pos.coords.altitude);
+    }
+    
     const acc = pos.coords.accuracy;
-    document.getElementById('gps_info').innerHTML = `✅ Precisión lograda: ±${acc.toFixed(1)}m`;
-    document.getElementById('gps_info').style.color = acc < 10 ? "#27ae60" : "#f1c40f";
+    const info = document.getElementById('gps_info');
+    info.innerHTML = `✅ UTM Zona ${zone}${hemisferio} | ±${acc.toFixed(1)}m`;
+    info.style.color = acc <= 6 ? "#27ae60" : "#f1c40f";
+
+    const btn = document.querySelector('.btn-gps-tactil');
+    if (btn) btn.style.borderColor = "#27ae60";
 }
 
 /* GUARDAR FOTOGRAFÍAS EN IPHONE / SAFARI */

@@ -957,18 +957,19 @@ function irAFase2() {
         return;
     }
 
+    // 6. Procesamiento y Transición
     runRmr(); 
-    registrarFichaActual(true); 
 
     document.getElementById('main-container').style.display = 'none';
     document.getElementById('fase2-container').style.display = 'block';
-    
-    setTimeout(() => {
-        calcularClasificacionFinal();
-    }, 50);
 
-    window.scrollTo(0,0);
-}
+    // 1° Calcular y asignar al DOM (Clase, Cohesión, Fricción, Em)
+    calcularClasificacionFinal();
+
+    // 2° Guardar la ficha con los valores ya calculados
+    registrarFichaActual(true); 
+
+    window.scrollTo(0, 0);
 
 function volverAFase1() {
     document.getElementById('main-container').style.display = 'grid';
@@ -1542,8 +1543,8 @@ function calcularClasificacionFinal() {
     let rmrBasicoTotal = p1 + p2 + minScoreEncontrado + p5;
 
     const esc = document.getElementById('escenario').value;
-    const oDip = parseFloat(document.getElementById('eje_dip').value) || 0;
-    const oDir = parseFloat(document.getElementById('eje_dir').value) || 0;
+    const oDip = parseFloat(document.getElementById('eje_dip').value) || 0; // En túnel es Azimut Eje; en talud es Inclinación
+    const oDir = parseFloat(document.getElementById('eje_dir').value) || 0; // En talud es Dirección; en túnel está deshabilitado
     let p6 = 0;
 
     listaJuntas.forEach(j => {
@@ -1552,16 +1553,33 @@ function calcularClasificacionFinal() {
         let jDr = parseFloat(j.dir) || 0;
         
         if (esc === 'tunel') {
-             let d = Math.abs(oDir - jDr) % 180;
-             if (d > 90) d = 180 - d;
-             if (d < 20) a = -12; else if (d < 45) a = -5; else a = (jDp > 45) ? 0 : -2;
+            // EN TÚNEL: se compara el rumbo/dirección de la junta contra el Azimut del eje (oDip)
+            let d = Math.abs(oDip - jDr) % 180;
+            if (d > 90) d = 180 - d;
+            
+            // Criterio Bieniawski 1989 para túneles según ángulo relativo eje-discontinuidad
+            if (d < 20) {
+                a = -12; // Paralelo al eje (Muy desfavorable)
+            } else if (d < 45) {
+                a = -5;  // Desfavorable
+            } else {
+                a = (jDp > 45) ? 0 : -2; // Perpendicular / favorable
+            }
         } else {
-             let dD = Math.abs(oDir - jDr);
-             if (dD > 180) dD = 360 - dD;
-             if (dD < 20) a = (jDp > oDip) ? -5 : (Math.abs(oDip - jDp) < 10) ? -60 : -25;
-             else if (Math.abs(dD - 180) < 20) a = -25;
+            // EN TALUD: se compara la dirección del talud (oDir) contra la dirección de buzamiento (jDr)
+            let dD = Math.abs(oDir - jDr);
+            if (dD > 180) dD = 360 - dD;
+            
+            if (dD < 20) {
+                a = (jDp > oDip) ? -5 : (Math.abs(oDip - jDp) < 10) ? -60 : -25;
+            } else if (Math.abs(dD - 180) < 20) {
+                a = -25;
+            } else {
+                a = -5;
+            }
         }
-        if (a < p6) p6 = a;
+        
+        if (a < p6) p6 = a; // Se adopta el ajuste más crítico
     });
 
     let rmrFinal = Math.max(0, rmrBasicoTotal + p6);

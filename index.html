@@ -1627,6 +1627,17 @@ function registrarFichaActual(silencioso = false) {
         return false;
     }
 
+    // 1. Sincronizar con el almacenamiento local previo para no sobreescribir
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try {
+            baseDeDatosFichas = JSON.parse(backup);
+        } catch(e) {
+            baseDeDatosFichas = [];
+        }
+    }
+
+    // 2. Mapeo de sistemas de discontinuidades
     let datosJuntas = listaJuntas.map(j => {
         let amp = parseFloat(j.amp) || 0;
         let len = parseFloat(j.len) || 100;
@@ -1641,12 +1652,10 @@ function registrarFichaActual(silencioso = false) {
         let jcsValor = ucsMatriz * factorAlt;
 
         return {
-            // --- CAMPOS GEOLÓGICOS GUARDADOS EN MAYÚSCULAS ---
             tipo: (j.tipo || "diaclasa").toUpperCase(),
             relleno: (j.relleno || "ninguno").toUpperCase(),
             dip: j.dip || "0",
             dir: j.dir || "0",
-            // Puntos RMR
             p_espac: j.vals[0],
             p_persist: j.vals[1],
             p_apert: j.vals[2],
@@ -1659,14 +1668,19 @@ function registrarFichaActual(silencioso = false) {
         };
     });
 
+    // 3. Declaración de variables del escenario (CORRECCIÓN CRÍTICA)
+    const escEl = document.getElementById('escenario');
+    const escTexto = escEl ? escEl.options[escEl.selectedIndex].text : "TALUD / MACIZO";
+    const escVal = escEl ? escEl.value : "talud";
+
     const ficha = {
         id: idActual,
         fecha: document.getElementById('est_fecha').value,
         tecnico: document.getElementById('est_tec').value,
         proyecto: document.getElementById('proy_nom').value,
         frente_tipo: escTexto,
-        frente_dip: document.getElementById('eje_dip').value || "0", // Azimut Eje (túnel) o Inclinación (talud)
-        frente_dir: escVal === 'tunel' ? "N/A" : (document.getElementById('eje_dir').value || "0"), // Dirección avance / talud
+        frente_dip: document.getElementById('eje_dip').value || "0",
+        frente_dir: escVal === 'tunel' ? "N/A" : (document.getElementById('eje_dir').value || "0"),
         x: document.getElementById('coord_e').value,
         y: document.getElementById('coord_n').value,
         z: document.getElementById('coord_z').value,
@@ -1687,12 +1701,21 @@ function registrarFichaActual(silencioso = false) {
         modulo: document.getElementById('res_modulo_e').innerText
     };
 
+    // 4. Actualizar o insertar
     const indexExistente = baseDeDatosFichas.findIndex(f => f.id === idActual);
-    if (indexExistente !== -1) baseDeDatosFichas[indexExistente] = ficha;
-    else baseDeDatosFichas.push(ficha);
+    if (indexExistente !== -1) {
+        baseDeDatosFichas[indexExistente] = ficha;
+    } else {
+        baseDeDatosFichas.push(ficha);
+    }
     
+    // 5. Persistencia y actualización del botón
     localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
-    document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    
+    const btnExp = document.getElementById('btn_exportar');
+    if (btnExp) {
+        btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    }
     
     if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
     return true;

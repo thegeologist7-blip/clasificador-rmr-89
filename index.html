@@ -1038,6 +1038,11 @@ function cambiarAJunta(id) {
     if (datos) {
         document.getElementById('ui-dip').value = datos.dip;
         document.getElementById('ui-dir').value = datos.dir;
+        
+        // --- RESTAURAR VALORES DE TIPO Y RELLENO ---
+        document.getElementById('ui-tipo-disc').value = datos.tipo || "diaclasa";
+        document.getElementById('ui-tipo-relleno').value = datos.relleno || "cuarzo";
+        
         const selects = document.querySelectorAll('.j-ui');
         datos.vals.forEach((v, i) => {
             if(selects[i]) selects[i].value = v;
@@ -1069,12 +1074,20 @@ function guardarDatosJunta() {
     const index = listaJuntas.findIndex(j => j.id === idActivo);
     if (index === -1) return;
 
+    // Guardar Dip y Dir
     listaJuntas[index].dip = document.getElementById('ui-dip').value;
     listaJuntas[index].dir = document.getElementById('ui-dir').value;
+    
+    // --- CAPTURA DE TIPO Y RELLENO ---
+    listaJuntas[index].tipo = document.getElementById('ui-tipo-disc').value;
+    listaJuntas[index].relleno = document.getElementById('ui-tipo-relleno').value;
+    
+    // Peine de Barton
     listaJuntas[index].amp = document.getElementById('in_amp').value;
     listaJuntas[index].len = document.getElementById('in_len').value;
     listaJuntas[index].usePeine = document.getElementById('chk_peine').checked;
     
+    // Selectores RMR
     const selects = document.querySelectorAll('.j-ui');
     listaJuntas[index].vals = Array.from(selects).map(s => parseInt(s.value) || 0);
     
@@ -1271,7 +1284,7 @@ function finalizarGPS(pos, watchId) {
     document.getElementById('gps_info').style.color = acc < 10 ? "#27ae60" : "#f1c40f";
 }
 
-/* FIX CRÍTICO PARA GUARDAR FOTOGRAFÍAS EN IPHONE / SAFARI */
+/* GUARDAR FOTOGRAFÍAS EN IPHONE / SAFARI */
 function procesarFotoSilenciosa(input) {
     if (!input.files || !input.files[0]) return;
 
@@ -1553,8 +1566,12 @@ function registrarFichaActual(silencioso = false) {
         let jcsValor = ucsMatriz * factorAlt;
 
         return {
+            // --- CAMPOS GEOLÓGICOS GUARDADOS EN MAYÚSCULAS ---
+            tipo: (j.tipo || "diaclasa").toUpperCase(),
+            relleno: (j.relleno || "ninguno").toUpperCase(),
             dip: j.dip || "0",
             dir: j.dir || "0",
+            // Puntos RMR
             p_espac: j.vals[0],
             p_persist: j.vals[1],
             p_apert: j.vals[2],
@@ -1625,7 +1642,7 @@ function nuevaEstacion() {
     alert("✨ Formulario listo para nueva estación.");
 }
 
-/* FIX CRÍTICO PARA EXPORTAR EXCEL EN IPHONE / SAFARI */
+/* EXPORTAR EXCEL EN IPHONE / SAFARI */
 function exportarConsolidado() {
     if (baseDeDatosFichas.length === 0) {
         alert("No hay estaciones guardadas para exportar. Guarde al menos una ficha.");
@@ -1635,11 +1652,12 @@ function exportarConsolidado() {
     const desarrollador = "Mgtr. Byron Bravo";
     const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
     
+    // 10 columnas por cada sistema / familia
     let encabezadoSistemas = "";
     let subEncabezadoDatos = "";
     for (let i = 1; i <= maxJuntas; i++) {
-        encabezadoSistemas += `<th colspan="8" style="background-color: #27ae60; color: white; border: 1px solid #000;">FAMILIA #${i}</th>`;
-        subEncabezadoDatos += `<th>DIP(°)</th><th>DIR(°)</th><th>P_ESPAC</th><th>P_PERSIST</th><th>P_APERT</th><th>P_RUGOS</th><th>P_RELLEN</th><th>P_ALTER</th>`;
+        encabezadoSistemas += `<th colspan="10" style="background-color: #27ae60; color: white; border: 1px solid #000;">FAMILIA #${i}</th>`;
+        subEncabezadoDatos += `<th>TIPO</th><th>RELLENO</th><th>DIP(°)</th><th>DIR(°)</th><th>P_ESPAC</th><th>P_PERSIST</th><th>P_APERT</th><th>P_RUGOS</th><th>P_RELLEN</th><th>P_ALTER</th>`;
     }
 
     let excelTemplate = `
@@ -1679,9 +1697,9 @@ function exportarConsolidado() {
                         for (let i = 0; i < maxJuntas; i++) {
                             const j = (f.juntas && f.juntas[i]) ? f.juntas[i] : null;
                             if (j) {
-                                celdasJuntas += `<td>${j.dip}</td><td>${j.dir}</td><td>${j.p_espac}</td><td>${j.p_persist}</td><td>${j.p_apert}</td><td>${j.p_rugos}</td><td>${j.p_rellen}</td><td>${j.p_alter}</td>`;
+                                celdasJuntas += `<td style="font-weight:600; background:#f9fafb;">${j.tipo || "DIACLASA"}</td><td style="background:#f9fafb;">${j.relleno || "NINGUNO"}</td><td>${j.dip}</td><td>${j.dir}</td><td>${j.p_espac}</td><td>${j.p_persist}</td><td>${j.p_apert}</td><td>${j.p_rugos}</td><td>${j.p_rellen}</td><td>${j.p_alter}</td>`;
                             } else {
-                                celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
+                                celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
                             }
                         }
                         return `
@@ -1701,7 +1719,6 @@ function exportarConsolidado() {
             <div style="font-size: 8pt; color: #666;">Algoritmos y Desarrollo Técnico: <b>${desarrollador}</b> | Generado: ${new Date().toLocaleString()}</div>
         </body></html>`;
 
-    // Empaquetado Blob con BOM UTF-8 para garantizar compatibilidad con Excel y Safari
     const blob = new Blob(['\uFEFF', excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -1709,7 +1726,6 @@ function exportarConsolidado() {
     link.download = `Data_RMR_ByronBravo_${Date.now()}.xls`;
     link.target = '_blank';
     
-    // Anexar forzosamente al DOM antes del click (requisito estricto en WebKit / iOS)
     document.body.appendChild(link);
     link.click();
     

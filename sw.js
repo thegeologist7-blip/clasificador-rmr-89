@@ -1,71 +1,2364 @@
-const CACHE_PREFIX = "rmr-";
-const CACHE_NAME = "rmr-v12.1";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <meta name="theme-color" content="#052c52">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="screen-orientation" content="any">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Clasificador RMR 89</title>
+    <style>
+/* 1. RESETEO Y FUENTE GLOBAL */
+#rmr-master-suite, #rmr-master-suite * { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent;
+}
 
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon-512.png"
-];
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    height: 100%;
+    overscroll-behavior: none; 
+    background: #f4f7f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-// Instalación: precarga el núcleo de la aplicación.
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
-  );
-  self.skipWaiting();
-});
+#rmr-master-suite {
+    background: #f4f7f9; 
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden; 
+    display: block;
+    padding-bottom: 30px;
+}
 
-// Activación: elimina únicamente versiones anteriores de esta aplicación.
-self.addEventListener("activate", event => {
-  event.waitUntil((async () => {
-    const keys = await caches.keys();
-    await Promise.all(
-      keys
-        .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
-        .map(key => caches.delete(key))
-    );
-    await self.clients.claim();
-  })());
-});
-
-// Navegación: intenta obtener la versión actualizada; si no hay conexión,
-// sirve la última copia almacenada.
-self.addEventListener("fetch", event => {
-  const request = event.request;
-  const url = new URL(request.url);
-
-  if (request.method !== "GET" || url.origin !== self.location.origin) return;
-
-  if (request.mode === "navigate") {
-    event.respondWith((async () => {
-      try {
-        const fresh = await fetch(request);
-        const cache = await caches.open(CACHE_NAME);
-        cache.put("./index.html", fresh.clone()).catch(() => {});
-        return fresh;
-      } catch (error) {
-        return (await caches.match(request)) ||
-               (await caches.match("./index.html")) ||
-               Response.error();
-      }
-    })());
-    return;
-  }
-
-  event.respondWith((async () => {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-
-    try {
-      const fresh = await fetch(request);
-      if (fresh && fresh.ok) {
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(request, fresh.clone()).catch(() => {});
-      }
-      return fresh;
-    } catch (error) {
-      return Response.error();
+@media (min-width: 1000px) {
+    #rmr-master-suite {
+        margin: 0 !important;
+        max-width: 100% !important; 
+        min-height: 100vh;
     }
-  })());
-});
+}
+
+/* GRID DINÁMICO */
+.grid-main {  
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 12px; 
+    padding: 10px; 
+    width: 100%;
+}
+
+.full-row { 
+    grid-column: 1 / -1; 
+}
+
+/* --- ESTÉTICA DE COMPONENTES --- */
+.geo-card {
+    background: #ffffff; 
+    padding: 10px 12px; 
+    border-radius: 8px; 
+    border: 1px solid #e1e8ed;
+    min-height: 255px; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.lbl-compact { font-size: 8.5px; color: #1a5276; font-weight: 800; min-width: 55px; text-align: right; text-transform: uppercase; margin-right: 5px; }
+
+/* REGLAS ESPECÍFICAS PARA COMPATIBILIDAD CON SAFARI / IPHONE */
+.in-field { 
+    flex: 1; 
+    width: 100%; 
+    min-width: 0; /* Clave para flexbox en iOS */
+    padding: 4px 6px; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 4px; 
+    font-size: 13px; 
+    outline: none; 
+    height: 30px; 
+    background-color: #ffffff;
+    
+}
+
+/* FIX CRÍTICO PARA INPUT DATE EN IPHONE */
+input[type="date"].in-field {
+    min-height: 30px;
+    line-height: 1.2;
+    padding: 2px 4px;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    -webkit-appearance: none;
+}
+/* FLECHA NÍTIDA Y VISIBLE PARA TODOS LOS SELECT */
+select.in-field {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background-color: #ffffff !important;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%231a5276" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: calc(100% - 6px) center !important;
+    background-size: 13px !important;
+    padding-left: 6px !important;
+    padding-right: 22px !important;
+    text-align: left !important;
+    cursor: pointer;
+}
+.input-label { font-size: 8px; color: #1a5276; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
+
+.res-val-matrix { 
+    background: #f8fbfe; border: 1px solid #eee; padding: 4px 6px; 
+    border-radius: 4px; border-left: 3.5px solid #052c52; 
+    display: flex; justify-content: space-between; align-items: center; 
+    height: 30px; min-width: 80px;
+}
+
+.res-val-matrix b { font-size: 10px; color: #333; }
+.res-unit-tag { color: #64748b; font-size: 8px; font-weight: 400; margin-left: 2px; }
+
+.score-anchor { text-align: right; color: #27ae60; font-size: 10px; font-weight: 900; padding-right: 2px; margin-bottom: 2px; text-transform: uppercase; }
+.guide-text { font-size: 8.5px; color: #7f8c8d; font-style: italic; margin-bottom: 6px; line-height: 1.2; display: block; }
+.hidden { display: none !important; }
+.method-slot { min-height: 95px; margin-top: 5px; }
+.note { font-size: 8.5px; color: #566573; border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: auto; }
+
+.btn-gps-tactil {
+    flex: 0 0 38px; height: 30px; background: #ffffff; color: #1a5276; 
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 2px solid #cbd5e1; border-radius: 6px;
+    box-shadow: 0 2px 0 #cbd5e1; transition: all 0.1s; position: relative; top: 0;
+}
+.btn-gps-tactil:active { top: 2px; box-shadow: 0 0px 0 #cbd5e1; }
+
+.btn-gyro {
+    height: 28px; width: 38px; background: #fffef0; 
+    border: 2px solid #f1c40f; color: #856404; 
+    border-radius: 6px; font-size: 14px; cursor: pointer;
+    box-shadow: 0 2px 0 #f1c40f; transition: 0.1s;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-gyro:active { transform: translateY(2px); box-shadow: 0 0 0; }
+
+.v-box {
+    background: #e67e22; color: white; font-size: 9px; 
+    font-weight: 800; padding: 5px 8px; border-radius: 3px;
+    white-space: nowrap; line-height: 1;
+}
+
+.copy-txt { font-size: 8px; opacity: 0.6; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.geo-card h4 {
+    background: #f1f5f9 !important;
+    margin: -10px -12px 10px -12px !important; 
+    padding: 0 15px;
+    border-radius: 0;
+    border-bottom: 3px solid #3498db;
+    color: #052c52;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 800;
+    font-size: 11px;
+    display: flex;       
+    align-items: center; 
+    width: calc(100% + 24px); 
+    height: 32px;
+    flex: none;   
+}  
+.schmidt-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 3px;
+    margin: 6px 0 10px 0;
+}
+
+.btn-schmidt {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 4px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    height: 30px;
+}
+
+.sch-icon { font-size: 15px; font-weight: 600; margin-right:6px; }
+.sch-deg { font-size: 12px; font-weight: 600; letter-spacing: -0.5px; }
+
+.btn-schmidt-active {
+    background: #052c52 !important;
+    color: #ffffff !important;
+    border-color: #052c52 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+ 
+.grid-rebotes input.in-field {
+    height: 30px;
+    font-size: 12px !important;
+    text-align: center;
+    font-weight: 700;
+}
+
+.junta-tabs-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    padding: 0;
+    margin-top: 10px;
+    border-bottom: 2px solid #052c52;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+}
+
+.junta-tabs-wrapper::-webkit-scrollbar {
+    height: 0px;
+    display: none;
+}
+
+.j-tab, .btn-add-tab {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #cbd5e1;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    transition: 0.2s;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.j-tab {
+    padding: 0 15px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-right: 1px;
+}
+
+.j-tab.active {
+    background: #052c52;
+    color: #ffffff;
+    font-size: 12px;
+    border-color: #052c52;
+    height: 35px;
+    margin-bottom: -2px;
+    z-index: 2;
+    position: relative;
+    top: 0;
+}
+
+.btn-add-tab {
+    width: 40px;
+    background: #f1f5f9;
+    color: #052c52;
+    font-size: 20px;
+    font-weight: bold;
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    box-shadow: -4px 0 8px -4px rgba(0,0,0,0.2);
+}
+
+.slider-barton {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #cbd5e1; transition: .3s; border-radius: 20px;
+}
+.slider-barton:before {
+    position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+    background-color: white; transition: .3s; border-radius: 50%;
+}
+#chk_peine:checked + .slider-barton { background-color: #f1c40f; }
+#chk_peine:checked + .slider-barton:before { transform: translateX(14px); }
+
+        /* ESTILOS PARA EL MODAL GESTOR DE FICHAS */
+.modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(5, 44, 82, 0.75); 
+    z-index: 9999;
+    display: none; 
+    align-items: center; 
+    justify-content: center;
+    padding: 12px; 
+    backdrop-filter: blur(2px);
+}
+
+.modal-window {
+    background: #ffffff; 
+    border-radius: 8px; 
+    width: 100%; 
+    max-width: 520px;
+    max-height: 85vh; 
+    display: flex; 
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+}
+
+.modal-header {
+    background: #052c52; 
+    color: #ffffff; 
+    padding: 12px 16px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.modal-body {
+    padding: 10px 12px; 
+    overflow-y: auto; 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px;
+}
+
+.ficha-item {
+    border: 1px solid #e2e8f0; 
+    border-radius: 6px; 
+    padding: 10px;
+    background: #f8fafc; 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center; 
+    gap: 8px;
+}
+
+.ficha-item:hover { 
+    border-color: #3498db; 
+    background: #ffffff; 
+}
+</style>
+</head>
+<body>
+
+<div id="rmr-master-suite">
+    <div style="background: #052c52; padding: 18px 20px; color: white; border-bottom: 4px solid #3498db; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; flex-direction: column;">
+            <h1 style="margin:0; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #ffffff;">
+                CLASIFICADOR RMR <span style="color: #3498db;"><i><b>89</b></i></span>
+            </h1>
+            <p style="margin: 4px 0 0; font-size: 11px; opacity: 0.9; text-transform: uppercase; font-weight: 600;">
+                Método Geomecánico de Bieniawski
+            </p>
+            <div class="copy-txt" style="font-size: 8px; opacity: 0.8; margin-top: 2px;">
+                © 2026 Byron Bravo • Todos los derechos reservados
+            </div>
+            <p style="margin: 6px 0 0; font-size: 8px; line-height: 1.2; color: #bdc3c7; text-align: justify; font-style: italic; opacity: 0.7; max-width: 400px;">
+                <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
+            </p>
+        </div>
+        <div class="v-box">v12.1 PRO </div>
+    </div>
+
+    <div class="grid-main" id="main-container">
+        <!-- 1. DATOS GENERALES -->
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; width: calc(100% + 24px); line-height: 1.4; height: 32px; align-items: center;">
+                📋 1. DATOS E INFORMACIÓN GENERAL
+            </h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Corrección de ancho en flex para iOS -->
+                <div style="display:flex; gap:6px; width: 100%;">
+                    <div style="flex: 1.6; min-width: 0;">
+                        <div class="input-label">TÉCNICO RESPONSABLE</div>
+                        <input type="text" id="est_tec" class="in-field" placeholder="NOMBRE Y APELLIDO">
+                    </div>
+                    <div style="flex: 1.1; min-width: 0;">
+                        <div class="input-label">FECHA</div>
+                        <input type="date" id="est_fecha" class="in-field">
+                    </div>
+                </div>
+
+                <div style="width:100%;">
+                    <div class="input-label">PROYECTO / OBRA</div>
+                    <input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA">
+                </div>
+
+                <div style="display:flex; gap:6px;">
+                    <div style="flex: 1.2; min-width: 0;">
+                        <div class="input-label">FRENTE:</div>
+                        <select id="escenario" onchange="updateEscenario(); runRmr();" class="in-field" 
+                                style="font-weight: 800; color: #3498db; font-size: 10px; height: 30px; text-align: center; text-align-last: center; padding: 0;">
+                            <option value="tunel">TÚNEL / GALERÍA</option>
+                            <option value="talud">TALUD / MACIZO</option>
+                        </select>
+                    </div>
+                    <div style="flex: 0.9; min-width: 0;">
+                        <div class="input-label" id="lbl_dip">AZIMUT EJE</div>
+                        <input type="number" id="eje_dip" class="in-field" placeholder="0-360°" oninput="if(this.value>360)this.value=360; if(this.value<0)this.value=0;">
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="input-label" id="lbl_dir">DIR. AVANCE</div>
+                        <input type="number" id="eje_dir" class="in-field">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:6px; align-items: flex-end;">
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label" style="font-size:8px;">ESTE X (m)</div>
+                        <input type="number" inputmode="decimal" id="coord_e" class="in-field" step="0.01" placeholder="Ej. 680450.25" style="font-size: 11px; padding: 4px 4px; font-weight: 700;">
+                </div>
+                <div style="flex:1; min-width: 0;">
+                    <div class="input-label" style="font-size: 8px;">NORTE Y (m)</div>
+                    <input type="number" inputmode="decimal" id="coord_n" class="in-field" step="0.01" placeholder="Ej. 9592400.10" style="font-size: 11px; padding: 4px 4px; font-weight: 700;">
+                </div>
+                <div style="flex:0.7; min-width: 0;">
+                    <div class="input-label" style="font-size: 8px;">COTA Z (m)</div>
+                    <input type="number" inputmode="decimal" id="coord_z" class="in-field" step="1" placeholder="msnm" style="font-size: 11px; padding: 4px 2px; font-weight: 700;">
+                </div>
+                <button type="button" onclick="obtenerUbicacion()" class="btn-gps-tactil" title="Capturar GPS en UTM">⌖</button>
+                </div>
+                <div id="gps_info" style="font-size: 7px; color: #94a3b8; text-align: right; margin-top: -4px; font-style: italic; min-height: 8px;"></div>
+
+                <div style="display:flex; gap:6px;">
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">EST. GEOMECÁNICA</div>
+                        <input type="text" id="est_id" class="in-field" style="border-color:#e67e22; font-weight:bold; font-size: 11px;" placeholder="EJ. CGM-001">
+                    </div>
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">SECTOR</div>
+                        <input type="text" id="loc_sector" class="in-field">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:6px;">
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label" id="lbl_ubi_tec">NIVEL</div>
+                        <input type="text" id="ubi_val" class="in-field">
+                    </div>
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">DESDE (m)</div>
+                        <input type="number" id="abs_desde" class="in-field" step="0.01">
+                    </div>
+                    <div style="flex:1; min-width: 0;">
+                        <div class="input-label">HASTA (m)</div>
+                        <input type="number" id="abs_hasta" class="in-field" step="0.01">
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px; display: flex; gap: 4px;">
+                    <input type="file" id="foto_input" accept="image/*" capture="environment" style="display: none;" onchange="procesarFotoSilenciosa(this)">
+                    
+                    <button type="button" onclick="document.getElementById('foto_input').click()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px 2px 2px 6px; padding: 12px; font-weight: 800; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 3px 0 #1e8449;">
+                        📷 REGISTRO FOTOGRÁFICO
+                    </button>
+                    
+                    <button type="button" onclick="document.getElementById('foto_input').click()" style="width: 45px; background: #2ecc71; color: white; border: none; border-radius: 2px 6px 6px 2px; font-weight: 900; cursor: pointer; font-size: 18px; box-shadow: 0 3px 0 #27ae60; display: flex; align-items: center; justify-content: center;" title="Añadir otra foto">
+                        +
+                    </button>
+                    <canvas id="canvas_foto" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. RESISTENCIA DE LA ROCA (UCS) -->
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; width: calc(100% + 24px); line-height: 1.4; height: 32px; align-items: center;">
+                🔨 2. RESISTENCIA DE LA ROCA (UCS)
+            </h4>
+
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="input-label">MÉTODO DE ESTIMACIÓN</div>
+                <select id="m_res" onchange="toggleRes()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52; height: 30px;">
+                    <option value="sch">Uso del Esclerómetro (Schmidt)</option>
+                    <option value="vis">Estimación Visual/Manual (ISRM)</option>
+                </select>
+                <div class="method-slot">
+                    <div id="ui_vis" class="hidden">
+                        <div class="input-label" style="margin-top: 12px;">RESISTENCIA EN CAMPO</div>
+                        <select id="valVis" onchange="runRmr()" class="in-field">
+                            <option value="15">R6: >250 MPa</option>
+                            <option value="12">R5: 100-250 MPa</option>
+                            <option value="7">R4: 50-100 MPa</option>
+                            <option value="4">R3: 25-50 MPa</option>
+                            <option value="2">R2: 5-25 MPa</option>
+                            <option value="1">R1: 1-5 MPa</option>
+                        </select>
+
+                        <div class="input-label" style="margin-top:12px; border-bottom: 1px solid #eee;">IDENTIFICACIÓN MANUAL (ISRM, 1981)</div>
+                        
+                        <div style="min-height: 180px;">
+                            <span class="guide-text" style="padding-top: 5px; display: block; font-size: 10.2px; line-height: 1.5;">
+                                <b>R6-R5:</b> Solo se astilla con golpes de martillo geológico.<br>
+                                <b>R4:</b> Se rompe con más de un golpe firme de martillo.<br>
+                                <b>R3:</b> Se rompe con un solo golpe firme. Se raya con navaja.<br>
+                                <b>R2:</b> Se rompe con golpe leve. Se raya fácilmente con navaja.<br>
+                                <b>R1-R0:</b> Se desmorona con el martillo. Se raya con la uña.
+                            </span>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; margin-top:0px;">
+                            <div style="display:flex; align-items:center;">
+                                <span class="input-label" style="margin-right:5px; margin-bottom:0;">UCS EST.</span>
+                                <div id="out_vis_ucs" class="res-val-matrix"><b>-</b><span class="res-unit-tag">MPa</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="ui_sch" style="margin-top: 10px;">
+                        <div class="input-label">REBOTES R</div>
+                        <span class="guide-text" style="font-size: 10px; line-height: 1.1; margin-bottom: 4px;">
+                            Se deben tomar 10 medidas. Seleccione la orientación del ensayo para corregir el rebote.
+                        </span>
+
+                        <div class="schmidt-container">
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(90, this)"><span class="sch-icon">↑</span><span class="sch-deg">+90°</span></button>
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(45, this)"><span class="sch-icon">↗</span><span class="sch-deg">+45°</span></button>
+                            <button type="button" class="btn-schmidt btn-schmidt-active" onclick="setSchmidtAngle(0, this)"><span class="sch-icon">→</span><span class="sch-deg">0°</span></button>
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-45, this)"><span class="sch-icon">↘</span><span class="sch-deg">-45°</span></button>
+                            <button type="button" class="btn-schmidt" onclick="setSchmidtAngle(-90, this)"><span class="sch-icon">↓</span><span class="sch-deg">-90°</span></button>
+                        </div>
+                        <input type="hidden" id="selected_angle" value="0">
+
+                        <div class="grid-rebotes" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; margin: 10px 0;">
+                            <input type="number" id="r1" class="in-field" placeholder="R1" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r2" class="in-field" placeholder="R2" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r3" class="in-field" placeholder="R3" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r4" class="in-field" placeholder="R4" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r5" class="in-field" placeholder="R5" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r6" class="in-field" placeholder="R6" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r7" class="in-field" placeholder="R7" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r8" class="in-field" placeholder="R8" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r9" class="in-field" placeholder="R9" inputmode="numeric" oninput="runRmr()">
+                            <input type="number" id="r10" class="in-field" placeholder="R10" inputmode="numeric" oninput="runRmr()">
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; padding: 10px; align-items: center;">
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                            <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Grupo</span>
+                            <select id="grupoRoca" onchange="updateLitologia()" class="in-field" style="height: 28px !important; font-size: 10px; border-radius: 4px; color: #1a5276; font-weight: 800;">
+                                <option value="ignea">Ígnea</option>
+                                <option value="metamorfica">Metamórfica</option>
+                                <option value="sedimentaria">Sedimentaria</option>
+                            </select>
+                        </div>
+
+                        <div style="flex: 1.5; min-width: 0; display: flex; flex-direction: column;">
+                            <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Litología / Densidad</span>
+                            <select id="tipoRoca" onchange="runRmr()" class="in-field" style="height: 28px !important; font-size: 10px; border-radius: 4px; color: #1a5276; font-weight: 800;"></select>
+                        </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:5px;">
+                            <div style="display:flex; align-items:center;"><span class="input-label" style="margin-right:3px; margin-bottom:0;">R. PROM</span><div id="out_sch_r" class="res-val-matrix"><b>-</b></div></div>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end;">
+                            <div style="display:flex; align-items:center;"><span class="input-label" style="margin-right:3px; margin-bottom:0;">UCS EST.</span><div id="out_sch_ucs" class="res-val-matrix"><b>-</b><span class="res-unit-tag">MPa</span></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="score_p1" class="score-anchor">PTS: 0</div>
+            <div style="flex-grow: 1;"></div>
+            <div class="note" style="border-top: 1px solid #f1f5f9; margin-top: 10px; padding-top: 5px; font-size: 9.5px; color: #94a3b8;">
+               <b>Ref:</b> Estimación mediante ISRM / Deere & Miller.
+            </div>
+        </div>
+
+        <!-- 3. RQD -->
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+                ✔️ 3. ÍNDICE DE CALIDAD DE LA ROCA (RQD)
+            </h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="input-label" style="margin-top: 0;">MÉTODO</div>
+                <select id="m_rqd" onchange="toggleRqd()" class="in-field" style="margin-bottom:5px; font-weight:bold; color:#052c52; height: 26px !important;">
+                    <option value="deere">Estimación Visual (Deere 1989)</option>
+                    <option value="pal">Ecuación de Palmström (Jv)</option>
+                </select>
+
+                <div class="method-slot">
+                    <div id="ui_deere">
+                        <div class="input-label">Fracturamiento</div>
+                        <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
+                            El RQD se estima visualmente en función del grado de fracturamiento observable en el afloramiento.</span>
+                        <select id="valDeere" onchange="runRmr()" class="in-field" style="height: 26px !important;">
+                            <option value="20">Muy Macizo (> 2.0 m)</option>
+                            <option value="17">Levemente Fracturado (0.6 - 2.0 m)</option>
+                            <option value="13">Moderadamente Fracturado (0.2 - 0.6 m)</option>
+                            <option value="8">Muy Fracturado (0.06 - 0.2 m)</option>
+                            <option value="3">Triturado / Suelo (< 0.06 m)</option>
+                        </select>
+                    </div>
+                    <div id="ui_pal" class="hidden">
+                        <div class="input-label">Jv (Palmström)</div>
+                        <span class="guide-text" style="font-size: 9px; line-height: 1.4; color: #444; display: block; margin-top: 5px; margin-bottom: 8px;">
+                            El Jv es el número de juntas por metro cúbico. Ecuación: RQD = 115 - 3.3 * Jv.</span>
+                        <input type="number" id="valJv" oninput="runRmr()" class="in-field" placeholder="Juntas/m³" style="height: 26px !important;">
+                    </div>
+                </div>
+
+                <div style="margin: 12px 0; background: #fdfdfd; border: 1px solid #f1f5f9; border-radius: 12px; padding: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="display: flex; padding: 6px 10px; border-bottom: 2px solid #e9f7ef; margin-bottom: 4px;">
+                        <span style="flex: 1; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">RQD (%)</span>
+                        <span style="flex: 1.5; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: center;">Calidad Geológica</span>
+                        <span style="flex: 0.8; font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: right;">PTS</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(39, 174, 96, 0.03);">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">90 - 100</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #27ae60; text-align: center;">Excelente</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">20</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center;">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">75 - 90</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #2ecc71; text-align: center;">Buena</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">17</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(241, 196, 15, 0.03);">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">50 - 75</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #d4ac0d; text-align: center;">Regular</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">13</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center;">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">25 - 50</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #e67e22; text-align: center;">Mala</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">8</span>
+                        </div>
+                        <div style="display: flex; padding: 5px 10px; align-items: center; border-radius: 6px; background: rgba(231, 76, 60, 0.03);">
+                            <span style="flex: 1; font-size: 10px; font-weight: 700; color: #475569;">0 - 25</span>
+                            <span style="flex: 1.5; font-size: 10px; font-weight: 800; color: #e74c3c; text-align: center;">Muy Mala</span>
+                            <span style="flex: 0.8; font-size: 10px; font-weight: 900; color: #1e293b; text-align: right;">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; align-items: center; gap: 10px;">
+                    <div style="display:flex; align-items:center;">
+                        <span class="input-label" style="margin-right:5px; margin-bottom:0; font-size: 9px;">RQD EST.</span>
+                        <div id="out_rqd" class="res-val-matrix" style="height: 24px !important; min-width: 60px;"><b>-</b><span class="res-unit-tag">%</span></div>
+                    </div>
+                    <div id="score_p2" class="score-anchor" style="color:#27ae60; font-weight: 900; min-width: 60px; text-align: right;">PTS: 0</div>
+                </div>
+
+                <div class="note" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9; font-size: 9px; color: #94a3b8; line-height: 1.2; text-align: justify;">
+                    <b>RMR-2:</b> El RQD define la competencia de la roca y es el indicador crítico para el sostenimiento.
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SISTEMAS DE DISCONTINUIDADES -->
+        <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+                ▤ 4. SISTEMAS DE DISCONTINUIDADES
+            </h4>
+
+            <div class="junta-tabs-wrapper" id="tabs-container"></div>
+
+            <div id="form-junta-unica" style="margin-top: 10px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; align-items: center; border: 1px solid #eef2f7;">
+                    <div style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;">
+                        <span class="input-label" style="margin:0;">DIP:</span>
+                        <input type="number" id="ui-dip" class="in-field" placeholder="0-90°" oninput="validarLimites(this, 90); guardarDatosJunta()">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex: 1.2; min-width: 0;">
+                        <span class="input-label" style="margin:0;">DIPDIR:</span>
+                        <input type="number" id="ui-dir" class="in-field" placeholder="0-360°" oninput="validarLimites(this, 360); guardarDatosJunta()">
+                    </div>
+                    <button type="button" onclick="capturarGiroscopio()" class="btn-gyro">🧭</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; padding: 10px; align-items: center;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Tipo Discontinuidad</span>
+                        <select id="ui-tipo-disc" class="in-field" onchange="guardarDatosJunta()" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
+                            <option value="diaclasa">Diaclasa</option>
+                            <option value="estratificacion">Estratificación</option>
+                            <option value="foliacion">Foliación</option>
+                            <option value="falla">Falla</option>
+                            <option value="cizalla">Cizalla</option>
+                            <option value="contacto">Contacto</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="input-label" style="font-size: 7px; margin-bottom: 3px; text-align: center; color: #856404; font-weight: 800;">Tipo de Relleno</span>
+                        <select id="ui-tipo-relleno" class="in-field" onchange="guardarDatosJunta()" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 3px; background: #ffffff; color: #1a5276; font-weight: 800;">
+                            <option value="cuarzo">Cuarzo</option>
+                            <option value="calcita">Calcita</option>
+                            <option value="arcilla">Arcilla</option>
+                            <option value="limo">Limo</option>
+                            <option value="arena">Arena</option>
+                            <option value="panizo">Milonita</option>
+                            <option value="ninguno">Ninguno</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;" id="ui-selects">
+                    <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" id="sel_espac" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
+                    <div><span class="input-label">Persistencia</span><select class="in-field j-ui" id="sel_persist" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
+                    <div><span class="input-label">Apertura</span><select class="in-field j-ui" id="sel_apert" onchange="guardarDatosJunta()"><option value="6">Cerrada (0 mm)</option><option value="5">&lt; 0.1 mm</option><option value="3">0.1 - 1.0 mm</option><option value="1">1.0 - 5.0 mm</option><option value="0">&gt; 5.0 mm</option></select></div>
+                    <div><span class="input-label">Rugosidad</span><select class="in-field j-ui" id="sel_rugos_rmr" onchange="guardarDatosJunta()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
+                    <div><span class="input-label">Relleno (Puntos)</span><select class="in-field j-ui" id="sel_relleno_pts" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
+                    <div><span class="input-label">Alteración</span><select class="in-field j-ui" id="sel_alter_junta" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
+                </div>
+
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; padding: 0 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <label style="position: relative; display: inline-block; width: 34px; height: 20px;">
+                        <input type="checkbox" id="chk_peine" onchange="refrescarVistaPeine(); guardarDatosJunta();" style="opacity: 0; width: 0; height: 0; position: absolute;"> 
+                        <span class="slider-barton"></span>
+                    </label>
+                    <span class="input-label" style="margin:0; font-size: 9.5px; font-weight: bold; color: #475569; cursor: pointer;" onclick="document.getElementById('chk_peine').click()">
+                        USAR PEINE DE BARTON
+                    </span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 5px; width: 100%; min-height: 85px; position: relative;">
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <div id="ui_peine" style="display: none; flex-direction: row; gap: 6px; padding: 6px 8px; background: #fffef0; border: 1px dashed #f1c40f; border-radius: 6px; align-items: center; min-height: 48px;">
+                            <div style="display: flex; flex-direction: column; width: 64px;">
+                            <span class="input-label" style="font-size: 7.5px; margin-bottom: 4px; text-align: center; color: #856404; font-weight: 800;">AMP. (a)</span>
+                            <input type="number" id="in_amp" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 4px; padding: 2px;" placeholder="mm" oninput="guardarDatosJunta()">
+                        </div>
+                        <div style="display: flex; flex-direction: column; width: 64px;">
+                            <span class="input-label" style="font-size: 7.5px; margin-bottom: 4px; text-align: center; color: #856404; font-weight: 800;">LONG. (L)</span>
+                            <input type="number" id="in_len" class="in-field" style="height: 26px !important; font-size: 11px; text-align: center; border-radius: 4px; padding: 2px;" value="100" oninput="guardarDatosJunta()">
+                        </div>
+                    </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end; margin-left: auto;">
+                        <div style="display:flex; align-items:center; height: 38px;">
+                            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JRC</span>
+                            <div class="res-val-matrix" style="height:26px !important; min-width:65px;"><b id="out_jrc" style="font-size: 11px;">-</b></div>
+                        </div>
+                        <div style="display:flex; align-items:center; height: 30px;">
+                            <span class="input-label" style="margin-right:6px; margin-bottom:0;">JCS</span>
+                            <div class="res-val-matrix" style="height:26px !important; min-width:65px;"><b id="out_jcs" style="font-size: 11px;">-</b><span class="res-unit-tag" style="font-size: 7px;">MPa</span></div>
+                        </div>
+                        <div id="ui-puntos-junta" class="score-anchor" style="color:#27ae60; font-weight:900; font-size: 10px; margin-top: 5px; text-align: right; width: 100%;">J1: 35 PTS</div>
+                    </div>
+
+                    <span id="btn-eliminar-junta" onclick="eliminarJuntaActual()" 
+                          style="color:#e74c3c; font-size:9.5px; font-weight:800; cursor:pointer; display:none; text-transform: uppercase; position: absolute; left: 2px; bottom: 24px;">
+                        ✕ Eliminar Sistema
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. CONDICIÓN HIDROGEOLÓGICA -->
+        <div id="bloque-agua" class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden; border-left: 4px solid #3498db;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+                💧 5. CONDICIÓN HIDROGEOLÓGICA
+            </h4>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                    <div style="width: 230px;">
+                        <div class="input-label">INFILTRACIÓN</div>
+                        <select id="p5_agua" onchange="runRmr()" class="in-field" style="width: 100%; font-size: 11px; height: 30px; font-weight: 800; color: #052c52;">
+                            <option value="15">Seco (Sin humedad)</option>
+                            <option value="10">Húmedo (Superficie oscura, sin goteo)</option>
+                            <option value="7">Mojado (Goteo esporádico)</option>
+                            <option value="4">Goteo persistente / Chorro leve</option>
+                            <option value="0">Fluyente (Chorro a presión)</option>
+                        </select>
+                    </div>
+                    <div id="score_p5" style="margin-top: 12px; font-size: 10.2px; font-weight: 900; color: #27ae60; white-space: nowrap;">PTS: 15</div>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #eee; border-radius: 6px; padding: 8px;">
+                    <div class="input-label" style="border-bottom: 1px solid #eee; padding-bottom: 3px; margin-bottom: 6px; font-size: 9.5px;">GUÍA DE CAMPO PARA RMR-5</div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 5px;">
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #27ae60; font-weight: bold; min-width: 45px;">SECO:</span>
+                            <span style="color: #566573;">No hay rastro de agua ni humedad en las juntas. Macizo estable.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #3498db; font-weight: bold; min-width: 45px;">HÚMEDO:</span>
+                            <span style="color: #566573;">Superficies oscurecidas por humedad, pero no hay desprendimiento de gotas.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #f1c40f; font-weight: bold; min-width: 45px;">MOJADO:</span>
+                            <span style="color: #566573;">Goteo esporádico o continuo. Se observa agua libre en las grietas.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; font-size: 9.5px; line-height: 1.3;">
+                            <span style="color: #e67e22; font-weight: bold; min-width: 45px;">FLUJO:</span>
+                            <span style="color: #c0392b;">Chorros de agua saliendo de las fracturas. Dificulta la colocación de soporte.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="controles-fase1" class="full-row" style="display: flex; justify-content: flex-end; padding: 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
+            <button type="button" onclick="prepararYIrAFase2()" style="width: 160px; height: 40px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #1e8449;">
+                VER REPORTE >>
+            </button>
+        </div>
+    </div> 
+
+    <!-- FASE 2: REPORTE -->
+    <div id="fase2-container" style="display: none; padding: 12px; background: #ebf2f7;">
+        <div id="reporte-card" class="geo-card full-row" style="border-top: 5px solid #27ae60; min-height: auto; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h4 style="margin: 0 0 15px; color: #052c52; font-size: 13px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px;">📊 REPORTE TÉCNICO GEOMECÁNICO RMR</h4>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                <div style="flex: 1.2; min-width: 280px;">
+                    <div style="background: #052c52; padding: 20px; border-radius: 8px; color: white; text-align: center; margin-bottom: 12px;">
+                        <div class="input-label" style="color: #3498db; font-size: 8px; margin-bottom: 2px;">RMR CORREGIDO (BIENIAWSKI 89)</div>
+                        <div id="res_rmr_final" style="font-size: 48px; font-weight: 900; color: #fff; line-height: 1;">0</div>
+                        <div id="res_clase_tag" style="font-size: 10px; font-weight: 800; background: #27ae60; border-radius: 4px; padding: 4px 8px; display: inline-block; margin-top: 8px; white-space: nowrap;">CLASE: -</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                        <div style="background: #fff; padding: 10px 5px; border-radius: 6px; border: 1px solid #e1e8ed; text-align: center;">
+                            <div class="input-label" style="font-size: 6.5px; margin-bottom: 4px;">COHESIÓN (c)</div>
+                            <div id="res_cohesion" style="font-size: 12px; font-weight: 800; color: #333;">-</div>
+                        </div>
+                        <div style="background: #fff; padding: 10px 5px; border-radius: 6px; border: 1px solid #e1e8ed; text-align: center;">
+                            <div class="input-label" style="font-size: 6.5px; margin-bottom: 4px;">FRICCIÓN (φ)</div>
+                            <div id="res_friccion" style="font-size: 12px; font-weight: 800; color: #333;">-</div>
+                        </div>
+                        <div style="grid-column: span 2; background: #f0f7ff; padding: 10px 5px; border-radius: 6px; border: 1px solid #d1d9e0; text-align: center;">
+                            <div class="input-label" style="font-size: 7px; margin-bottom: 2px; color: #1a5276;">MÓDULO DE DEFORMACIÓN (Em)</div>
+                            <div id="res_modulo_e" style="font-size: 14px; font-weight: 900; color: #052c52;">-</div>
+                            <div style="font-size: 6px; color: #64748b; margin-top: 2px;">GPa (Serafim & Pereira)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 8px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #d1d9e0;">
+                        <div style="flex: 1; text-align: center;">
+                            <div class="input-label" style="font-size: 7px; color: #64748b;">RMR BÁSICO</div>
+                            <div id="res_rmr_base" style="font-size: 18px; font-weight: 800; color: #1a5276;">0</div>
+                        </div>
+                        <div style="width: 1px; background: #eee;"></div>
+                        <div style="flex: 1; text-align: center;">
+                            <div class="input-label" style="font-size: 7px; color: #c0392b;">AJUSTE (P6)</div>
+                            <div id="res_ajuste" style="font-size: 18px; font-weight: 800; color: #c0392b;">0</div>
+                        </div>
+                    </div>
+                    <div id="bloque_dinamico" style="background: #f8fbfe; padding: 12px; border-radius: 8px; border: 1px solid #e1e8ed; flex-grow: 1; font-size: 10px; color: #333; line-height: 1.4;"></div>
+                    <div style="background: #fffbe6; padding: 10px; border-radius: 6px; border: 1px solid #ffe58f;">
+                        <div class="input-label" style="color: #856404; font-size: 8px; margin-bottom: 4px;">🔍 ANÁLISIS ESTRUCTURAL COMPARATIVO</div>
+                        <div id="res_peor_junta" style="font-size: 9.5px; font-weight: 600; color: #555; line-height: 1.3;"></div>
+                    </div>
+                    <div style="background: #fff; padding: 8px 4px; border-radius: 6px; border: 1px solid #e1e8ed; text-align: center;">
+                        <div class="input-label" style="font-size: 6.5px; margin-bottom: 4px;">MANTENIMIENTO / STAND-UP TIME</div>
+                        <div id="res_tiempo" style="font-size: 9px; font-weight: 800; color: #333; line-height: 1;">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="calcularClasificacionFinal(); registrarFichaActual(false);" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
+                    <button type="button" onclick="nuevaEstacion()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">➕ NUEVA ESTACIÓN</button>
+                </div>
+                <!-- BOTÓN GESTOR DE FICHAS -->
+                <button type="button" onclick="abrirGestorFichas()" style="width: 100%; background: #052c52; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📂 REVISAR / MODIFICAR FICHAS GUARDADAS</button>
+                <button type="button" onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📥 EXPORTAR EXCEL (0 FICHAS)</button>
+                <button type="button" onclick="volverAFase1()" style="width: 100%; background: #64748b; color: white; border: none; border-radius: 6px; padding: 10px; font-size: 9px; cursor: pointer; text-transform: uppercase;">« EDITAR DATOS DE ESTACIÓN</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- VENTANA MODAL: GESTOR DE FICHAS -->
+<div id="modal-gestor" class="modal-overlay">
+    <div class="modal-window">
+        <div class="modal-header">
+            <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">🗂️ GESTOR DE FICHAS Y PROYECTOS</span>
+            <span onclick="cerrarGestorFichas()" style="cursor: pointer; font-size: 16px; font-weight: 900;">✕</span>
+        </div>
+        
+        <!-- Barra de Respaldo / Copia de seguridad -->
+        <div style="display: flex; gap: 6px; padding: 6px 12px; background: #e2e8f0;">
+            <button type="button" onclick="exportarBackupJSON()" style="flex:1; background: #34495e; color: white; border: none; border-radius: 4px; padding: 6px; font-size: 8.5px; font-weight: bold; cursor: pointer;">
+                💾 DESCARGAR COPIA
+            </button>
+            <button type="button" onclick="document.getElementById('input_backup').click()" style="flex:1; background: #2c3e50; color: white; border: none; border-radius: 4px; padding: 6px; font-size: 8.5px; font-weight: bold; cursor: pointer;">
+                📂 RESTAURAR COPIA
+            </button>
+            <input type="file" id="input_backup" accept=".json" style="display: none;" onchange="importarBackupJSON(this)">
+        </div>
+
+        <!-- Buscador en tiempo real -->
+        <div style="padding: 10px 12px; background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">
+            <input type="text" id="filtro_fichas" oninput="filtrarListaFichas()" class="in-field" placeholder="🔍 Filtrar por Proyecto o ID Estación..." style="height: 28px; font-size: 11px;">
+        </div>
+        
+        <!-- Contenedor dinámico de fichas -->
+        <div class="modal-body" id="lista-fichas-contenedor"></div>
+    </div>
+</div>
+<script>
+// ==========================================
+// 1. ESTADO Y MEMORIA GLOBAL
+// ==========================================  
+let sysCount = 1;
+
+// Recupera automáticamente las fichas guardadas en el almacenamiento persistente
+let baseDeDatosFichas = (function() {
+    try {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+        return backup ? JSON.parse(backup) : [];
+    } catch (e) {
+        return [];
+    }
+})();
+
+let listaJuntas = [{ 
+    id: 1, 
+    tipo: "diaclasa", 
+    relleno: "cuarzo", 
+    dip: "", 
+    dir: "", 
+    vals: [20, 6, 6, 6, 6, 6], 
+    amp: 0, 
+    len: 100, 
+    usePeine: false 
+}];
+
+let idActivo = 1;
+
+// ==========================================
+// 2. CONTROL DE INTERFAZ Y ESCENARIOS
+// ==========================================  
+function toggleRes() {
+    let m = document.getElementById('m_res').value;
+    document.getElementById('ui_sch').classList.toggle('hidden', m !== 'sch');
+    document.getElementById('ui_vis').classList.toggle('hidden', m !== 'vis');
+    runRmr();
+}
+
+function toggleRqd() {
+    let m = document.getElementById('m_rqd').value;
+    document.getElementById('ui_deere').classList.toggle('hidden', m !== 'deere');
+    document.getElementById('ui_pal').classList.toggle('hidden', m !== 'pal');
+    runRmr();
+}
+
+function updateLitologia() {
+    const grupo = document.getElementById('grupoRoca').value;
+    const tipoSel = document.getElementById('tipoRoca');
+    const lit = {
+        ignea: [
+            {n:"Granito (2.65)", v:2.65}, {n:"Basalto (2.85)", v:2.85},
+            {n:"Andesita (2.60)", v:2.60}, {n:"Diorita (2.75)", v:2.75},
+            {n:"Riolita (2.50)", v:2.50}, {n:"Gabro (2.95)", v:2.95},
+            {n:"Sienita (2.70)", v:2.70}, {n:"Obsidiana (2.40)", v:2.40}
+        ],
+        metamorfica: [
+            {n:"Gneiss (2.70)", v:2.70}, {n:"Esquisto (2.60)", v:2.60},
+            {n:"Mármol (2.75)", v:2.75}, {n:"Cuarcita (2.65)", v:2.65},
+            {n:"Pizarra (2.75)", v:2.75}, {n:"Filita (2.70)", v:2.70}
+        ],
+        sedimentaria: [
+            {n:"Caliza (2.55)", v:2.55}, {n:"Arenisca (2.30)", v:2.30},
+            {n:"Lutita (2.40)", v:2.40}, {n:"Dolomía (2.80)", v:2.80},
+            {n:"Conglomerado (2.50)", v:2.50}, {n:"Brecha (2.45)", v:2.45}
+        ]
+    };
+    tipoSel.innerHTML = "";
+    lit[grupo].forEach(r => {
+        let opt = document.createElement('option'); opt.value = r.v; opt.innerText = r.n;
+        tipoSel.appendChild(opt);
+    });
+    runRmr();
+}
+
+function updateEscenario() {
+    const esc = document.getElementById('escenario').value;
+    const isT = esc === 'tunel';
+    const inputDip = document.getElementById('eje_dip');
+    const inputDir = document.getElementById('eje_dir');
+    const labelDip = document.getElementById('lbl_dip');
+    const labelDir = document.getElementById('lbl_dir');
+    const labelUbi = document.getElementById('lbl_ubi_tec');
+
+    labelDip.innerText = isT ? "AZIMUT EJE" : "INCL. TALUD";
+    labelDir.innerText = isT ? "DIR. AVANCE" : "DIRECC. TALUD";
+    labelUbi.innerText = isT ? "NIVEL" : "TRAMO";
+
+    if (isT) {
+        inputDip.placeholder = "0-360°";
+        inputDir.value = ""; 
+        inputDir.disabled = true; 
+        inputDir.style.backgroundColor = "#f1f5f9"; 
+        inputDir.style.opacity = "0.6";
+        inputDir.placeholder = "N/A";
+    } else {
+        inputDip.placeholder = "0-90°";
+        inputDir.disabled = false;
+        inputDir.style.backgroundColor = "#ffffff";
+        inputDir.style.opacity = "1";
+        inputDir.placeholder = "0-360°";
+    }
+    runRmr();
+}
+
+function prepararYIrAFase2() {
+    guardarDatosJunta(); 
+    runRmr();
+    irAFase2(); 
+}
+
+function irAFase2() {
+    const esc = document.getElementById('escenario').value;
+    const isT = esc === 'tunel';
+    
+    const camposValidar = [
+        { id: 'est_id', nombre: 'ID de Estación' },
+        { id: 'est_tec', nombre: 'Técnico Responsable' },
+        { id: 'est_fecha', nombre: 'Fecha' },
+        { id: 'eje_dip', nombre: document.getElementById('lbl_dip').innerText }
+    ];
+
+    if (!isT) {
+        camposValidar.push({ id: 'eje_dir', nombre: 'DIRECCIÓN DEL TALUD' });
+    }
+
+    let faltantes = [];
+
+    camposValidar.forEach(campo => {
+        let el = document.getElementById(campo.id);
+        let valorLimpio = el.value.toString().replace('°', '').trim();
+        if (!valorLimpio) {
+            faltantes.push(campo.nombre);
+            el.style.border = "2px solid #e74c3c";
+            el.style.backgroundColor = "#fdf2f2";
+        } else {
+            el.style.border = "1px solid #cbd5e1";
+            el.style.backgroundColor = "#ffffff";
+        }
+    });
+
+    const j1 = listaJuntas[0];
+    const valJ1Dip = (j1 ? j1.dip : "").toString().replace('°', '').trim();
+    const valJ1Dir = (j1 ? j1.dir : "").toString().replace('°', '').trim();
+    
+    if (!valJ1Dip || !valJ1Dir) {
+        faltantes.push("Medición Dip/Dir de la Junta #1 (Es obligatoria)");
+        if (idActivo !== 1) cambiarAJunta(1);
+    }
+
+    if (faltantes.length > 0) {
+        alert("⚠️ ATENCIÓN: Faltan datos críticos para el reporte:\n\n- " + faltantes.join("\n- "));
+        return;
+    }
+
+    // 1. Guardar junta activa actual
+    guardarDatosJunta();
+
+    // 2. Ejecutar cálculo RMR básico
+    runRmr(); 
+
+    // 3. Cambiar de pantalla
+    document.getElementById('main-container').style.display = 'none';
+    document.getElementById('fase2-container').style.display = 'block';
+
+    // 4. Calcular parámetros geomecánicos finales (cohesión, fricción, Em, RMRf)
+    calcularClasificacionFinal();
+
+    // 5. Guardar ficha con los datos actualizados
+    registrarFichaActual(true); 
+
+    window.scrollTo(0, 0);
+}
+function volverAFase1() {
+    document.getElementById('main-container').style.display = 'grid';
+    document.getElementById('fase2-container').style.display = 'none';
+}
+
+function validarLimites(input, maxVal) {
+    let valor = parseFloat(input.value);
+    if (valor > maxVal) input.value = maxVal;
+    else if (valor < 0) input.value = 0;
+}
+
+// ==========================================
+// 4. DINÁMICA DE JUNTAS
+// ==========================================  
+function renderizarTabs() {
+    const container = document.getElementById('tabs-container');
+    if (!container) return;
+
+    let html = '';
+    const juntaActiva = listaJuntas.find(j => j.id === idActivo);
+    if (juntaActiva) {
+        html += `<div class="j-tab active" onclick="cambiarAJunta(${juntaActiva.id})">SISTEMA #${juntaActiva.id}</div>`;
+    }
+
+    listaJuntas.forEach(j => {
+        if (j.id !== idActivo) {
+            html += `<div class="j-tab" onclick="cambiarAJunta(${j.id})">S#${j.id}</div>`;
+        }
+    });
+    
+    html += `<div class="btn-add-tab" onclick="nuevaJunta()">+</div>`;
+    container.innerHTML = html;
+    container.scrollLeft = 0;
+
+    const btnEliminar = document.getElementById('btn-eliminar-junta');
+    if (btnEliminar) {
+        if (idActivo !== 1 && listaJuntas.length > 1) {
+            btnEliminar.style.display = 'block';
+            btnEliminar.innerHTML = `✖ ELIMINAR SISTEMA #${idActivo}`;
+        } else {
+            btnEliminar.style.display = 'none';
+        }
+    }
+}
+
+function nuevaJunta() {
+    const nuevoId = listaJuntas.length > 0 ? Math.max(...listaJuntas.map(j => j.id)) + 1 : 1;
+    const nuevaJ = { 
+        id: nuevoId, 
+        dip: "", 
+        dir: "", 
+        vals: [20, 6, 6, 6, 6, 6],
+        amp: 0,
+        len: 100,
+        usePeine: false
+    };
+    listaJuntas.push(nuevaJ);
+    idActivo = nuevoId;
+    renderizarTabs();
+    cambiarAJunta(nuevoId);
+}
+
+function cambiarAJunta(id) {
+    idActivo = id;
+    const datos = listaJuntas.find(j => j.id === id);
+    if (datos) {
+        document.getElementById('ui-dip').value = datos.dip;
+        document.getElementById('ui-dir').value = datos.dir;
+        
+        document.getElementById('ui-tipo-disc').value = datos.tipo || "diaclasa";
+        document.getElementById('ui-tipo-relleno').value = datos.relleno || "cuarzo";
+        
+        if (datos.vals && datos.vals.length >= 6) {
+            if (document.getElementById('sel_espac')) document.getElementById('sel_espac').value = datos.vals[0];
+            if (document.getElementById('sel_persist')) document.getElementById('sel_persist').value = datos.vals[1];
+            if (document.getElementById('sel_apert')) document.getElementById('sel_apert').value = datos.vals[2];
+            if (document.getElementById('sel_rugos_rmr')) document.getElementById('sel_rugos_rmr').value = datos.vals[3];
+            if (document.getElementById('sel_relleno_pts')) document.getElementById('sel_relleno_pts').value = datos.vals[4];
+            if (document.getElementById('sel_alter_junta')) document.getElementById('sel_alter_junta').value = datos.vals[5];
+        }
+
+        document.getElementById('in_amp').value = datos.amp || 0;
+        document.getElementById('in_len').value = datos.len || 100;
+        
+        const chk = document.getElementById('chk_peine');
+        if (chk) {
+            chk.checked = datos.usePeine || false;
+            refrescarVistaPeine(); 
+        }
+    }
+    renderizarTabs();
+    actualizarPuntosUI();
+}
+
+function refrescarVistaPeine() {
+    const chk = document.getElementById('chk_peine');
+    const ui = document.getElementById('ui_peine'); 
+    const selRugos = document.getElementById('sel_rugos_rmr');
+
+    if (chk && ui) {
+        const activo = chk.checked;
+        ui.style.display = activo ? 'flex' : 'none';
+        if (selRugos) {
+            selRugos.disabled = activo;
+            selRugos.style.opacity = activo ? "0.5" : "1";
+        }
+    }
+    guardarDatosJunta();
+}
+  
+function guardarDatosJunta() {
+    const index = listaJuntas.findIndex(j => j.id === idActivo);
+    if (index === -1) return;
+
+    listaJuntas[index].dip = document.getElementById('ui-dip')?.value || "";
+    listaJuntas[index].dir = document.getElementById('ui-dir')?.value || "";
+    listaJuntas[index].tipo = document.getElementById('ui-tipo-disc')?.value || "diaclasa";
+    listaJuntas[index].relleno = document.getElementById('ui-tipo-relleno')?.value || "cuarzo";
+    
+    const usePeine = document.getElementById('chk_peine')?.checked || false;
+    const amp = parseFloat(document.getElementById('in_amp')?.value) || 0;
+    const len = parseFloat(document.getElementById('in_len')?.value) || 100;
+
+    listaJuntas[index].amp = amp;
+    listaJuntas[index].len = len;
+    listaJuntas[index].usePeine = usePeine;
+
+    let ptsRugos = parseInt(document.getElementById('sel_rugos_rmr')?.value) || 6;
+    if (usePeine) {
+        let jrcCalc = (amp > 0 && len > 0) ? Math.min(20, 400 * (amp / len)) : 0;
+        if (jrcCalc >= 14) ptsRugos = 6;
+        else if (jrcCalc >= 8) ptsRugos = 5;
+        else if (jrcCalc >= 4) ptsRugos = 3;
+        else if (jrcCalc >= 2) ptsRugos = 1;
+        else ptsRugos = 0;
+    }
+    
+    listaJuntas[index].vals = [
+        parseInt(document.getElementById('sel_espac')?.value) || 20,
+        parseInt(document.getElementById('sel_persist')?.value) || 6,
+        parseInt(document.getElementById('sel_apert')?.value) || 6,
+        ptsRugos,
+        parseInt(document.getElementById('sel_relleno_pts')?.value) || 6,
+        parseInt(document.getElementById('sel_alter_junta')?.value) || 6
+    ];
+    
+    actualizarPuntosUI();
+    if (typeof runRmr === 'function') runRmr();
+}
+
+function eliminarJuntaActual() {
+    if (idActivo === 1) return; 
+    if (!confirm(`¿Confirma eliminar el SISTEMA #${idActivo}?\nEsta acción no se puede deshacer.`)) return;
+    listaJuntas = listaJuntas.filter(j => j.id !== idActivo);
+    idActivo = 1; 
+    cambiarAJunta(1);
+}
+
+function actualizarPuntosUI() {
+    const datos = listaJuntas.find(j => j.id === idActivo);
+    if (!datos) return;
+
+    const chkPeine = document.getElementById('chk_peine');
+    const outJrc = document.getElementById('out_jrc');
+    const selRugosRMR = document.getElementById('sel_rugos_rmr');
+
+    let jrcDisplay = "0.0";
+    if (chkPeine && chkPeine.checked) {
+        let amp = parseFloat(document.getElementById('in_amp')?.value) || 0;
+        let len = parseFloat(document.getElementById('in_len')?.value) || 100;
+        let jrcCalc = (amp > 0 && len > 0) ? Math.min(20, 400 * (amp / len)) : 0;
+        jrcDisplay = jrcCalc.toFixed(1);
+    } else {
+        let ptsRugos = parseInt(selRugosRMR?.value || 6); 
+        jrcDisplay = (ptsRugos === 6) ? "18.0" : (ptsRugos === 5) ? "12.0" : (ptsRugos === 1) ? "6.0" : "2.0";
+    }
+    if (outJrc) outJrc.innerText = jrcDisplay;
+
+    let ucsMatriz = 0;
+    const metodoActivo = document.getElementById('m_res')?.value || 'sch';
+    const selectorUCS = (metodoActivo === 'sch') ? '#out_sch_ucs b' : '#out_vis_ucs b';
+    const elUCS = document.querySelector(selectorUCS);
+    if (elUCS && elUCS.innerText !== "-") {
+        ucsMatriz = parseFloat(elUCS.innerText) || 0;
+    }
+
+    const selAlt = document.getElementById('sel_alter_junta');
+    let factorAlt = 1.0; 
+    if (selAlt) {
+        if (selAlt.value === "3") factorAlt = 0.75;      
+        else if (selAlt.value === "0") factorAlt = 0.50; 
+        else factorAlt = 1.0;                            
+    }
+
+    const outJcs = document.getElementById('out_jcs');
+    if (outJcs) {
+        let jcsFinal = ucsMatriz * factorAlt;
+        outJcs.innerText = jcsFinal > 0 ? jcsFinal.toFixed(1) : "-";
+    }
+
+    const suma = datos.vals.reduce((a, b) => a + b, 0);
+    const elPuntos = document.getElementById('ui-puntos-junta');
+    if (elPuntos) {
+        elPuntos.innerText = `S${idActivo}: ${suma} PTS`;
+    }
+}
+
+// ==========================================
+// 5. SENSORES Y FOTOGRAFÍA (OPTIMIZADO iOS)
+// ==========================================  
+function capturarGiroscopio() {
+    const inDip = document.getElementById('ui-dip');
+    const inDipDir = document.getElementById('ui-dir');
+    if (!inDip || !inDipDir) return;
+
+    if (navigator.vibrate) navigator.vibrate(20);
+
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+            .then(response => {
+                if (response === 'granted') {
+                    iniciarLecturaEstable(inDip, inDipDir);
+                } else {
+                    alert("Permiso de sensores denegado.");
+                }
+            })
+            .catch(console.error);
+    } else {
+        iniciarLecturaEstable(inDip, inDipDir);
+    }
+}
+
+function iniciarLecturaEstable(inDip, inDipDir) {
+    let muestras = [];
+    const tiempoInicio = Date.now();
+    const DURACION = 4000;
+    const tipoEvento = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
+
+    [inDip, inDipDir].forEach(el => {
+        el.value = "";
+        el.placeholder = "Midiendo...";
+        el.style.backgroundColor = "#fff9c4"; 
+    });
+
+    const procesarMovimiento = (e) => {
+        const ahora = Date.now();
+        let heading = null;
+        if (e.webkitCompassHeading) {
+            heading = e.webkitCompassHeading;
+        } else {
+            heading = (360 - e.alpha) % 360; 
+        }
+
+        if (heading === null) return;
+
+        const beta = e.beta * (Math.PI / 180);
+        const gamma = e.gamma * (Math.PI / 180);
+
+        let dipRad = Math.acos(Math.cos(beta) * Math.cos(gamma));
+        let dipGrados = dipRad * (180 / Math.PI);
+        if (dipGrados > 90) dipGrados = 180 - dipGrados;
+
+        let y_comp = -Math.sin(beta) * Math.cos(gamma);
+        let x_comp = -Math.sin(gamma);
+        let anguloRelativo = Math.atan2(x_comp, y_comp) * (180 / Math.PI);
+        let dipDirFinal = (heading + anguloRelativo + 360) % 360;
+
+        muestras.push({ d: dipGrados, dd: dipDirFinal });
+
+        if (ahora - tiempoInicio >= DURACION) {
+            window.removeEventListener(tipoEvento, procesarMovimiento, true);
+            if (muestras.length > 0) {
+                let sS = 0, sC = 0, sumD = 0;
+                muestras.forEach(m => {
+                    sS += Math.sin(m.dd * Math.PI / 180);
+                    sC += Math.cos(m.dd * Math.PI / 180);
+                    sumD += m.d;
+                });
+                
+                let finalDD = Math.atan2(sS, sC) * (180 / Math.PI);
+                if (finalDD < 0) finalDD += 360;
+                let finalD = sumD / muestras.length;
+
+                inDip.value = Math.round(finalD);
+                inDipDir.value = Math.round(finalDD);
+                inDip.placeholder = "0-90°"; 
+                inDipDir.placeholder = "0-360°";
+
+                guardarDatosJunta(); 
+
+                [inDip, inDipDir].forEach(el => {
+                    el.style.backgroundColor = "#c8e6c9"; 
+                    setTimeout(() => { el.style.backgroundColor = "#ffffff"; }, 1500);
+                });
+
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                runRmr(); 
+            }
+        }
+    };
+    window.addEventListener(tipoEvento, procesarMovimiento, true);
+}
+
+// ==========================================
+// CAPTURA GPS EN UTM (WGS84) OFFLINE
+// ==========================================
+function obtenerUbicacion() {
+    const info = document.getElementById('gps_info');
+    const btn = document.querySelector('.btn-gps-tactil');
+    
+    info.style.fontSize = "8px";
+    info.style.color = "#1a5276";
+    info.innerHTML = "⏳ Calibrando satélites (buscando < 5m)...";
+    if (btn) btn.style.borderColor = "#f1c40f";
+
+    let terminado = false;
+
+    const watchId = navigator.geolocation.watchPosition(pos => {
+        const acc = pos.coords.accuracy;
+        info.innerHTML = `⏳ Calibrando: ±${acc.toFixed(1)}m`;
+
+        // Si la señal es óptima (<= 5.5 m), captura y desconecta el sensor
+        if (acc <= 5.5 && !terminado) {
+            terminado = true;
+            finalizarGPS_UTM(pos, watchId);
+        }
+    }, err => {
+        info.innerHTML = "❌ Error: Activa GPS de alta precisión";
+        info.style.color = "#e74c3c";
+        if (btn) btn.style.borderColor = "#cbd5e1";
+        navigator.geolocation.clearWatch(watchId);
+    }, { 
+        enableHighAccuracy: true, 
+        timeout: 20000, 
+        maximumAge: 0 
+    });
+
+    // Timeout de seguridad a los 15s si no alcanza los 5.5m
+    setTimeout(() => {
+        if (!terminado) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                if (!terminado) {
+                    terminado = true;
+                    finalizarGPS_UTM(pos, watchId);
+                }
+            }, null, { enableHighAccuracy: true });
+        }
+    }, 15000);
+}
+
+function finalizarGPS_UTM(pos, watchId) {
+    navigator.geolocation.clearWatch(watchId);
+
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    
+    // --- ALGORITMO DE PROYECCIÓN UTM (ELIPSOIDE WGS84) ---
+    const a = 6378137.0; 
+    const eccSq = 0.00669438; 
+    const k0 = 0.9996;
+    
+    let zone = Math.floor((lon + 180) / 6) + 1;
+    let lonOR = ((zone - 1) * 6 - 180 + 3) * Math.PI / 180;
+    let latR = lat * Math.PI / 180; 
+    let lonR = lon * Math.PI / 180;
+    
+    let N = a / Math.sqrt(1 - eccSq * Math.sin(latR)**2);
+    let T = Math.tan(latR)**2;
+    let C = eccSq * Math.cos(latR)**2 / (1 - eccSq);
+    let A = (lonR - lonOR) * Math.cos(latR);
+    
+    let M = a * ((1 - eccSq/4 - 3*eccSq**2/64) * latR - (3*eccSq/8 + 3*eccSq**2/32) * Math.sin(2*latR) + (15*eccSq**2/256) * Math.sin(4*latR));
+    let x = k0 * N * (A + (1 - T + C) * A**3 / 6 + (5 - 18 * T + T**2 + 72 * C) * A**5 / 120) + 500000.0;
+    let y = k0 * (M + N * Math.tan(latR) * (A**2 / 2 + (5 - T + 9 * C + 4 * C**2) * A**4 / 24 + (61 - 58 * T + T**2 + 600 * C) * A**6 / 720));
+    
+    let hemisferio = "N";
+    if (lat < 0) {
+        y += 10000000.0; // Falso Norte en Hemisferio Sur
+        hemisferio = "S";
+    }
+
+    // Inyectar en inputs con precisión milimétrica/centimétrica (2 decimales)
+    document.getElementById('coord_e').value = x.toFixed(2);
+    document.getElementById('coord_n').value = y.toFixed(2);
+    if (pos.coords.altitude !== null) {
+        document.getElementById('coord_z').value = Math.round(pos.coords.altitude);
+    }
+    
+    const acc = pos.coords.accuracy;
+    const info = document.getElementById('gps_info');
+    info.innerHTML = `✅ UTM Zona ${zone}${hemisferio} | ±${acc.toFixed(1)}m`;
+    info.style.color = acc <= 6 ? "#27ae60" : "#f1c40f";
+
+    const btn = document.querySelector('.btn-gps-tactil');
+    if (btn) btn.style.borderColor = "#27ae60";
+}
+
+/* GUARDAR FOTOGRAFÍAS EN IPHONE / SAFARI */
+function procesarFotoSilenciosa(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const reader = new FileReader();
+    const idEst = document.getElementById('est_id').value.trim() || "ESTACION";
+    const fecha = document.getElementById('est_fecha').value || new Date().toISOString().slice(0,10);
+
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Escalar para evitar colapso de memoria en Safari móvil
+            const MAX_DIM = 1800;
+            let w = img.width;
+            let h = img.height;
+            if (w > MAX_DIM || h > MAX_DIM) {
+                if (w > h) {
+                    h = Math.round((h * MAX_DIM) / w);
+                    w = MAX_DIM;
+                } else {
+                    w = Math.round((w * MAX_DIM) / h);
+                    h = MAX_DIM;
+                }
+            }
+
+            const canvas = document.getElementById('canvas_foto');
+            const ctx = canvas.getContext('2d');
+            canvas.width = w; 
+            canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // Marca de agua
+            const hTag = h * 0.055;
+            ctx.fillStyle = "rgba(0,0,0,0.65)";
+            ctx.fillRect(0, h - hTag, w, hTag);
+            ctx.font = `bold ${Math.round(hTag * 0.45)}px Arial, sans-serif`;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(`ID: ${idEst} | FECHA: ${fecha} | GEOTECNIA RMR89`, 20, h - (hTag * 0.35));
+
+            // Exportación con Blob compatible con iOS
+            canvas.toBlob(function(blob) {
+                if (!blob) {
+                    alert("Error procesando imagen.");
+                    return;
+                }
+
+                const blobUrl = URL.createObjectURL(blob);
+                const filename = `RMR_${idEst}_${Date.now()}.jpg`;
+
+                // Método 1: Enlace temporal anexado al DOM
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    // Si el navegador bloquea la descarga directa, abrir la imagen
+                    // para que el usuario mantenga pulsado y elija "Guardar en Fotos"
+                }, 150);
+
+                input.value = "";
+            }, 'image/jpeg', 0.85);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// ==========================================
+// 6. MOTOR RMR Y ESCLERÓMETRO
+// ==========================================
+function setSchmidtAngle(angulo, elemento) {
+    document.querySelectorAll('.btn-schmidt').forEach(btn => btn.classList.remove('btn-schmidt-active'));
+    elemento.classList.add('btn-schmidt-active');
+    const hiddenInput = document.getElementById('selected_angle');
+    if (hiddenInput) hiddenInput.value = angulo;
+    runRmr(); 
+}
+
+function runRmr() {
+    let mRes = document.getElementById('m_res').value;
+    let ucs = 0, p1 = 0;
+
+    if(mRes === 'vis') {
+        p1 = parseInt(document.getElementById('valVis').value) || 0;
+        ucs = p1 === 15 ? 250 : p1 === 12 ? 150 : p1 === 7 ? 75 : p1 === 4 ? 35 : p1 === 2 ? 15 : 3;
+        if(document.getElementById('out_vis_ucs')) document.getElementById('out_vis_ucs').querySelector('b').innerText = ucs;
+    } else {
+        let rVals = [1,2,3,4,5,6,7,8,9,10].map(i => parseFloat(document.getElementById('r'+i).value)||0).filter(v => v > 0);
+        let rAvg = rVals.length > 0 ? rVals.reduce((a,b)=>a+b)/rVals.length : 0;
+        let angulo = parseInt(document.getElementById('selected_angle')?.value || 0);
+        
+        let deltaR = 0;
+        if (rAvg > 0) {
+            if (angulo === 90) deltaR = -3.2;
+            else if (angulo === 45) deltaR = -1.8;
+            else if (angulo === 0) deltaR = 0;
+            else if (angulo === -45) deltaR = 2.1;
+            else if (angulo === -90) deltaR = 3.4;
+        }
+
+        let rCorregido = rAvg + deltaR;
+        let gamma = parseFloat(document.getElementById('tipoRoca').value) || 2.7;
+        
+        if (rCorregido > 0) {
+            let logUCS = (0.00088 * (gamma * 9.81) * rCorregido) + 1.01; 
+            ucs = Math.pow(10, logUCS);
+        }
+
+        p1 = ucs > 250 ? 15 : ucs > 100 ? 12 : ucs > 50 ? 7 : ucs > 25 ? 4 : ucs > 5 ? 2 : 1;
+
+        if(document.getElementById('out_sch_r')) document.getElementById('out_sch_r').querySelector('b').innerText = rCorregido.toFixed(1);
+        if(document.getElementById('out_sch_ucs')) document.getElementById('out_sch_ucs').querySelector('b').innerText = ucs.toFixed(1);
+    }
+    document.getElementById('score_p1').innerText = "PTS: " + p1;
+
+    let mRqd = document.getElementById('m_rqd').value;
+    let p2 = 0, rqd = 0;
+    if(mRqd === 'deere') {
+        p2 = parseInt(document.getElementById('valDeere').value) || 0;
+        rqd = p2 === 20 ? 95 : p2 === 17 ? 82 : p2 === 13 ? 62 : p2 === 8 ? 37 : 15;
+    } else {
+        rqd = 115 - (3.3 * (parseFloat(document.getElementById('valJv').value) || 0));
+        if (rqd > 100) rqd = 100; if (rqd < 0) rqd = 0;
+        p2 = rqd > 90 ? 20 : rqd > 75 ? 17 : rqd > 50 ? 13 : rqd > 25 ? 8 : 3;
+    }
+    if(document.getElementById('out_rqd')) document.getElementById('out_rqd').querySelector('b').innerText = Math.round(rqd);
+    document.getElementById('score_p2').innerText = "PTS: " + p2;
+
+    let puntosJuntaCritica = 35; 
+    if (listaJuntas.length > 0) {
+        listaJuntas.forEach(j => {
+            let sumaActual = j.vals.reduce((a, b) => a + b, 0);
+            if (sumaActual < puntosJuntaCritica) {
+                puntosJuntaCritica = sumaActual;
+            }
+        });
+    } else {
+        puntosJuntaCritica = 0;
+    }
+
+    let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
+    document.getElementById('score_p5').innerText = "PTS: " + p5;
+
+    let rmrBasico = p1 + p2 + puntosJuntaCritica + p5;
+    const lblRmrBase = document.getElementById('res_rmr_base');
+    if(lblRmrBase) lblRmrBase.innerText = rmrBasico;
+    actualizarPuntosUI();
+    return rmrBasico;
+}
+
+function calcularClasificacionFinal() {
+    let p1 = parseInt(document.getElementById('score_p1').innerText.replace('PTS: ', '')) || 0;
+    let p2 = parseInt(document.getElementById('score_p2').innerText.replace('PTS: ', '')) || 0;
+    let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
+    let ucsMatriz = parseFloat(document.querySelector('#out_sch_ucs b')?.innerText) || 
+                    parseFloat(document.querySelector('#out_vis_ucs b')?.innerText) || 0;
+
+    let minScoreEncontrado = 100; 
+    let indexPeorJunta = 1;
+
+    listaJuntas.forEach(j => {
+        let scoreJ = j.vals.reduce((a, b) => a + b, 0);
+        if (scoreJ < minScoreEncontrado) {
+            minScoreEncontrado = scoreJ;
+            indexPeorJunta = j.id;
+        }
+    });
+
+    let listaHTML = `<div style="border-bottom:1px solid #ffe58f; margin-bottom:5px; padding-bottom:3px;"><b>Análisis de Resistencia de Sistemas:</b></div>`;
+
+    listaJuntas.forEach((j) => {
+        let jrcLocal = j.usePeine ? 
+            Math.min(20, 400 * ((parseFloat(j.amp) || 0) / (parseFloat(j.len) || 100))) : 
+            ((j.vals[3] === 6) ? 18 : (j.vals[3] === 5) ? 12 : (j.vals[3] === 1) ? 6 : 2);
+
+        let factorAlt = (j.vals[5] === 6) ? 1.0 : (j.vals[5] === 3) ? 0.75 : 0.5;
+        let jcsLocal = ucsMatriz * factorAlt;
+        let scoreJ = j.vals.reduce((a, b) => a + b, 0);
+        let esCritica = (j.id === indexPeorJunta);
+        
+        listaHTML += `
+            <div style="padding:4px 6px; margin-bottom:4px; border-radius:4px; border:1px solid ${esCritica ? '#f9d876' : '#eee'}; background:${esCritica ? '#fdf2ce' : '#fff'};">
+                <div style="display:flex; justify-content:space-between; font-size:10px;">
+                    <b style="color:${esCritica ? '#c0392b' : '#2c3e50'};">SISTEMA #${j.id} (${j.dir || 0}/${j.dip || 0}°)</b>
+                    <span style="font-weight:bold;">RMRb: ${p1 + p2 + scoreJ + p5}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:9px; color:#666; margin-top:2px;">
+                    <span>JRC: ${jrcLocal.toFixed(1)} | JCS: <b>${jcsLocal.toFixed(1)} MPa</b></span>
+                    ${esCritica ? '<span style="color:#c0392b; font-weight:bold;">⚠️ CRÍTICA</span>' : ''}
+                </div>
+            </div>`;
+    });
+
+    let rmrBasicoTotal = p1 + p2 + minScoreEncontrado + p5;
+
+    const esc = document.getElementById('escenario').value;
+    const oDip = parseFloat(document.getElementById('eje_dip').value) || 0; // En túnel es Azimut Eje; en talud es Inclinación
+    const oDir = parseFloat(document.getElementById('eje_dir').value) || 0; // En talud es Dirección; en túnel está deshabilitado
+    let p6 = 0;
+
+    listaJuntas.forEach(j => {
+        let a = 0;
+        let jDp = parseFloat(j.dip) || 0;
+        let jDr = parseFloat(j.dir) || 0;
+        
+        if (esc === 'tunel') {
+            // EN TÚNEL: se compara el rumbo/dirección de la junta contra el Azimut del eje (oDip)
+            let d = Math.abs(oDip - jDr) % 180;
+            if (d > 90) d = 180 - d;
+            
+            // Criterio Bieniawski 1989 para túneles según ángulo relativo eje-discontinuidad
+            if (d < 20) {
+                a = -12; // Paralelo al eje (Muy desfavorable)
+            } else if (d < 45) {
+                a = -5;  // Desfavorable
+            } else {
+                a = (jDp > 45) ? 0 : -2; // Perpendicular / favorable
+            }
+        } else {
+            // EN TALUD: se compara la dirección del talud (oDir) contra la dirección de buzamiento (jDr)
+            let dD = Math.abs(oDir - jDr);
+            if (dD > 180) dD = 360 - dD;
+            
+            if (dD < 20) {
+                a = (jDp > oDip) ? -5 : (Math.abs(oDip - jDp) < 10) ? -60 : -25;
+            } else if (Math.abs(dD - 180) < 20) {
+                a = -25;
+            } else {
+                a = -5;
+            }
+        }
+        
+        if (a < p6) p6 = a; // Se adopta el ajuste más crítico
+    });
+
+    let rmrFinal = Math.max(0, rmrBasicoTotal + p6);
+    let modE = Math.pow(10, (rmrFinal - 10) / 40).toFixed(2);
+    
+    let clase = "", cohesion = "", friccion = "", soporte = "", color = "", tiempo = "";
+    
+    if (rmrFinal > 80) {
+        clase = "I - MUY BUENA"; cohesion = "> 400"; friccion = "> 45"; color = "#1b5e20"; tiempo = "20 años / 15m vano";
+        soporte = "<b>Excavación:</b> Sección completa con avance de 3m. Soporte mínimo.";
+    } else if (rmrFinal > 60) {
+        clase = "II - BUENA"; cohesion = "300-400"; friccion = "35-45"; color = "#2ecc71"; tiempo = "1 año / 10m vano";
+        soporte = "<b>Soporte:</b> Pernos corona (3m). Shotcrete ocasional.";
+    } else if (rmrFinal > 40) {
+        clase = "III - MEDIA"; cohesion = "200-300"; friccion = "25-35"; color = "#f1c40f"; tiempo = "1 semana / 5m vano";
+        soporte = "<b>Soporte:</b> Pernos sistemáticos, shotcrete corona (50-100mm).";
+    } else if (rmrFinal > 20) {
+        clase = "IV - MALA"; cohesion = "100-200"; friccion = "15-25"; color = "#e67e22"; tiempo = "10 h / 2.5m vano";
+        soporte = "<b>Soporte:</b> Cerchas ligeras, pernos y shotcrete sistemático.";
+    } else {
+        clase = "V - MUY MALA"; cohesion = "< 100"; friccion = "< 15"; color = "#c0392b"; tiempo = "30 min / 0.5m vano";
+        soporte = "<b>Soporte:</b> Cerchas pesadas, shotcrete inmediato y malla.";
+    }
+
+    document.getElementById('res_rmr_base').innerText = rmrBasicoTotal;
+    document.getElementById('res_ajuste').innerText = p6;
+    document.getElementById('res_rmr_final').innerText = rmrFinal;
+    document.getElementById('res_clase_tag').innerText = "CLASE: " + clase;
+    document.getElementById('res_clase_tag').style.background = color;
+    document.getElementById('res_cohesion').innerText = cohesion + " kPa";
+    document.getElementById('res_friccion').innerHTML = friccion + "&deg;";
+    document.getElementById('res_modulo_e').innerText = modE + " GPa";
+    document.getElementById('res_tiempo').innerText = tiempo;
+    document.getElementById('res_peor_junta').innerHTML = listaHTML;
+    document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
+}
+
+// ==========================================
+// 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL (FIX iOS)
+// ==========================================
+function registrarFichaActual(silencioso = false) {
+    const elId = document.getElementById('est_id');
+    const idActual = elId ? elId.value.trim() : "";
+    
+    if (!idActual) {
+        if (!silencioso) alert("⚠️ Error: La estación debe tener un ID.");
+        return false;
+    }
+
+    // 1. Sincronizar con el almacenamiento local
+    try {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+        baseDeDatosFichas = backup ? JSON.parse(backup) : [];
+    } catch(e) {
+        baseDeDatosFichas = [];
+    }
+
+    // 2. Obtener UCS real según método activo
+    const mRes = document.getElementById('m_res')?.value || 'sch';
+    let ucsMatriz = 0;
+    if (mRes === 'sch') {
+        const txtSch = document.querySelector('#out_sch_ucs b')?.innerText || "0";
+        ucsMatriz = parseFloat(txtSch) || 0;
+    } else {
+        const txtVis = document.querySelector('#out_vis_ucs b')?.innerText || "0";
+        ucsMatriz = parseFloat(txtVis) || 0;
+    }
+
+    // 3. Mapeo seguro de sistemas de discontinuidades
+    let datosJuntas = listaJuntas.map(j => {
+        let amp = parseFloat(j.amp) || 0;
+        let len = parseFloat(j.len) || 100;
+        let jrcValor = j.usePeine ? Math.min(20, 400 * (amp / len)) : 0;
+        if (!j.usePeine) {
+            jrcValor = (j.vals[3] === 6) ? 18 : (j.vals[3] === 5) ? 12 : (j.vals[3] === 1) ? 6 : 2;
+        }
+
+        let factorAlt = (j.vals[5] === 6) ? 1.0 : (j.vals[5] === 3) ? 0.75 : 0.5;
+        let jcsValor = ucsMatriz * factorAlt;
+
+        return {
+            tipo: (j.tipo || "diaclasa").toUpperCase(),
+            relleno: (j.relleno || "ninguno").toUpperCase(),
+            dip: (j.dip || "0").toString().replace('°', '').trim(),
+            dir: (j.dir || "0").toString().replace('°', '').trim(),
+            p_espac: Number(j.vals[0]) || 0,
+            p_persist: Number(j.vals[1]) || 0,
+            p_apert: Number(j.vals[2]) || 0,
+            p_rugos: Number(j.vals[3]) || 0,
+            p_rellen: Number(j.vals[4]) || 0,
+            p_alter: Number(j.vals[5]) || 0,
+            val_jrc: jrcValor.toFixed(1),
+            val_jcs: jcsValor.toFixed(1),
+            metodo_jrc: j.usePeine ? "PEINE" : "TABLA"
+        };
+    });
+
+    // 4. Datos del Escenario
+    const escEl = document.getElementById('escenario');
+    const escTexto = escEl ? escEl.options[escEl.selectedIndex].text : "TALUD / MACIZO";
+    const escVal = escEl ? escEl.value : "talud";
+    const frenteDirVal = escVal === 'tunel' ? "N/A" : (document.getElementById('eje_dir')?.value || "0");
+
+    // 5. Lectura y saneamiento de resultados finales (evita guardar '-')
+    const rmrFinalTxt = document.getElementById('res_rmr_final')?.innerText || "0";
+    const rmrBaseTxt = document.getElementById('res_rmr_base')?.innerText || "0";
+    const p6Txt = document.getElementById('res_ajuste')?.innerText || "0";
+    const rqdTxt = document.querySelector('#out_rqd b')?.innerText || "0";
+
+    const claseTxt = (document.getElementById('res_clase_tag')?.innerText || "").replace('CLASE:', '').trim() || "-";
+    const cohesionTxt = (document.getElementById('res_cohesion')?.innerText || "").replace('kPa', '').trim() || "-";
+    const friccionTxt = (document.getElementById('res_friccion')?.innerText || "").replace('°', '').trim() || "-";
+    const moduloTxt = (document.getElementById('res_modulo_e')?.innerText || "").replace('GPa', '').trim() || "-";
+
+    const selAgua = document.getElementById('p5_agua');
+    const aguaTipoTxt = selAgua ? selAgua.options[selAgua.selectedIndex].text : "Seco";
+
+    const ficha = {
+        id: idActual,
+        fecha: document.getElementById('est_fecha')?.value || "",
+        tecnico: document.getElementById('est_tec')?.value || "",
+        proyecto: document.getElementById('proy_nom')?.value || "",
+        frente_tipo: escTexto,
+        frente_dip: (document.getElementById('eje_dip')?.value || "0").replace('°', '').trim(),
+        frente_dir: frenteDirVal.replace('°', '').trim(),
+        x: document.getElementById('coord_e')?.value || "",
+        y: document.getElementById('coord_n')?.value || "",
+        z: document.getElementById('coord_z')?.value || "",
+        sector: document.getElementById('loc_sector')?.value || "",
+        nivel: document.getElementById('ubi_val')?.value || "",
+        desde: document.getElementById('abs_desde')?.value || "",
+        hasta: document.getElementById('abs_hasta')?.value || "",
+        ucs_val: ucsMatriz.toFixed(1),
+        rqd_val: rqdTxt !== "-" ? rqdTxt : "0",
+        agua_tipo: aguaTipoTxt,
+        juntas: datosJuntas, 
+        rmr_b: rmrBaseTxt,
+        p6: p6Txt,
+        rmr_f: rmrFinalTxt,
+        clase: claseTxt,
+        cohesion: cohesionTxt,
+        friccion: friccionTxt,
+        modulo: moduloTxt
+    };
+
+    // 6. Actualizar o agregar
+    const indexExistente = baseDeDatosFichas.findIndex(f => f.id === idActual);
+    if (indexExistente !== -1) {
+        baseDeDatosFichas[indexExistente] = ficha;
+    } else {
+        baseDeDatosFichas.push(ficha);
+    }
+    
+    // 7. Persistencia
+    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    
+    const btnExp = document.getElementById('btn_exportar');
+    if (btnExp) {
+        btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    }
+    
+    if (!silencioso) alert(`✅ Estación ${idActual} guardada/actualizada con éxito.`);
+    return true;
+}
+
+function nuevaEstacion() {
+    // 1. Confirmar acción con el usuario
+    if (!confirm("¿Deseas iniciar una nueva estación?\n(Las estaciones anteriores se mantienen guardadas)")) {
+        return;
+    }
+
+    // 2. Liberar el modo de edición de ficha previa
+    if (typeof idEstacionEnEdicion !== 'undefined') {
+        idEstacionEnEdicion = null;
+    }
+
+    // 3. Limpiar únicamente las casillas de la estación y orientación puntual
+    const camposLimpiar = ['est_id', 'coord_e', 'coord_n', 'coord_z', 'abs_desde', 'abs_hasta', 'eje_dip', 'eje_dir'];
+    camposLimpiar.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+
+    const gpsInfo = document.getElementById('gps_info');
+    if (gpsInfo) gpsInfo.innerHTML = "";
+
+    // 4. Limpiar rebotes de Schmidt
+    for (let i = 1; i <= 10; i++) {
+        const inR = document.getElementById('r' + i);
+        if (inR) inR.value = "";
+    }
+    const outSchR = document.getElementById('out_sch_r');
+    if (outSchR) outSchR.querySelector('b').innerText = "-";
+    const outSchUcs = document.getElementById('out_sch_ucs');
+    if (outSchUcs) outSchUcs.querySelector('b').innerText = "-";
+    const outVisUcs = document.getElementById('out_vis_ucs');
+    if (outVisUcs) outVisUcs.querySelector('b').innerText = "-";
+
+    // 5. Reiniciar RQD
+    const valJv = document.getElementById('valJv');
+    if (valJv) valJv.value = "";
+    const outRqd = document.getElementById('out_rqd');
+    if (outRqd) outRqd.querySelector('b').innerText = "-";
+
+    // 6. Restablecer la lista de juntas a un Sistema #1 limpio por defecto
+    listaJuntas = [{ 
+        id: 1, 
+        tipo: "diaclasa", 
+        relleno: "cuarzo", 
+        dip: "", 
+        dir: "", 
+        vals: [20, 6, 6, 6, 6, 6], 
+        amp: 0, 
+        len: 100, 
+        usePeine: false 
+    }];
+    idActivo = 1;
+
+    // 7. Limpiar campos físicos de la junta en pantalla
+    const inDip = document.getElementById('ui-dip');
+    if (inDip) inDip.value = "";
+    const inDir = document.getElementById('ui-dir');
+    if (inDir) inDir.value = "";
+    const inAmp = document.getElementById('in_amp');
+    if (inAmp) inAmp.value = "";
+    const inLen = document.getElementById('in_len');
+    if (inLen) inLen.value = "100";
+    const chkPeine = document.getElementById('chk_peine');
+    if (chkPeine) chkPeine.checked = false;
+    const uiPeine = document.getElementById('ui_peine');
+    if (uiPeine) uiPeine.style.display = 'none';
+
+    // 8. Restaurar selects de discontinuidades a sus valores por defecto
+    if (document.getElementById('sel_espac')) document.getElementById('sel_espac').value = 20;
+    if (document.getElementById('sel_persist')) document.getElementById('sel_persist').value = 6;
+    if (document.getElementById('sel_apert')) document.getElementById('sel_apert').value = 6;
+    if (document.getElementById('sel_rugos_rmr')) document.getElementById('sel_rugos_rmr').value = 6;
+    if (document.getElementById('sel_relleno_pts')) document.getElementById('sel_relleno_pts').value = 6;
+    if (document.getElementById('sel_alter_junta')) document.getElementById('sel_alter_junta').value = 6;
+
+    // 9. Resetear agua a Seco (15 pts)
+    const selAgua = document.getElementById('p5_agua');
+    if (selAgua) selAgua.value = "15";
+
+    // 10. Actualizar UI, recalcular RMR y forzar regreso a Fase 1
+    renderizarTabs();
+    actualizarPuntosUI();
+    runRmr();
+    volverAFase1();
+    window.scrollTo(0, 0);
+
+    // 11. Sincronizar contador del botón exportar con el número real de fichas en disco
+    try {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+        if (backup) {
+            baseDeDatosFichas = JSON.parse(backup);
+        }
+    } catch (e) {}
+
+    const btnExp = document.getElementById('btn_exportar');
+    if (btnExp) {
+        btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    }
+
+    // Enfocar el campo del ID para ingresar la nueva estación directamente
+    const inId = document.getElementById('est_id');
+    if (inId) inId.focus();
+}
+
+/* EXPORTAR EXCEL EN IPHONE / SAFARI */
+function exportarConsolidado() {
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try {
+            baseDeDatosFichas = JSON.parse(backup);
+        } catch (e) {
+            console.error("Error al leer backup:", e);
+        }
+    }
+
+    if (!baseDeDatosFichas || baseDeDatosFichas.length === 0) {
+        alert("⚠️ No hay estaciones guardadas para exportar.");
+        return;
+    }
+
+    const desarrollador = "Mgtr. Byron Bravo";
+    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => (f.juntas && Array.isArray(f.juntas)) ? f.juntas.length : 0), 1);
+    
+    let encabezadoSistemas = "";
+    let subEncabezadoDatos = "";
+    for (let i = 1; i <= maxJuntas; i++) {
+        encabezadoSistemas += `<th colspan="10" style="background-color: #27ae60; color: white; border: 1px solid #000;">FAMILIA #${i}</th>`;
+        subEncabezadoDatos += `<th>TIPO</th><th>RELLENO</th><th>DIP(°)</th><th>DIR(°)</th><th>P_ESPAC</th><th>P_PERSIST</th><th>P_APERT</th><th>P_RUGOS</th><th>P_RELLEN</th><th>P_ALTER</th>`;
+    }
+
+    let excelTemplate = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta charset="utf-8">
+        <style>
+            table { border-collapse: collapse; }
+            th { border: 1px solid #000; text-align: center; font-family: Arial, sans-serif; font-size: 9pt; padding: 5px; }
+            td { border: 1px solid #666; text-align: center; font-family: Arial, sans-serif; font-size: 8pt; padding: 4px; }
+            .azul { background-color: #052c52; color: white; }
+            .naranja { background-color: #d35400; color: white; }
+        </style></head>
+        <body>
+            <div style="font-size: 14pt; font-weight: bold; color: #052c52;">BASE DE DATOS GEOMECÁNICA RMR (Bieniawski 1989)</div>
+            <br>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th colspan="14" class="azul">INFORMACIÓN GENERAL Y GEOMETRÍA DEL FRENTE</th>
+                        <th colspan="2" class="azul">PROPIEDADES MATRIZ</th>
+                        ${encabezadoSistemas}
+                        <th style="background-color: #27ae60; color: white;">HIDRO.</th>
+                        <th colspan="7" class="naranja">RESULTADOS GEOMECÁNICOS</th>
+                    </tr>
+                    <tr>
+                        <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th>
+                        <th style="background:#eaf2f8; color:#052c52;">TIPO FRENTE</th>
+                        <th style="background:#eaf2f8; color:#052c52;">EJE / INCL(°)</th>
+                        <th style="background:#eaf2f8; color:#052c52;">DIR. TALUD / AVANCE(°)</th>
+                        <th>COORD X</th><th>COORD Y</th><th>COORD Z</th><th>SECTOR</th><th>NIVEL</th><th>DESDE</th><th>HASTA</th>
+                        <th>UCS(MPa)</th><th>RQD(%)</th>
+                        ${subEncabezadoDatos}
+                        <th>AGUA</th>
+                        <th>RMRb</th><th>P6</th><th>RMRf</th><th>CLASE</th><th>c (kPa)</th><th>phi (°)</th><th>Em (GPa)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${baseDeDatosFichas.map(f => {
+                        let celdasJuntas = "";
+                        const arrJ = (f.juntas && Array.isArray(f.juntas)) ? f.juntas : [];
+                        for (let i = 0; i < maxJuntas; i++) {
+                            const j = arrJ[i] || null;
+                            if (j) {
+                                celdasJuntas += `
+                                    <td style="font-weight:600; background:#f9fafb;">${j.tipo || "DIACLASA"}</td>
+                                    <td style="background:#f9fafb;">${j.relleno || "NINGUNO"}</td>
+                                    <td>${j.dip || "0"}</td>
+                                    <td>${j.dir || "0"}</td>
+                                    <td>${j.p_espac !== undefined ? j.p_espac : "0"}</td>
+                                    <td>${j.p_persist !== undefined ? j.p_persist : "0"}</td>
+                                    <td>${j.p_apert !== undefined ? j.p_apert : "0"}</td>
+                                    <td>${j.p_rugos !== undefined ? j.p_rugos : "0"}</td>
+                                    <td>${j.p_rellen !== undefined ? j.p_rellen : "0"}</td>
+                                    <td>${j.p_alter !== undefined ? j.p_alter : "0"}</td>`;
+                            } else {
+                                celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
+                            }
+                        }
+                        return `
+                            <tr>
+                                <td style="font-weight:bold;">${f.id || "-"}</td><td>${f.fecha || "-"}</td><td>${f.tecnico || "-"}</td><td>${f.proyecto || "-"}</td>
+                                <td style="background:#f4f6f8; font-weight:600;">${f.frente_tipo || "TALUD / MACIZO"}</td>
+                                <td style="background:#f4f6f8;">${f.frente_dip || "0"}°</td>
+                                <td style="background:#f4f6f8;">${f.frente_dir !== undefined ? f.frente_dir : "-"}</td>
+                                <td>${f.x || "-"}</td><td>${f.y || "-"}</td><td>${f.z || "-"}</td><td>${f.sector || "-"}</td><td>${f.nivel || "-"}</td><td>${f.desde || "-"}</td><td>${f.hasta || "-"}</td>
+                                <td>${f.ucs_val || "0"}</td><td>${f.rqd_val || "0"}</td>
+                                ${celdasJuntas}
+                                <td>${f.agua_tipo || "-"}</td>
+                                <td style="font-weight:bold;">${f.rmr_b || "0"}</td><td>${f.p6 || "0"}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f || "0"}</td>
+                                <td style="font-weight:bold;">${f.clase || "-"}</td><td>${f.cohesion || "-"}</td><td>${f.friccion || "-"}</td><td>${f.modulo || "-"}</td>
+                            </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+            <br>
+            <div style="font-size: 8pt; color: #666;">Algoritmos y Desarrollo Técnico: <b>${desarrollador}</b> | Generado: ${new Date().toLocaleString()}</div>
+        </body></html>`;
+
+    const blob = new Blob(['\uFEFF', excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Data_RMR_ByronBravo_${Date.now()}.xls`;
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }, 1000);
+}
+// ==========================================
+// 8. MÓDULO GESTOR, EDITOR Y BACKUP DE FICHAS
+// ==========================================
+function abrirGestorFichas() {
+    renderizarListaFichas();
+    document.getElementById('modal-gestor').style.display = 'flex';
+}
+
+function cerrarGestorFichas() {
+    document.getElementById('modal-gestor').style.display = 'none';
+}
+
+function filtrarListaFichas() {
+    const val = document.getElementById('filtro_fichas').value;
+    renderizarListaFichas(val);
+}
+
+function renderizarListaFichas(filtro = "") {
+    const contenedor = document.getElementById('lista-fichas-contenedor');
+    contenedor.innerHTML = "";
+
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    if (baseDeDatosFichas.length === 0) {
+        contenedor.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 11px; padding: 25px 10px;">No hay fichas guardadas en la memoria local.</div>`;
+        return;
+    }
+
+    const termino = filtro.toLowerCase().trim();
+    const fichasFiltradas = baseDeDatosFichas.filter(f => 
+        (f.id && f.id.toLowerCase().includes(termino)) || 
+        (f.proyecto && f.proyecto.toLowerCase().includes(termino))
+    );
+
+    if (fichasFiltradas.length === 0) {
+        contenedor.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 11px; padding: 20px;">No se encontraron coincidencias para "${filtro}".</div>`;
+        return;
+    }
+
+    fichasFiltradas.forEach(f => {
+        const item = document.createElement('div');
+        item.className = "ficha-item";
+        item.innerHTML = `
+            <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <b style="color: #052c52; font-size: 12px;">${f.id}</b>
+                    <span style="font-size: 8.5px; background: #e2e8f0; padding: 2px 5px; border-radius: 3px; font-weight: 700;">${f.frente_tipo || "TALUD"}</span>
+                    <span style="font-size: 9px; font-weight: 800; color: #27ae60;">RMR: ${f.rmr_f || "0"}</span>
+                </div>
+                <div style="font-size: 9.5px; color: #64748b; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    📁 <b>${f.proyecto || "Sin Proyecto"}</b> | 📅 ${f.fecha || "-"}
+                </div>
+                <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">
+                    UTM: E ${f.x || "-"} | N ${f.y || "-"} | ${f.juntas ? f.juntas.length : 0} familias
+                </div>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button type="button" onclick="cargarFichaParaEditar('${f.id}')" style="background: #2980b9; color: white; border: none; border-radius: 4px; padding: 6px 10px; font-size: 9px; font-weight: 800; cursor: pointer;" title="Cargar para editar">
+                    ✏️ EDITAR
+                </button>
+                <button type="button" onclick="eliminarFichaIndividual('${f.id}')" style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 6px 8px; font-size: 9px; font-weight: 800; cursor: pointer;" title="Eliminar de la memoria">
+                    🗑️
+                </button>
+            </div>
+        `;
+        contenedor.appendChild(item);
+    });
+}
+
+function cargarFichaParaEditar(idEstacion) {
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    const f = baseDeDatosFichas.find(item => item.id === idEstacion);
+    if (!f) return;
+
+    if (!confirm(`¿Deseas cargar la estación "${f.id}" para revisarla o modificarla?`)) return;
+
+    // 1. Datos Generales
+    document.getElementById('est_id').value = f.id || "";
+    document.getElementById('est_fecha').value = f.fecha || "";
+    document.getElementById('est_tec').value = f.tecnico || "";
+    document.getElementById('proy_nom').value = f.proyecto || "";
+    
+    // 2. Escenario y Orientación
+    const escEl = document.getElementById('escenario');
+    if (f.frente_tipo && f.frente_tipo.includes("TÚNEL")) {
+        escEl.value = "tunel";
+    } else {
+        escEl.value = "talud";
+    }
+    updateEscenario();
+    document.getElementById('eje_dip').value = f.frente_dip || "";
+    if (escEl.value === 'talud') {
+        document.getElementById('eje_dir').value = (f.frente_dir !== "N/A") ? (f.frente_dir || "") : "";
+    }
+
+    // 3. Coordenadas y Ubicación
+    document.getElementById('coord_e').value = f.x || "";
+    document.getElementById('coord_n').value = f.y || "";
+    document.getElementById('coord_z').value = f.z || "";
+    document.getElementById('loc_sector').value = f.sector || "";
+    document.getElementById('ubi_val').value = f.nivel || "";
+    document.getElementById('abs_desde').value = f.desde || "";
+    document.getElementById('abs_hasta').value = f.hasta || "";
+
+    // 4. Restaurar Juntas a la memoria activa
+    if (f.juntas && f.juntas.length > 0) {
+        listaJuntas = f.juntas.map((j, idx) => ({
+            id: idx + 1,
+            tipo: (j.tipo || "diaclasa").toLowerCase(),
+            relleno: (j.relleno || "cuarzo").toLowerCase(),
+            dip: j.dip || "",
+            dir: j.dir || "",
+            vals: [
+                parseInt(j.p_espac) || 20, 
+                parseInt(j.p_persist) || 6, 
+                parseInt(j.p_apert) || 6, 
+                parseInt(j.p_rugos) || 6, 
+                parseInt(j.p_rellen) || 6, 
+                parseInt(j.p_alter) || 6
+            ],
+            amp: 0,
+            len: 100,
+            usePeine: (j.metodo_jrc === "PEINE")
+        }));
+    } else {
+        listaJuntas = [{ id: 1, tipo: "diaclasa", relleno: "cuarzo", dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+    }
+
+    // 5. Hidrogeología
+    const selAgua = document.getElementById('p5_agua');
+    for (let i = 0; i < selAgua.options.length; i++) {
+        if (selAgua.options[i].text === f.agua_tipo) {
+            selAgua.selectedIndex = i;
+            break;
+        }
+    }
+
+    // 6. Refrescar interfaz y cálculo
+    idActivo = 1;
+    renderizarTabs();
+    cambiarAJunta(1);
+    runRmr();
+
+    cerrarGestorFichas();
+    volverAFase1();
+    window.scrollTo(0, 0);
+
+    alert(`✅ Estación ${f.id} cargada. Realiza los cambios necesarios y pulsa "VER REPORTE >>" para actualizarla.`);
+}
+
+function eliminarFichaIndividual(idEstacion) {
+    if (!confirm(`¿Está seguro de eliminar la ficha "${idEstacion}" del consolidado?\nEsta acción no se puede deshacer.`)) return;
+
+    baseDeDatosFichas = baseDeDatosFichas.filter(f => f.id !== idEstacion);
+    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    
+    const btn = document.getElementById('btn_exportar');
+    if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    
+    renderizarListaFichas(document.getElementById('filtro_fichas').value);
+}
+
+function exportarBackupJSON() {
+    if (baseDeDatosFichas.length === 0) {
+        alert("No hay fichas guardadas para respaldar.");
+        return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseDeDatosFichas, null, 2));
+    const link = document.createElement("a");
+    link.href = dataStr;
+    link.download = `Respaldo_RMR_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function importarBackupJSON(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (Array.isArray(data)) {
+                baseDeDatosFichas = data;
+                localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+                
+                const btn = document.getElementById('btn_exportar');
+                if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+                
+                renderizarListaFichas();
+                alert(`✅ Se restauraron exitosamente ${data.length} estaciones.`);
+            } else {
+                alert("El archivo no tiene el formato correcto.");
+            }
+        } catch (err) {
+            alert("Error al leer el archivo de respaldo.");
+        }
+        input.value = "";
+    };
+    reader.readAsText(input.files[0]);
+}
+// ==========================================
+// 8. CICLO DE VIDA E INICIALIZACIÓN
+// ==========================================
+window.onload = function() { 
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        baseDeDatosFichas = JSON.parse(backup);
+        const btn = document.getElementById('btn_exportar');
+        if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    }
+
+    updateLitologia(); 
+    updateEscenario(); 
+    toggleRes(); 
+    toggleRqd();
+    renderizarTabs(); 
+    cambiarAJunta(1); 
+    runRmr(); 
+
+    const inputID = document.getElementById('est_id');
+    if (inputID) {
+        inputID.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+        
+    const fechaInput = document.getElementById('est_fecha');
+    if (fechaInput) {
+        const ahora = new Date();
+        const offset = ahora.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(ahora - offset)).toISOString().slice(0, 10);
+        fechaInput.value = localISOTime;
+    }
+};
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log("✅ Sistema Offline Preparado"))
+            .catch(err => console.log("❌ Error de registro sw:", err));
+    });
+}
+
+    
+</script>
+</body>
+</html>

@@ -1857,40 +1857,45 @@ function registrarFichaActual(silencioso = false) {
 }
 
 function nuevaEstacion() {
-    try {
-        const backup = localStorage.getItem('rmr_backup_geotecnia');
-        if (backup) {
-            baseDeDatosFichas = JSON.parse(backup);
-        }
-    } catch (e) {
-        console.error("Error sincronizando base de datos:", e);
-    }
-
-    const idActual = document.getElementById('est_id').value.trim();
-    if (idActual) {
-        const yaExiste = baseDeDatosFichas.some(f => f.id === idActual);
-        if (!yaExiste) {
-            registrarFichaActual(true);
-        }
-    }
-
-    if (!confirm("¿Deseas preparar el formulario para una nueva estación?\n(Las estaciones anteriores se conservan en la memoria)")) {
+    // 1. Confirmar acción con el usuario
+    if (!confirm("¿Deseas iniciar una nueva estación?\n(Las estaciones anteriores se mantienen guardadas)")) {
         return;
     }
 
-    document.getElementById('est_id').value = "";
-    document.getElementById('coord_e').value = "";
-    document.getElementById('coord_n').value = "";
-    document.getElementById('coord_z').value = "";
-    document.getElementById('gps_info').innerHTML = "";
-    document.getElementById('abs_desde').value = "";
-    document.getElementById('abs_hasta').value = "";
+    // 2. Liberar el modo de edición de ficha previa
+    if (typeof idEstacionEnEdicion !== 'undefined') {
+        idEstacionEnEdicion = null;
+    }
 
+    // 3. Limpiar únicamente las casillas de la estación y orientación puntual
+    const camposLimpiar = ['est_id', 'coord_e', 'coord_n', 'coord_z', 'abs_desde', 'abs_hasta', 'eje_dip', 'eje_dir'];
+    camposLimpiar.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+
+    const gpsInfo = document.getElementById('gps_info');
+    if (gpsInfo) gpsInfo.innerHTML = "";
+
+    // 4. Limpiar rebotes de Schmidt
     for (let i = 1; i <= 10; i++) {
         const inR = document.getElementById('r' + i);
         if (inR) inR.value = "";
     }
+    const outSchR = document.getElementById('out_sch_r');
+    if (outSchR) outSchR.querySelector('b').innerText = "-";
+    const outSchUcs = document.getElementById('out_sch_ucs');
+    if (outSchUcs) outSchUcs.querySelector('b').innerText = "-";
+    const outVisUcs = document.getElementById('out_vis_ucs');
+    if (outVisUcs) outVisUcs.querySelector('b').innerText = "-";
 
+    // 5. Reiniciar RQD
+    const valJv = document.getElementById('valJv');
+    if (valJv) valJv.value = "";
+    const outRqd = document.getElementById('out_rqd');
+    if (outRqd) outRqd.querySelector('b').innerText = "-";
+
+    // 6. Restablecer la lista de juntas a un Sistema #1 limpio por defecto
     listaJuntas = [{ 
         id: 1, 
         tipo: "diaclasa", 
@@ -1904,16 +1909,55 @@ function nuevaEstacion() {
     }];
     idActivo = 1;
 
+    // 7. Limpiar campos físicos de la junta en pantalla
+    const inDip = document.getElementById('ui-dip');
+    if (inDip) inDip.value = "";
+    const inDir = document.getElementById('ui-dir');
+    if (inDir) inDir.value = "";
+    const inAmp = document.getElementById('in_amp');
+    if (inAmp) inAmp.value = "";
+    const inLen = document.getElementById('in_len');
+    if (inLen) inLen.value = "100";
+    const chkPeine = document.getElementById('chk_peine');
+    if (chkPeine) chkPeine.checked = false;
+    const uiPeine = document.getElementById('ui_peine');
+    if (uiPeine) uiPeine.style.display = 'none';
+
+    // 8. Restaurar selects de discontinuidades a sus valores por defecto
+    if (document.getElementById('sel_espac')) document.getElementById('sel_espac').value = 20;
+    if (document.getElementById('sel_persist')) document.getElementById('sel_persist').value = 6;
+    if (document.getElementById('sel_apert')) document.getElementById('sel_apert').value = 6;
+    if (document.getElementById('sel_rugos_rmr')) document.getElementById('sel_rugos_rmr').value = 6;
+    if (document.getElementById('sel_relleno_pts')) document.getElementById('sel_relleno_pts').value = 6;
+    if (document.getElementById('sel_alter_junta')) document.getElementById('sel_alter_junta').value = 6;
+
+    // 9. Resetear agua a Seco (15 pts)
+    const selAgua = document.getElementById('p5_agua');
+    if (selAgua) selAgua.value = "15";
+
+    // 10. Actualizar UI, recalcular RMR y forzar regreso a Fase 1
     renderizarTabs();
-    cambiarAJunta(1);
+    actualizarPuntosUI();
     runRmr();
     volverAFase1();
     window.scrollTo(0, 0);
+
+    // 11. Sincronizar contador del botón exportar con el número real de fichas en disco
+    try {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+        if (backup) {
+            baseDeDatosFichas = JSON.parse(backup);
+        }
+    } catch (e) {}
 
     const btnExp = document.getElementById('btn_exportar');
     if (btnExp) {
         btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
     }
+
+    // Enfocar el campo del ID para ingresar la nueva estación directamente
+    const inId = document.getElementById('est_id');
+    if (inId) inId.focus();
 }
 
 /* EXPORTAR EXCEL EN IPHONE / SAFARI */

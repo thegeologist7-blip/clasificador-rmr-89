@@ -290,6 +290,69 @@ select.in-field {
 }
 #chk_peine:checked + .slider-barton { background-color: #f1c40f; }
 #chk_peine:checked + .slider-barton:before { transform: translateX(14px); }
+
+        /* ESTILOS PARA EL MODAL GESTOR DE FICHAS */
+.modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(5, 44, 82, 0.75); 
+    z-index: 9999;
+    display: none; 
+    align-items: center; 
+    justify-content: center;
+    padding: 12px; 
+    backdrop-filter: blur(2px);
+}
+
+.modal-window {
+    background: #ffffff; 
+    border-radius: 8px; 
+    width: 100%; 
+    max-width: 520px;
+    max-height: 85vh; 
+    display: flex; 
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+}
+
+.modal-header {
+    background: #052c52; 
+    color: #ffffff; 
+    padding: 12px 16px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.modal-body {
+    padding: 10px 12px; 
+    overflow-y: auto; 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px;
+}
+
+.ficha-item {
+    border: 1px solid #e2e8f0; 
+    border-radius: 6px; 
+    padding: 10px;
+    background: #f8fafc; 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center; 
+    gap: 8px;
+}
+
+.ficha-item:hover { 
+    border-color: #3498db; 
+    background: #ffffff; 
+}
 </style>
 </head>
 <body>
@@ -814,14 +877,42 @@ select.in-field {
                     <button type="button" onclick="registrarFichaActual(false)" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
                     <button type="button" onclick="nuevaEstacion()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">➕ NUEVA ESTACIÓN</button>
                 </div>
-
+                <!-- BOTÓN GESTOR DE FICHAS -->
+                <button type="button" onclick="abrirGestorFichas()" style="width: 100%; background: #052c52; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📂 REVISAR / MODIFICAR FICHAS GUARDADAS</button>
                 <button type="button" onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📥 EXPORTAR EXCEL (0 FICHAS)</button>
                 <button type="button" onclick="volverAFase1()" style="width: 100%; background: #64748b; color: white; border: none; border-radius: 6px; padding: 10px; font-size: 9px; cursor: pointer; text-transform: uppercase;">« EDITAR DATOS DE ESTACIÓN</button>
             </div>
         </div>
     </div>
 </div>
+<!-- VENTANA MODAL: GESTOR DE FICHAS -->
+<div id="modal-gestor" class="modal-overlay">
+    <div class="modal-window">
+        <div class="modal-header">
+            <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">🗂️ GESTOR DE FICHAS Y PROYECTOS</span>
+            <span onclick="cerrarGestorFichas()" style="cursor: pointer; font-size: 16px; font-weight: 900;">✕</span>
+        </div>
+        
+        <!-- Barra de Respaldo / Copia de seguridad -->
+        <div style="display: flex; gap: 6px; padding: 6px 12px; background: #e2e8f0;">
+            <button type="button" onclick="exportarBackupJSON()" style="flex:1; background: #34495e; color: white; border: none; border-radius: 4px; padding: 6px; font-size: 8.5px; font-weight: bold; cursor: pointer;">
+                💾 DESCARGAR COPIA
+            </button>
+            <button type="button" onclick="document.getElementById('input_backup').click()" style="flex:1; background: #2c3e50; color: white; border: none; border-radius: 4px; padding: 6px; font-size: 8.5px; font-weight: bold; cursor: pointer;">
+                📂 RESTAURAR COPIA
+            </button>
+            <input type="file" id="input_backup" accept=".json" style="display: none;" onchange="importarBackupJSON(this)">
+        </div>
 
+        <!-- Buscador en tiempo real -->
+        <div style="padding: 10px 12px; background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">
+            <input type="text" id="filtro_fichas" oninput="filtrarListaFichas()" class="in-field" placeholder="🔍 Filtrar por Proyecto o ID Estación..." style="height: 28px; font-size: 11px;">
+        </div>
+        
+        <!-- Contenedor dinámico de fichas -->
+        <div class="modal-body" id="lista-fichas-contenedor"></div>
+    </div>
+</div>
 <script>
 // ==========================================
 // 1. ESTADO Y MEMORIA GLOBAL
@@ -1857,7 +1948,214 @@ function exportarConsolidado() {
         }
     }, 1500);
 }
+// ==========================================
+// 8. MÓDULO GESTOR, EDITOR Y BACKUP DE FICHAS
+// ==========================================
+function abrirGestorFichas() {
+    renderizarListaFichas();
+    document.getElementById('modal-gestor').style.display = 'flex';
+}
 
+function cerrarGestorFichas() {
+    document.getElementById('modal-gestor').style.display = 'none';
+}
+
+function filtrarListaFichas() {
+    const val = document.getElementById('filtro_fichas').value;
+    renderizarListaFichas(val);
+}
+
+function renderizarListaFichas(filtro = "") {
+    const contenedor = document.getElementById('lista-fichas-contenedor');
+    contenedor.innerHTML = "";
+
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    if (baseDeDatosFichas.length === 0) {
+        contenedor.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 11px; padding: 25px 10px;">No hay fichas guardadas en la memoria local.</div>`;
+        return;
+    }
+
+    const termino = filtro.toLowerCase().trim();
+    const fichasFiltradas = baseDeDatosFichas.filter(f => 
+        (f.id && f.id.toLowerCase().includes(termino)) || 
+        (f.proyecto && f.proyecto.toLowerCase().includes(termino))
+    );
+
+    if (fichasFiltradas.length === 0) {
+        contenedor.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 11px; padding: 20px;">No se encontraron coincidencias para "${filtro}".</div>`;
+        return;
+    }
+
+    fichasFiltradas.forEach(f => {
+        const item = document.createElement('div');
+        item.className = "ficha-item";
+        item.innerHTML = `
+            <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <b style="color: #052c52; font-size: 12px;">${f.id}</b>
+                    <span style="font-size: 8.5px; background: #e2e8f0; padding: 2px 5px; border-radius: 3px; font-weight: 700;">${f.frente_tipo || "TALUD"}</span>
+                    <span style="font-size: 9px; font-weight: 800; color: #27ae60;">RMR: ${f.rmr_f || "0"}</span>
+                </div>
+                <div style="font-size: 9.5px; color: #64748b; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    📁 <b>${f.proyecto || "Sin Proyecto"}</b> | 📅 ${f.fecha || "-"}
+                </div>
+                <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">
+                    UTM: E ${f.x || "-"} | N ${f.y || "-"} | ${f.juntas ? f.juntas.length : 0} familias
+                </div>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button type="button" onclick="cargarFichaParaEditar('${f.id}')" style="background: #2980b9; color: white; border: none; border-radius: 4px; padding: 6px 10px; font-size: 9px; font-weight: 800; cursor: pointer;" title="Cargar para editar">
+                    ✏️ EDITAR
+                </button>
+                <button type="button" onclick="eliminarFichaIndividual('${f.id}')" style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 6px 8px; font-size: 9px; font-weight: 800; cursor: pointer;" title="Eliminar de la memoria">
+                    🗑️
+                </button>
+            </div>
+        `;
+        contenedor.appendChild(item);
+    });
+}
+
+function cargarFichaParaEditar(idEstacion) {
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    const f = baseDeDatosFichas.find(item => item.id === idEstacion);
+    if (!f) return;
+
+    if (!confirm(`¿Deseas cargar la estación "${f.id}" para revisarla o modificarla?`)) return;
+
+    // 1. Datos Generales
+    document.getElementById('est_id').value = f.id || "";
+    document.getElementById('est_fecha').value = f.fecha || "";
+    document.getElementById('est_tec').value = f.tecnico || "";
+    document.getElementById('proy_nom').value = f.proyecto || "";
+    
+    // 2. Escenario y Orientación
+    const escEl = document.getElementById('escenario');
+    if (f.frente_tipo && f.frente_tipo.includes("TÚNEL")) {
+        escEl.value = "tunel";
+    } else {
+        escEl.value = "talud";
+    }
+    updateEscenario();
+    document.getElementById('eje_dip').value = f.frente_dip || "";
+    if (escEl.value === 'talud') {
+        document.getElementById('eje_dir').value = (f.frente_dir !== "N/A") ? (f.frente_dir || "") : "";
+    }
+
+    // 3. Coordenadas y Ubicación
+    document.getElementById('coord_e').value = f.x || "";
+    document.getElementById('coord_n').value = f.y || "";
+    document.getElementById('coord_z').value = f.z || "";
+    document.getElementById('loc_sector').value = f.sector || "";
+    document.getElementById('ubi_val').value = f.nivel || "";
+    document.getElementById('abs_desde').value = f.desde || "";
+    document.getElementById('abs_hasta').value = f.hasta || "";
+
+    // 4. Restaurar Juntas a la memoria activa
+    if (f.juntas && f.juntas.length > 0) {
+        listaJuntas = f.juntas.map((j, idx) => ({
+            id: idx + 1,
+            tipo: (j.tipo || "diaclasa").toLowerCase(),
+            relleno: (j.relleno || "cuarzo").toLowerCase(),
+            dip: j.dip || "",
+            dir: j.dir || "",
+            vals: [
+                parseInt(j.p_espac) || 20, 
+                parseInt(j.p_persist) || 6, 
+                parseInt(j.p_apert) || 6, 
+                parseInt(j.p_rugos) || 6, 
+                parseInt(j.p_rellen) || 6, 
+                parseInt(j.p_alter) || 6
+            ],
+            amp: 0,
+            len: 100,
+            usePeine: (j.metodo_jrc === "PEINE")
+        }));
+    } else {
+        listaJuntas = [{ id: 1, tipo: "diaclasa", relleno: "cuarzo", dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+    }
+
+    // 5. Hidrogeología
+    const selAgua = document.getElementById('p5_agua');
+    for (let i = 0; i < selAgua.options.length; i++) {
+        if (selAgua.options[i].text === f.agua_tipo) {
+            selAgua.selectedIndex = i;
+            break;
+        }
+    }
+
+    // 6. Refrescar interfaz y cálculo
+    idActivo = 1;
+    renderizarTabs();
+    cambiarAJunta(1);
+    runRmr();
+
+    cerrarGestorFichas();
+    volverAFase1();
+    window.scrollTo(0, 0);
+
+    alert(`✅ Estación ${f.id} cargada. Realiza los cambios necesarios y pulsa "VER REPORTE >>" para actualizarla.`);
+}
+
+function eliminarFichaIndividual(idEstacion) {
+    if (!confirm(`¿Está seguro de eliminar la ficha "${idEstacion}" del consolidado?\nEsta acción no se puede deshacer.`)) return;
+
+    baseDeDatosFichas = baseDeDatosFichas.filter(f => f.id !== idEstacion);
+    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    
+    const btn = document.getElementById('btn_exportar');
+    if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    
+    renderizarListaFichas(document.getElementById('filtro_fichas').value);
+}
+
+function exportarBackupJSON() {
+    if (baseDeDatosFichas.length === 0) {
+        alert("No hay fichas guardadas para respaldar.");
+        return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseDeDatosFichas, null, 2));
+    const link = document.createElement("a");
+    link.href = dataStr;
+    link.download = `Respaldo_RMR_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function importarBackupJSON(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (Array.isArray(data)) {
+                baseDeDatosFichas = data;
+                localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+                
+                const btn = document.getElementById('btn_exportar');
+                if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+                
+                renderizarListaFichas();
+                alert(`✅ Se restauraron exitosamente ${data.length} estaciones.`);
+            } else {
+                alert("El archivo no tiene el formato correcto.");
+            }
+        } catch (err) {
+            alert("Error al leer el archivo de respaldo.");
+        }
+        input.value = "";
+    };
+    reader.readAsText(input.files[0]);
+}
 // ==========================================
 // 8. CICLO DE VIDA E INICIALIZACIÓN
 // ==========================================
@@ -1900,6 +2198,8 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.log("❌ Error de registro sw:", err));
     });
 }
+
+    
 </script>
 </body>
 </html>

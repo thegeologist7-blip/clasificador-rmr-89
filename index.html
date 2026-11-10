@@ -918,8 +918,29 @@ select.in-field {
 // 1. ESTADO Y MEMORIA GLOBAL
 // ==========================================  
 let sysCount = 1;
-let baseDeDatosFichas = [];
-let listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+
+// Recupera automáticamente las fichas guardadas en el almacenamiento persistente
+let baseDeDatosFichas = (function() {
+    try {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+        return backup ? JSON.parse(backup) : [];
+    } catch (e) {
+        return [];
+    }
+})();
+
+let listaJuntas = [{ 
+    id: 1, 
+    tipo: "diaclasa", 
+    relleno: "cuarzo", 
+    dip: "", 
+    dir: "", 
+    vals: [20, 6, 6, 6, 6, 6], 
+    amp: 0, 
+    len: 100, 
+    usePeine: false 
+}];
+
 let idActivo = 1;
 
 // ==========================================
@@ -1813,8 +1834,30 @@ function registrarFichaActual(silencioso = false) {
 }
 
 function nuevaEstacion() {
-    if (!confirm("¿Deseas limpiar el formulario para iniciar una nueva estación? (Los datos guardados en el consolidado no se borrarán)")) return;
+    // 1. Asegurar lectura de fichas existentes en memoria persistente
+    try {
+        const backup = localStorage.getItem('rmr_backup_geotecnia');
+        if (backup) {
+            baseDeDatosFichas = JSON.parse(backup);
+        }
+    } catch (e) {
+        console.error("Error sincronizando base de datos:", e);
+    }
 
+    // 2. Si la estación actual tiene ID y aún no se guardó, guardarla antes de limpiar
+    const idActual = document.getElementById('est_id').value.trim();
+    if (idActual) {
+        const yaExiste = baseDeDatosFichas.some(f => f.id === idActual);
+        if (!yaExiste) {
+            registrarFichaActual(true); // Guarda silenciosamente en el consolidado
+        }
+    }
+
+    if (!confirm("¿Deseas preparar el formulario para una nueva estación?\n(Las estaciones anteriores se conservan en la memoria)")) {
+        return;
+    }
+
+    // 3. Limpiar únicamente las casillas del punto de observación (mantiene Técnico, Fecha y Proyecto)
     document.getElementById('est_id').value = "";
     document.getElementById('coord_e').value = "";
     document.getElementById('coord_n').value = "";
@@ -1823,15 +1866,38 @@ function nuevaEstacion() {
     document.getElementById('abs_desde').value = "";
     document.getElementById('abs_hasta').value = "";
 
-    listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+    // Limpiar rebotes de Schmidt si existen
+    for (let i = 1; i <= 10; i++) {
+        const inR = document.getElementById('r' + i);
+        if (inR) inR.value = "";
+    }
+
+    // 4. Resetear sistemas de discontinuidades con propiedades completas
+    listaJuntas = [{ 
+        id: 1, 
+        tipo: "diaclasa", 
+        relleno: "cuarzo", 
+        dip: "", 
+        dir: "", 
+        vals: [20, 6, 6, 6, 6, 6], 
+        amp: 0, 
+        len: 100, 
+        usePeine: false 
+    }];
     idActivo = 1;
-    
+
+    // 5. Refrescar interfaz y regresar al formulario
     renderizarTabs();
     cambiarAJunta(1);
     runRmr();
     volverAFase1();
-    window.scrollTo(0,0);
-    alert("✨ Formulario listo para nueva estación.");
+    window.scrollTo(0, 0);
+
+    // 6. Actualizar el contador del botón exportar con el total real
+    const btnExp = document.getElementById('btn_exportar');
+    if (btnExp) {
+        btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
+    }
 }
 
 /* EXPORTAR EXCEL EN IPHONE / SAFARI */

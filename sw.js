@@ -290,69 +290,6 @@ select.in-field {
 }
 #chk_peine:checked + .slider-barton { background-color: #f1c40f; }
 #chk_peine:checked + .slider-barton:before { transform: translateX(14px); }
-
-        /* ESTILOS PARA EL MODAL GESTOR DE FICHAS */
-.modal-overlay {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
-    background: rgba(5, 44, 82, 0.75); 
-    z-index: 9999;
-    display: none; 
-    align-items: center; 
-    justify-content: center;
-    padding: 12px; 
-    backdrop-filter: blur(2px);
-}
-
-.modal-window {
-    background: #ffffff; 
-    border-radius: 8px; 
-    width: 100%; 
-    max-width: 520px;
-    max-height: 85vh; 
-    display: flex; 
-    flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-    overflow: hidden;
-    border: 1px solid #cbd5e1;
-}
-
-.modal-header {
-    background: #052c52; 
-    color: #ffffff; 
-    padding: 12px 16px;
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-}
-
-.modal-body {
-    padding: 10px 12px; 
-    overflow-y: auto; 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 8px;
-}
-
-.ficha-item {
-    border: 1px solid #e2e8f0; 
-    border-radius: 6px; 
-    padding: 10px;
-    background: #f8fafc; 
-    display: flex; 
-    justify-content: space-between;
-    align-items: center; 
-    gap: 8px;
-}
-
-.ficha-item:hover { 
-    border-color: #3498db; 
-    background: #ffffff; 
-}
 </style>
 </head>
 <body>
@@ -373,7 +310,7 @@ select.in-field {
                 <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
             </p>
         </div>
-        <div class="v-box">v12.1 PRO </div>
+        <div class="v-box">v11.6 PRO </div>
     </div>
 
     <div class="grid-main" id="main-container">
@@ -715,11 +652,11 @@ select.in-field {
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;" id="ui-selects">
-                    <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" id="sel_espac" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
-                    <div><span class="input-label">Persistencia</span><select class="in-field j-ui" id="sel_persist" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
-                    <div><span class="input-label">Apertura</span><select class="in-field j-ui" id="sel_apert" onchange="guardarDatosJunta()"><option value="6">Cerrada (0 mm)</option><option value="5">&lt; 0.1 mm</option><option value="3">0.1 - 1.0 mm</option><option value="1">1.0 - 5.0 mm</option><option value="0">&gt; 5.0 mm</option></select></div>
+                    <div><span class="input-label">Espaciamiento</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="20">>2m</option><option value="15">0.6-2m</option><option value="10">200-600mm</option><option value="8">60-200mm</option><option value="5"><60mm</option></select></div>
+                    <div><span class="input-label">Persistencia</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6"><1m</option><option value="4">1-3m</option><option value="2">3-10m</option><option value="1">10-20m</option><option value="0">>20m</option></select></div>
+                    <div><span class="input-label">Apertura</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Cerrada (0 mm)</option><option value="5">&lt; 0.1 mm</option><option value="3">0.1 - 1.0 mm</option><option value="1">1.0 - 5.0 mm</option><option value="0">&gt; 5.0 mm</option></select></div>
                     <div><span class="input-label">Rugosidad</span><select class="in-field j-ui" id="sel_rugos_rmr" onchange="guardarDatosJunta()"><option value="6">Muy Rugosa</option><option value="5">Rugosa</option><option value="1">Lisa</option><option value="0">Espejo</option></select></div>
-                    <div><span class="input-label">Relleno (Puntos)</span><select class="in-field j-ui" id="sel_relleno_pts" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
+                    <div><span class="input-label">Relleno (Puntos)</span><select class="in-field j-ui" onchange="guardarDatosJunta()"><option value="6">Ninguno</option><option value="4">Duro <5mm</option><option value="0">Blando >5mm</option></select></div>
                     <div><span class="input-label">Alteración</span><select class="in-field j-ui" id="sel_alter_junta" onchange="guardarDatosJunta()"><option value="6">Sana</option><option value="3">Mod. Met.</option><option value="0">Descomp.</option></select></div>
                 </div>
 
@@ -874,73 +811,24 @@ select.in-field {
 
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="calcularClasificacionFinal(); registrarFichaActual(false);" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
+                    <button type="button" onclick="registrarFichaActual(false)" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
                     <button type="button" onclick="nuevaEstacion()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">➕ NUEVA ESTACIÓN</button>
                 </div>
-                <!-- BOTÓN GESTOR DE FICHAS -->
-                <button type="button" onclick="abrirGestorFichas()" style="width: 100%; background: #052c52; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📂 REVISAR / MODIFICAR FICHAS GUARDADAS</button>
+
                 <button type="button" onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📥 EXPORTAR EXCEL (0 FICHAS)</button>
                 <button type="button" onclick="volverAFase1()" style="width: 100%; background: #64748b; color: white; border: none; border-radius: 6px; padding: 10px; font-size: 9px; cursor: pointer; text-transform: uppercase;">« EDITAR DATOS DE ESTACIÓN</button>
             </div>
         </div>
     </div>
 </div>
-<!-- VENTANA MODAL: GESTOR DE FICHAS -->
-<div id="modal-gestor" class="modal-overlay">
-    <div class="modal-window">
-        <div class="modal-header">
-            <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">🗂️ GESTOR DE FICHAS Y PROYECTOS</span>
-            <span onclick="cerrarGestorFichas()" style="cursor: pointer; font-size: 16px; font-weight: 900;">✕</span>
-        </div>
-        
-        <!-- Barra de Respaldo / Copia de seguridad -->
-        <div style="display: flex; gap: 6px; padding: 6px 12px; background: #e2e8f0;">
-            <button type="button" onclick="exportarBackupJSON()" style="flex:1; background: #34495e; color: white; border: none; border-radius: 4px; padding: 6px; font-size: 8.5px; font-weight: bold; cursor: pointer;">
-                💾 DESCARGAR COPIA
-            </button>
-            <button type="button" onclick="document.getElementById('input_backup').click()" style="flex:1; background: #2c3e50; color: white; border: none; border-radius: 4px; padding: 6px; font-size: 8.5px; font-weight: bold; cursor: pointer;">
-                📂 RESTAURAR COPIA
-            </button>
-            <input type="file" id="input_backup" accept=".json" style="display: none;" onchange="importarBackupJSON(this)">
-        </div>
 
-        <!-- Buscador en tiempo real -->
-        <div style="padding: 10px 12px; background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">
-            <input type="text" id="filtro_fichas" oninput="filtrarListaFichas()" class="in-field" placeholder="🔍 Filtrar por Proyecto o ID Estación..." style="height: 28px; font-size: 11px;">
-        </div>
-        
-        <!-- Contenedor dinámico de fichas -->
-        <div class="modal-body" id="lista-fichas-contenedor"></div>
-    </div>
-</div>
 <script>
 // ==========================================
 // 1. ESTADO Y MEMORIA GLOBAL
 // ==========================================  
 let sysCount = 1;
-
-// Recupera automáticamente las fichas guardadas en el almacenamiento persistente
-let baseDeDatosFichas = (function() {
-    try {
-        const backup = localStorage.getItem('rmr_backup_geotecnia');
-        return backup ? JSON.parse(backup) : [];
-    } catch (e) {
-        return [];
-    }
-})();
-
-let listaJuntas = [{ 
-    id: 1, 
-    tipo: "diaclasa", 
-    relleno: "cuarzo", 
-    dip: "", 
-    dir: "", 
-    vals: [20, 6, 6, 6, 6, 6], 
-    amp: 0, 
-    len: 100, 
-    usePeine: false 
-}];
-
+let baseDeDatosFichas = [];
+let listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
 let idActivo = 1;
 
 // ==========================================
@@ -1056,8 +944,8 @@ function irAFase2() {
     });
 
     const j1 = listaJuntas[0];
-    const valJ1Dip = (j1 ? j1.dip : "").toString().replace('°', '').trim();
-    const valJ1Dir = (j1 ? j1.dir : "").toString().replace('°', '').trim();
+    const valJ1Dip = (j1.dip || "").toString().replace('°', '').trim();
+    const valJ1Dir = (j1.dir || "").toString().replace('°', '').trim();
     
     if (!valJ1Dip || !valJ1Dir) {
         faltantes.push("Medición Dip/Dir de la Junta #1 (Es obligatoria)");
@@ -1069,20 +957,16 @@ function irAFase2() {
         return;
     }
 
-    // 1. Guardar junta activa actual
-    guardarDatosJunta();
-
-    // 2. Ejecutar cálculo RMR básico
+    // 6. Procesamiento y Transición
     runRmr(); 
 
-    // 3. Cambiar de pantalla
     document.getElementById('main-container').style.display = 'none';
     document.getElementById('fase2-container').style.display = 'block';
 
-    // 4. Calcular parámetros geomecánicos finales (cohesión, fricción, Em, RMRf)
+    // 1° Calcular y asignar al DOM (Clase, Cohesión, Fricción, Em)
     calcularClasificacionFinal();
 
-    // 5. Guardar ficha con los datos actualizados
+    // 2° Guardar la ficha con los valores ya calculados
     registrarFichaActual(true); 
 
     window.scrollTo(0, 0);
@@ -1156,17 +1040,14 @@ function cambiarAJunta(id) {
         document.getElementById('ui-dip').value = datos.dip;
         document.getElementById('ui-dir').value = datos.dir;
         
+        // --- RESTAURAR VALORES DE TIPO Y RELLENO ---
         document.getElementById('ui-tipo-disc').value = datos.tipo || "diaclasa";
         document.getElementById('ui-tipo-relleno').value = datos.relleno || "cuarzo";
         
-        if (datos.vals && datos.vals.length >= 6) {
-            if (document.getElementById('sel_espac')) document.getElementById('sel_espac').value = datos.vals[0];
-            if (document.getElementById('sel_persist')) document.getElementById('sel_persist').value = datos.vals[1];
-            if (document.getElementById('sel_apert')) document.getElementById('sel_apert').value = datos.vals[2];
-            if (document.getElementById('sel_rugos_rmr')) document.getElementById('sel_rugos_rmr').value = datos.vals[3];
-            if (document.getElementById('sel_relleno_pts')) document.getElementById('sel_relleno_pts').value = datos.vals[4];
-            if (document.getElementById('sel_alter_junta')) document.getElementById('sel_alter_junta').value = datos.vals[5];
-        }
+        const selects = document.querySelectorAll('.j-ui');
+        datos.vals.forEach((v, i) => {
+            if(selects[i]) selects[i].value = v;
+        });
 
         document.getElementById('in_amp').value = datos.amp || 0;
         document.getElementById('in_len').value = datos.len || 100;
@@ -1184,54 +1065,32 @@ function cambiarAJunta(id) {
 function refrescarVistaPeine() {
     const chk = document.getElementById('chk_peine');
     const ui = document.getElementById('ui_peine'); 
-    const selRugos = document.getElementById('sel_rugos_rmr');
-
     if (chk && ui) {
-        const activo = chk.checked;
-        ui.style.display = activo ? 'flex' : 'none';
-        if (selRugos) {
-            selRugos.disabled = activo;
-            selRugos.style.opacity = activo ? "0.5" : "1";
-        }
+        ui.style.display = chk.checked ? 'flex' : 'none';
     }
-    guardarDatosJunta();
+    actualizarPuntosUI();
 }
   
 function guardarDatosJunta() {
     const index = listaJuntas.findIndex(j => j.id === idActivo);
     if (index === -1) return;
 
-    listaJuntas[index].dip = document.getElementById('ui-dip')?.value || "";
-    listaJuntas[index].dir = document.getElementById('ui-dir')?.value || "";
-    listaJuntas[index].tipo = document.getElementById('ui-tipo-disc')?.value || "diaclasa";
-    listaJuntas[index].relleno = document.getElementById('ui-tipo-relleno')?.value || "cuarzo";
+    // Guardar Dip y Dir
+    listaJuntas[index].dip = document.getElementById('ui-dip').value;
+    listaJuntas[index].dir = document.getElementById('ui-dir').value;
     
-    const usePeine = document.getElementById('chk_peine')?.checked || false;
-    const amp = parseFloat(document.getElementById('in_amp')?.value) || 0;
-    const len = parseFloat(document.getElementById('in_len')?.value) || 100;
-
-    listaJuntas[index].amp = amp;
-    listaJuntas[index].len = len;
-    listaJuntas[index].usePeine = usePeine;
-
-    let ptsRugos = parseInt(document.getElementById('sel_rugos_rmr')?.value) || 6;
-    if (usePeine) {
-        let jrcCalc = (amp > 0 && len > 0) ? Math.min(20, 400 * (amp / len)) : 0;
-        if (jrcCalc >= 14) ptsRugos = 6;
-        else if (jrcCalc >= 8) ptsRugos = 5;
-        else if (jrcCalc >= 4) ptsRugos = 3;
-        else if (jrcCalc >= 2) ptsRugos = 1;
-        else ptsRugos = 0;
-    }
+    // --- CAPTURA DE TIPO Y RELLENO ---
+    listaJuntas[index].tipo = document.getElementById('ui-tipo-disc').value;
+    listaJuntas[index].relleno = document.getElementById('ui-tipo-relleno').value;
     
-    listaJuntas[index].vals = [
-        parseInt(document.getElementById('sel_espac')?.value) || 20,
-        parseInt(document.getElementById('sel_persist')?.value) || 6,
-        parseInt(document.getElementById('sel_apert')?.value) || 6,
-        ptsRugos,
-        parseInt(document.getElementById('sel_relleno_pts')?.value) || 6,
-        parseInt(document.getElementById('sel_alter_junta')?.value) || 6
-    ];
+    // Peine de Barton
+    listaJuntas[index].amp = document.getElementById('in_amp').value;
+    listaJuntas[index].len = document.getElementById('in_len').value;
+    listaJuntas[index].usePeine = document.getElementById('chk_peine').checked;
+    
+    // Selectores RMR
+    const selects = document.querySelectorAll('.j-ui');
+    listaJuntas[index].vals = Array.from(selects).map(s => parseInt(s.value) || 0);
     
     actualizarPuntosUI();
     if (typeof runRmr === 'function') runRmr();
@@ -1253,20 +1112,19 @@ function actualizarPuntosUI() {
     const outJrc = document.getElementById('out_jrc');
     const selRugosRMR = document.getElementById('sel_rugos_rmr');
 
-    let jrcDisplay = "0.0";
     if (chkPeine && chkPeine.checked) {
-        let amp = parseFloat(document.getElementById('in_amp')?.value) || 0;
-        let len = parseFloat(document.getElementById('in_len')?.value) || 100;
-        let jrcCalc = (amp > 0 && len > 0) ? Math.min(20, 400 * (amp / len)) : 0;
-        jrcDisplay = jrcCalc.toFixed(1);
+        let amp = parseFloat(document.getElementById('in_amp').value) || 0;
+        let len = parseFloat(document.getElementById('in_len').value) || 100;
+        let jrcCalc = (amp > 0) ? Math.min(20, 400 * (amp / len)) : 0;
+        outJrc.innerText = jrcCalc.toFixed(1);
     } else {
-        let ptsRugos = parseInt(selRugosRMR?.value || 6); 
-        jrcDisplay = (ptsRugos === 6) ? "18.0" : (ptsRugos === 5) ? "12.0" : (ptsRugos === 1) ? "6.0" : "2.0";
+        let ptsRugos = parseInt(selRugosRMR.value); 
+        let jrcMedia = (ptsRugos === 6) ? "18.0" : (ptsRugos === 5) ? "12.0" : (ptsRugos === 1) ? "6.0" : "2.0";
+        outJrc.innerText = jrcMedia;
     }
-    if (outJrc) outJrc.innerText = jrcDisplay;
 
     let ucsMatriz = 0;
-    const metodoActivo = document.getElementById('m_res')?.value || 'sch';
+    const metodoActivo = document.getElementById('m_res').value;
     const selectorUCS = (metodoActivo === 'sch') ? '#out_sch_ucs b' : '#out_vis_ucs b';
     const elUCS = document.querySelector(selectorUCS);
     if (elUCS && elUCS.innerText !== "-") {
@@ -1763,34 +1621,23 @@ function calcularClasificacionFinal() {
 // 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL (FIX iOS)
 // ==========================================
 function registrarFichaActual(silencioso = false) {
-    const elId = document.getElementById('est_id');
-    const idActual = elId ? elId.value.trim() : "";
-    
+    const idActual = document.getElementById('est_id').value.trim();
     if (!idActual) {
         if (!silencioso) alert("⚠️ Error: La estación debe tener un ID.");
         return false;
     }
 
-    // 1. Sincronizar con el almacenamiento local
-    try {
-        const backup = localStorage.getItem('rmr_backup_geotecnia');
-        baseDeDatosFichas = backup ? JSON.parse(backup) : [];
-    } catch(e) {
-        baseDeDatosFichas = [];
+    // 1. Sincronizar con el almacenamiento local previo para no sobreescribir
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try {
+            baseDeDatosFichas = JSON.parse(backup);
+        } catch(e) {
+            baseDeDatosFichas = [];
+        }
     }
 
-    // 2. Obtener UCS real según método activo
-    const mRes = document.getElementById('m_res')?.value || 'sch';
-    let ucsMatriz = 0;
-    if (mRes === 'sch') {
-        const txtSch = document.querySelector('#out_sch_ucs b')?.innerText || "0";
-        ucsMatriz = parseFloat(txtSch) || 0;
-    } else {
-        const txtVis = document.querySelector('#out_vis_ucs b')?.innerText || "0";
-        ucsMatriz = parseFloat(txtVis) || 0;
-    }
-
-    // 3. Mapeo seguro de sistemas de discontinuidades
+    // 2. Mapeo de sistemas de discontinuidades
     let datosJuntas = listaJuntas.map(j => {
         let amp = parseFloat(j.amp) || 0;
         let len = parseFloat(j.len) || 100;
@@ -1799,75 +1646,62 @@ function registrarFichaActual(silencioso = false) {
             jrcValor = (j.vals[3] === 6) ? 18 : (j.vals[3] === 5) ? 12 : (j.vals[3] === 1) ? 6 : 2;
         }
 
+        let ucsMatriz = parseFloat(document.querySelector('#out_sch_ucs b')?.innerText) || 
+                        parseFloat(document.querySelector('#out_vis_ucs b')?.innerText) || 0;
         let factorAlt = (j.vals[5] === 6) ? 1.0 : (j.vals[5] === 3) ? 0.75 : 0.5;
         let jcsValor = ucsMatriz * factorAlt;
 
         return {
             tipo: (j.tipo || "diaclasa").toUpperCase(),
             relleno: (j.relleno || "ninguno").toUpperCase(),
-            dip: (j.dip || "0").toString().replace('°', '').trim(),
-            dir: (j.dir || "0").toString().replace('°', '').trim(),
-            p_espac: Number(j.vals[0]) || 0,
-            p_persist: Number(j.vals[1]) || 0,
-            p_apert: Number(j.vals[2]) || 0,
-            p_rugos: Number(j.vals[3]) || 0,
-            p_rellen: Number(j.vals[4]) || 0,
-            p_alter: Number(j.vals[5]) || 0,
+            dip: j.dip || "0",
+            dir: j.dir || "0",
+            p_espac: j.vals[0],
+            p_persist: j.vals[1],
+            p_apert: j.vals[2],
+            p_rugos: j.vals[3],
+            p_rellen: j.vals[4],
+            p_alter: j.vals[5],
             val_jrc: jrcValor.toFixed(1),
             val_jcs: jcsValor.toFixed(1),
             metodo_jrc: j.usePeine ? "PEINE" : "TABLA"
         };
     });
 
-    // 4. Datos del Escenario
+    // 3. Declaración de variables del escenario (CORRECCIÓN CRÍTICA)
     const escEl = document.getElementById('escenario');
     const escTexto = escEl ? escEl.options[escEl.selectedIndex].text : "TALUD / MACIZO";
     const escVal = escEl ? escEl.value : "talud";
-    const frenteDirVal = escVal === 'tunel' ? "N/A" : (document.getElementById('eje_dir')?.value || "0");
-
-    // 5. Lectura y saneamiento de resultados finales (evita guardar '-')
-    const rmrFinalTxt = document.getElementById('res_rmr_final')?.innerText || "0";
-    const rmrBaseTxt = document.getElementById('res_rmr_base')?.innerText || "0";
-    const p6Txt = document.getElementById('res_ajuste')?.innerText || "0";
-    const rqdTxt = document.querySelector('#out_rqd b')?.innerText || "0";
-
-    const claseTxt = (document.getElementById('res_clase_tag')?.innerText || "").replace('CLASE:', '').trim() || "-";
-    const cohesionTxt = (document.getElementById('res_cohesion')?.innerText || "").replace('kPa', '').trim() || "-";
-    const friccionTxt = (document.getElementById('res_friccion')?.innerText || "").replace('°', '').trim() || "-";
-    const moduloTxt = (document.getElementById('res_modulo_e')?.innerText || "").replace('GPa', '').trim() || "-";
-
-    const selAgua = document.getElementById('p5_agua');
-    const aguaTipoTxt = selAgua ? selAgua.options[selAgua.selectedIndex].text : "Seco";
 
     const ficha = {
         id: idActual,
-        fecha: document.getElementById('est_fecha')?.value || "",
-        tecnico: document.getElementById('est_tec')?.value || "",
-        proyecto: document.getElementById('proy_nom')?.value || "",
+        fecha: document.getElementById('est_fecha').value,
+        tecnico: document.getElementById('est_tec').value,
+        proyecto: document.getElementById('proy_nom').value,
         frente_tipo: escTexto,
-        frente_dip: (document.getElementById('eje_dip')?.value || "0").replace('°', '').trim(),
-        frente_dir: frenteDirVal.replace('°', '').trim(),
-        x: document.getElementById('coord_e')?.value || "",
-        y: document.getElementById('coord_n')?.value || "",
-        z: document.getElementById('coord_z')?.value || "",
-        sector: document.getElementById('loc_sector')?.value || "",
-        nivel: document.getElementById('ubi_val')?.value || "",
-        desde: document.getElementById('abs_desde')?.value || "",
-        hasta: document.getElementById('abs_hasta')?.value || "",
-        ucs_val: ucsMatriz.toFixed(1),
-        rqd_val: rqdTxt !== "-" ? rqdTxt : "0",
-        agua_tipo: aguaTipoTxt,
+        frente_dip: document.getElementById('eje_dip').value || "0",
+        frente_dir: escVal === 'tunel' ? "N/A" : (document.getElementById('eje_dir').value || "0"),
+        x: document.getElementById('coord_e').value,
+        y: document.getElementById('coord_n').value,
+        z: document.getElementById('coord_z').value,
+        sector: document.getElementById('loc_sector').value,
+        nivel: document.getElementById('ubi_val').value,
+        desde: document.getElementById('abs_desde').value,
+        hasta: document.getElementById('abs_hasta').value,
+        ucs_val: document.querySelector('#out_vis_ucs b')?.innerText || document.querySelector('#out_sch_ucs b')?.innerText || "0",
+        rqd_val: document.querySelector('#out_rqd b')?.innerText || "0",
+        agua_tipo: document.getElementById('p5_agua').options[document.getElementById('p5_agua').selectedIndex].text,
         juntas: datosJuntas, 
-        rmr_b: rmrBaseTxt,
-        p6: p6Txt,
-        rmr_f: rmrFinalTxt,
-        clase: claseTxt,
-        cohesion: cohesionTxt,
-        friccion: friccionTxt,
-        modulo: moduloTxt
+        rmr_b: document.getElementById('res_rmr_base').innerText,
+        p6: document.getElementById('res_ajuste').innerText,
+        rmr_f: document.getElementById('res_rmr_final').innerText,
+        clase: document.getElementById('res_clase_tag').innerText,
+        cohesion: document.getElementById('res_cohesion').innerText,
+        friccion: document.getElementById('res_friccion').innerText,
+        modulo: document.getElementById('res_modulo_e').innerText
     };
 
-    // 6. Actualizar o agregar
+    // 4. Actualizar o insertar
     const indexExistente = baseDeDatosFichas.findIndex(f => f.id === idActual);
     if (indexExistente !== -1) {
         baseDeDatosFichas[indexExistente] = ficha;
@@ -1875,7 +1709,7 @@ function registrarFichaActual(silencioso = false) {
         baseDeDatosFichas.push(ficha);
     }
     
-    // 7. Persistencia
+    // 5. Persistencia y actualización del botón
     localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
     
     const btnExp = document.getElementById('btn_exportar');
@@ -1883,133 +1717,43 @@ function registrarFichaActual(silencioso = false) {
         btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
     }
     
-    if (!silencioso) alert(`✅ Estación ${idActual} guardada/actualizada con éxito.`);
+    if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
     return true;
 }
 
 function nuevaEstacion() {
-    // 1. Confirmar acción con el usuario
-    if (!confirm("¿Deseas iniciar una nueva estación?\n(Las estaciones anteriores se mantienen guardadas)")) {
-        return;
-    }
+    if (!confirm("¿Deseas limpiar el formulario para iniciar una nueva estación? (Los datos guardados en el consolidado no se borrarán)")) return;
 
-    // 2. Liberar el modo de edición de ficha previa
-    if (typeof idEstacionEnEdicion !== 'undefined') {
-        idEstacionEnEdicion = null;
-    }
+    document.getElementById('est_id').value = "";
+    document.getElementById('coord_e').value = "";
+    document.getElementById('coord_n').value = "";
+    document.getElementById('coord_z').value = "";
+    document.getElementById('gps_info').innerHTML = "";
+    document.getElementById('abs_desde').value = "";
+    document.getElementById('abs_hasta').value = "";
 
-    // 3. Limpiar únicamente las casillas de la estación y orientación puntual
-    const camposLimpiar = ['est_id', 'coord_e', 'coord_n', 'coord_z', 'abs_desde', 'abs_hasta', 'eje_dip', 'eje_dir'];
-    camposLimpiar.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-    });
-
-    const gpsInfo = document.getElementById('gps_info');
-    if (gpsInfo) gpsInfo.innerHTML = "";
-
-    // 4. Limpiar rebotes de Schmidt
-    for (let i = 1; i <= 10; i++) {
-        const inR = document.getElementById('r' + i);
-        if (inR) inR.value = "";
-    }
-    const outSchR = document.getElementById('out_sch_r');
-    if (outSchR) outSchR.querySelector('b').innerText = "-";
-    const outSchUcs = document.getElementById('out_sch_ucs');
-    if (outSchUcs) outSchUcs.querySelector('b').innerText = "-";
-    const outVisUcs = document.getElementById('out_vis_ucs');
-    if (outVisUcs) outVisUcs.querySelector('b').innerText = "-";
-
-    // 5. Reiniciar RQD
-    const valJv = document.getElementById('valJv');
-    if (valJv) valJv.value = "";
-    const outRqd = document.getElementById('out_rqd');
-    if (outRqd) outRqd.querySelector('b').innerText = "-";
-
-    // 6. Restablecer la lista de juntas a un Sistema #1 limpio por defecto
-    listaJuntas = [{ 
-        id: 1, 
-        tipo: "diaclasa", 
-        relleno: "cuarzo", 
-        dip: "", 
-        dir: "", 
-        vals: [20, 6, 6, 6, 6, 6], 
-        amp: 0, 
-        len: 100, 
-        usePeine: false 
-    }];
+    listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
     idActivo = 1;
-
-    // 7. Limpiar campos físicos de la junta en pantalla
-    const inDip = document.getElementById('ui-dip');
-    if (inDip) inDip.value = "";
-    const inDir = document.getElementById('ui-dir');
-    if (inDir) inDir.value = "";
-    const inAmp = document.getElementById('in_amp');
-    if (inAmp) inAmp.value = "";
-    const inLen = document.getElementById('in_len');
-    if (inLen) inLen.value = "100";
-    const chkPeine = document.getElementById('chk_peine');
-    if (chkPeine) chkPeine.checked = false;
-    const uiPeine = document.getElementById('ui_peine');
-    if (uiPeine) uiPeine.style.display = 'none';
-
-    // 8. Restaurar selects de discontinuidades a sus valores por defecto
-    if (document.getElementById('sel_espac')) document.getElementById('sel_espac').value = 20;
-    if (document.getElementById('sel_persist')) document.getElementById('sel_persist').value = 6;
-    if (document.getElementById('sel_apert')) document.getElementById('sel_apert').value = 6;
-    if (document.getElementById('sel_rugos_rmr')) document.getElementById('sel_rugos_rmr').value = 6;
-    if (document.getElementById('sel_relleno_pts')) document.getElementById('sel_relleno_pts').value = 6;
-    if (document.getElementById('sel_alter_junta')) document.getElementById('sel_alter_junta').value = 6;
-
-    // 9. Resetear agua a Seco (15 pts)
-    const selAgua = document.getElementById('p5_agua');
-    if (selAgua) selAgua.value = "15";
-
-    // 10. Actualizar UI, recalcular RMR y forzar regreso a Fase 1
+    
     renderizarTabs();
-    actualizarPuntosUI();
+    cambiarAJunta(1);
     runRmr();
     volverAFase1();
-    window.scrollTo(0, 0);
-
-    // 11. Sincronizar contador del botón exportar con el número real de fichas en disco
-    try {
-        const backup = localStorage.getItem('rmr_backup_geotecnia');
-        if (backup) {
-            baseDeDatosFichas = JSON.parse(backup);
-        }
-    } catch (e) {}
-
-    const btnExp = document.getElementById('btn_exportar');
-    if (btnExp) {
-        btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-    }
-
-    // Enfocar el campo del ID para ingresar la nueva estación directamente
-    const inId = document.getElementById('est_id');
-    if (inId) inId.focus();
+    window.scrollTo(0,0);
+    alert("✨ Formulario listo para nueva estación.");
 }
 
 /* EXPORTAR EXCEL EN IPHONE / SAFARI */
 function exportarConsolidado() {
-    const backup = localStorage.getItem('rmr_backup_geotecnia');
-    if (backup) {
-        try {
-            baseDeDatosFichas = JSON.parse(backup);
-        } catch (e) {
-            console.error("Error al leer backup:", e);
-        }
-    }
-
-    if (!baseDeDatosFichas || baseDeDatosFichas.length === 0) {
-        alert("⚠️ No hay estaciones guardadas para exportar.");
+    if (baseDeDatosFichas.length === 0) {
+        alert("No hay estaciones guardadas para exportar. Guarde al menos una ficha.");
         return;
     }
 
     const desarrollador = "Mgtr. Byron Bravo";
-    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => (f.juntas && Array.isArray(f.juntas)) ? f.juntas.length : 0), 1);
+    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
     
+    // 10 columnas dinámicas por cada familia registrada
     let encabezadoSistemas = "";
     let subEncabezadoDatos = "";
     for (let i = 1; i <= maxJuntas; i++) {
@@ -2020,6 +1764,7 @@ function exportarConsolidado() {
     let excelTemplate = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head><meta charset="utf-8">
+        <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Base_RMR</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
         <style>
             table { border-collapse: collapse; }
             th { border: 1px solid #000; text-align: center; font-family: Arial, sans-serif; font-size: 9pt; padding: 5px; }
@@ -2033,6 +1778,7 @@ function exportarConsolidado() {
             <table border="1">
                 <thead>
                     <tr>
+                        <!-- Se cambia colspan de 11 a 14 por los 3 nuevos campos -->
                         <th colspan="14" class="azul">INFORMACIÓN GENERAL Y GEOMETRÍA DEL FRENTE</th>
                         <th colspan="2" class="azul">PROPIEDADES MATRIZ</th>
                         ${encabezadoSistemas}
@@ -2041,9 +1787,11 @@ function exportarConsolidado() {
                     </tr>
                     <tr>
                         <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th>
+                        <!-- NUEVAS COLUMNAS -->
                         <th style="background:#eaf2f8; color:#052c52;">TIPO FRENTE</th>
                         <th style="background:#eaf2f8; color:#052c52;">EJE / INCL(°)</th>
                         <th style="background:#eaf2f8; color:#052c52;">DIR. TALUD / AVANCE(°)</th>
+                        
                         <th>COORD X</th><th>COORD Y</th><th>COORD Z</th><th>SECTOR</th><th>NIVEL</th><th>DESDE</th><th>HASTA</th>
                         <th>UCS(MPa)</th><th>RQD(%)</th>
                         ${subEncabezadoDatos}
@@ -2054,37 +1802,29 @@ function exportarConsolidado() {
                 <tbody>
                     ${baseDeDatosFichas.map(f => {
                         let celdasJuntas = "";
-                        const arrJ = (f.juntas && Array.isArray(f.juntas)) ? f.juntas : [];
                         for (let i = 0; i < maxJuntas; i++) {
-                            const j = arrJ[i] || null;
+                            const j = (f.juntas && f.juntas[i]) ? f.juntas[i] : null;
                             if (j) {
-                                celdasJuntas += `
-                                    <td style="font-weight:600; background:#f9fafb;">${j.tipo || "DIACLASA"}</td>
-                                    <td style="background:#f9fafb;">${j.relleno || "NINGUNO"}</td>
-                                    <td>${j.dip || "0"}</td>
-                                    <td>${j.dir || "0"}</td>
-                                    <td>${j.p_espac !== undefined ? j.p_espac : "0"}</td>
-                                    <td>${j.p_persist !== undefined ? j.p_persist : "0"}</td>
-                                    <td>${j.p_apert !== undefined ? j.p_apert : "0"}</td>
-                                    <td>${j.p_rugos !== undefined ? j.p_rugos : "0"}</td>
-                                    <td>${j.p_rellen !== undefined ? j.p_rellen : "0"}</td>
-                                    <td>${j.p_alter !== undefined ? j.p_alter : "0"}</td>`;
+                                celdasJuntas += `<td style="font-weight:600; background:#f9fafb;">${j.tipo || "DIACLASA"}</td><td style="background:#f9fafb;">${j.relleno || "NINGUNO"}</td><td>${j.dip}</td><td>${j.dir}</td><td>${j.p_espac}</td><td>${j.p_persist}</td><td>${j.p_apert}</td><td>${j.p_rugos}</td><td>${j.p_rellen}</td><td>${j.p_alter}</td>`;
                             } else {
                                 celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
                             }
                         }
                         return `
                             <tr>
-                                <td style="font-weight:bold;">${f.id || "-"}</td><td>${f.fecha || "-"}</td><td>${f.tecnico || "-"}</td><td>${f.proyecto || "-"}</td>
+                                <td style="font-weight:bold;">${f.id}</td><td>${f.fecha}</td><td>${f.tecnico}</td><td>${f.proyecto}</td>
+                                
+                                <!-- NUEVAS CELDAS DE FRENTE -->
                                 <td style="background:#f4f6f8; font-weight:600;">${f.frente_tipo || "TALUD / MACIZO"}</td>
                                 <td style="background:#f4f6f8;">${f.frente_dip || "0"}°</td>
                                 <td style="background:#f4f6f8;">${f.frente_dir !== undefined ? f.frente_dir : "-"}</td>
-                                <td>${f.x || "-"}</td><td>${f.y || "-"}</td><td>${f.z || "-"}</td><td>${f.sector || "-"}</td><td>${f.nivel || "-"}</td><td>${f.desde || "-"}</td><td>${f.hasta || "-"}</td>
-                                <td>${f.ucs_val || "0"}</td><td>${f.rqd_val || "0"}</td>
+                                
+                                <td>${f.x}</td><td>${f.y}</td><td>${f.z}</td><td>${f.sector}</td><td>${f.nivel}</td><td>${f.desde}</td><td>${f.hasta}</td>
+                                <td>${f.ucs_val}</td><td>${f.rqd_val}</td>
                                 ${celdasJuntas}
-                                <td>${f.agua_tipo || "-"}</td>
-                                <td style="font-weight:bold;">${f.rmr_b || "0"}</td><td>${f.p6 || "0"}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f || "0"}</td>
-                                <td style="font-weight:bold;">${f.clase || "-"}</td><td>${f.cohesion || "-"}</td><td>${f.friccion || "-"}</td><td>${f.modulo || "-"}</td>
+                                <td>${f.agua_tipo}</td>
+                                <td style="font-weight:bold;">${f.rmr_b}</td><td>${f.p6}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f}</td>
+                                <td style="font-weight:bold;">${f.clase}</td><td>${f.cohesion}</td><td>${f.friccion}</td><td>${f.modulo}</td>
                             </tr>`;
                     }).join('')}
                 </tbody>
@@ -2098,6 +1838,7 @@ function exportarConsolidado() {
     const link = document.createElement("a");
     link.href = url;
     link.download = `Data_RMR_ByronBravo_${Date.now()}.xls`;
+    link.target = '_blank';
     
     document.body.appendChild(link);
     link.click();
@@ -2105,216 +1846,18 @@ function exportarConsolidado() {
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-    }, 1000);
-}
-// ==========================================
-// 8. MÓDULO GESTOR, EDITOR Y BACKUP DE FICHAS
-// ==========================================
-function abrirGestorFichas() {
-    renderizarListaFichas();
-    document.getElementById('modal-gestor').style.display = 'flex';
-}
+    }, 500);
 
-function cerrarGestorFichas() {
-    document.getElementById('modal-gestor').style.display = 'none';
-}
-
-function filtrarListaFichas() {
-    const val = document.getElementById('filtro_fichas').value;
-    renderizarListaFichas(val);
-}
-
-function renderizarListaFichas(filtro = "") {
-    const contenedor = document.getElementById('lista-fichas-contenedor');
-    contenedor.innerHTML = "";
-
-    const backup = localStorage.getItem('rmr_backup_geotecnia');
-    if (backup) {
-        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
-    }
-
-    if (baseDeDatosFichas.length === 0) {
-        contenedor.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 11px; padding: 25px 10px;">No hay fichas guardadas en la memoria local.</div>`;
-        return;
-    }
-
-    const termino = filtro.toLowerCase().trim();
-    const fichasFiltradas = baseDeDatosFichas.filter(f => 
-        (f.id && f.id.toLowerCase().includes(termino)) || 
-        (f.proyecto && f.proyecto.toLowerCase().includes(termino))
-    );
-
-    if (fichasFiltradas.length === 0) {
-        contenedor.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 11px; padding: 20px;">No se encontraron coincidencias para "${filtro}".</div>`;
-        return;
-    }
-
-    fichasFiltradas.forEach(f => {
-        const item = document.createElement('div');
-        item.className = "ficha-item";
-        item.innerHTML = `
-            <div style="flex: 1; min-width: 0;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <b style="color: #052c52; font-size: 12px;">${f.id}</b>
-                    <span style="font-size: 8.5px; background: #e2e8f0; padding: 2px 5px; border-radius: 3px; font-weight: 700;">${f.frente_tipo || "TALUD"}</span>
-                    <span style="font-size: 9px; font-weight: 800; color: #27ae60;">RMR: ${f.rmr_f || "0"}</span>
-                </div>
-                <div style="font-size: 9.5px; color: #64748b; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    📁 <b>${f.proyecto || "Sin Proyecto"}</b> | 📅 ${f.fecha || "-"}
-                </div>
-                <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">
-                    UTM: E ${f.x || "-"} | N ${f.y || "-"} | ${f.juntas ? f.juntas.length : 0} familias
-                </div>
-            </div>
-            <div style="display: flex; gap: 5px;">
-                <button type="button" onclick="cargarFichaParaEditar('${f.id}')" style="background: #2980b9; color: white; border: none; border-radius: 4px; padding: 6px 10px; font-size: 9px; font-weight: 800; cursor: pointer;" title="Cargar para editar">
-                    ✏️ EDITAR
-                </button>
-                <button type="button" onclick="eliminarFichaIndividual('${f.id}')" style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 6px 8px; font-size: 9px; font-weight: 800; cursor: pointer;" title="Eliminar de la memoria">
-                    🗑️
-                </button>
-            </div>
-        `;
-        contenedor.appendChild(item);
-    });
-}
-
-function cargarFichaParaEditar(idEstacion) {
-    const backup = localStorage.getItem('rmr_backup_geotecnia');
-    if (backup) {
-        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
-    }
-
-    const f = baseDeDatosFichas.find(item => item.id === idEstacion);
-    if (!f) return;
-
-    if (!confirm(`¿Deseas cargar la estación "${f.id}" para revisarla o modificarla?`)) return;
-
-    // 1. Datos Generales
-    document.getElementById('est_id').value = f.id || "";
-    document.getElementById('est_fecha').value = f.fecha || "";
-    document.getElementById('est_tec').value = f.tecnico || "";
-    document.getElementById('proy_nom').value = f.proyecto || "";
-    
-    // 2. Escenario y Orientación
-    const escEl = document.getElementById('escenario');
-    if (f.frente_tipo && f.frente_tipo.includes("TÚNEL")) {
-        escEl.value = "tunel";
-    } else {
-        escEl.value = "talud";
-    }
-    updateEscenario();
-    document.getElementById('eje_dip').value = f.frente_dip || "";
-    if (escEl.value === 'talud') {
-        document.getElementById('eje_dir').value = (f.frente_dir !== "N/A") ? (f.frente_dir || "") : "";
-    }
-
-    // 3. Coordenadas y Ubicación
-    document.getElementById('coord_e').value = f.x || "";
-    document.getElementById('coord_n').value = f.y || "";
-    document.getElementById('coord_z').value = f.z || "";
-    document.getElementById('loc_sector').value = f.sector || "";
-    document.getElementById('ubi_val').value = f.nivel || "";
-    document.getElementById('abs_desde').value = f.desde || "";
-    document.getElementById('abs_hasta').value = f.hasta || "";
-
-    // 4. Restaurar Juntas a la memoria activa
-    if (f.juntas && f.juntas.length > 0) {
-        listaJuntas = f.juntas.map((j, idx) => ({
-            id: idx + 1,
-            tipo: (j.tipo || "diaclasa").toLowerCase(),
-            relleno: (j.relleno || "cuarzo").toLowerCase(),
-            dip: j.dip || "",
-            dir: j.dir || "",
-            vals: [
-                parseInt(j.p_espac) || 20, 
-                parseInt(j.p_persist) || 6, 
-                parseInt(j.p_apert) || 6, 
-                parseInt(j.p_rugos) || 6, 
-                parseInt(j.p_rellen) || 6, 
-                parseInt(j.p_alter) || 6
-            ],
-            amp: 0,
-            len: 100,
-            usePeine: (j.metodo_jrc === "PEINE")
-        }));
-    } else {
-        listaJuntas = [{ id: 1, tipo: "diaclasa", relleno: "cuarzo", dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
-    }
-
-    // 5. Hidrogeología
-    const selAgua = document.getElementById('p5_agua');
-    for (let i = 0; i < selAgua.options.length; i++) {
-        if (selAgua.options[i].text === f.agua_tipo) {
-            selAgua.selectedIndex = i;
-            break;
+    setTimeout(() => {
+        if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido generado?")) {
+            baseDeDatosFichas = [];
+            localStorage.removeItem('rmr_backup_geotecnia');
+            document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
+            alert("🧹 Memoria limpia para una nueva jornada.");
         }
-    }
-
-    // 6. Refrescar interfaz y cálculo
-    idActivo = 1;
-    renderizarTabs();
-    cambiarAJunta(1);
-    runRmr();
-
-    cerrarGestorFichas();
-    volverAFase1();
-    window.scrollTo(0, 0);
-
-    alert(`✅ Estación ${f.id} cargada. Realiza los cambios necesarios y pulsa "VER REPORTE >>" para actualizarla.`);
+    }, 1500);
 }
 
-function eliminarFichaIndividual(idEstacion) {
-    if (!confirm(`¿Está seguro de eliminar la ficha "${idEstacion}" del consolidado?\nEsta acción no se puede deshacer.`)) return;
-
-    baseDeDatosFichas = baseDeDatosFichas.filter(f => f.id !== idEstacion);
-    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
-    
-    const btn = document.getElementById('btn_exportar');
-    if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-    
-    renderizarListaFichas(document.getElementById('filtro_fichas').value);
-}
-
-function exportarBackupJSON() {
-    if (baseDeDatosFichas.length === 0) {
-        alert("No hay fichas guardadas para respaldar.");
-        return;
-    }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseDeDatosFichas, null, 2));
-    const link = document.createElement("a");
-    link.href = dataStr;
-    link.download = `Respaldo_RMR_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-function importarBackupJSON(input) {
-    if (!input.files || !input.files[0]) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            if (Array.isArray(data)) {
-                baseDeDatosFichas = data;
-                localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
-                
-                const btn = document.getElementById('btn_exportar');
-                if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-                
-                renderizarListaFichas();
-                alert(`✅ Se restauraron exitosamente ${data.length} estaciones.`);
-            } else {
-                alert("El archivo no tiene el formato correcto.");
-            }
-        } catch (err) {
-            alert("Error al leer el archivo de respaldo.");
-        }
-        input.value = "";
-    };
-    reader.readAsText(input.files[0]);
-}
 // ==========================================
 // 8. CICLO DE VIDA E INICIALIZACIÓN
 // ==========================================
@@ -2357,8 +1900,6 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.log("❌ Error de registro sw:", err));
     });
 }
-
-    
 </script>
 </body>
 </html>

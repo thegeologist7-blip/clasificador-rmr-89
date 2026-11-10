@@ -373,7 +373,7 @@ select.in-field {
                 <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
             </p>
         </div>
-        <div class="v-box">v11.7 PRO </div>
+        <div class="v-box">v12.0 PRO </div>
     </div>
 
     <div class="grid-main" id="main-container">
@@ -1836,15 +1836,23 @@ function nuevaEstacion() {
 
 /* EXPORTAR EXCEL EN IPHONE / SAFARI */
 function exportarConsolidado() {
-    if (baseDeDatosFichas.length === 0) {
-        alert("No hay estaciones guardadas para exportar. Guarde al menos una ficha.");
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try {
+            baseDeDatosFichas = JSON.parse(backup);
+        } catch (e) {
+            console.error("Error al leer backup:", e);
+        }
+    }
+
+    if (!baseDeDatosFichas || baseDeDatosFichas.length === 0) {
+        alert("⚠️ No hay estaciones guardadas para exportar.");
         return;
     }
 
     const desarrollador = "Mgtr. Byron Bravo";
-    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
+    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => (f.juntas && Array.isArray(f.juntas)) ? f.juntas.length : 0), 1);
     
-    // 10 columnas dinámicas por cada familia registrada
     let encabezadoSistemas = "";
     let subEncabezadoDatos = "";
     for (let i = 1; i <= maxJuntas; i++) {
@@ -1855,7 +1863,6 @@ function exportarConsolidado() {
     let excelTemplate = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head><meta charset="utf-8">
-        <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Base_RMR</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
         <style>
             table { border-collapse: collapse; }
             th { border: 1px solid #000; text-align: center; font-family: Arial, sans-serif; font-size: 9pt; padding: 5px; }
@@ -1869,7 +1876,6 @@ function exportarConsolidado() {
             <table border="1">
                 <thead>
                     <tr>
-                        <!-- Se cambia colspan de 11 a 14 por los 3 nuevos campos -->
                         <th colspan="14" class="azul">INFORMACIÓN GENERAL Y GEOMETRÍA DEL FRENTE</th>
                         <th colspan="2" class="azul">PROPIEDADES MATRIZ</th>
                         ${encabezadoSistemas}
@@ -1878,11 +1884,9 @@ function exportarConsolidado() {
                     </tr>
                     <tr>
                         <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th>
-                        <!-- NUEVAS COLUMNAS -->
                         <th style="background:#eaf2f8; color:#052c52;">TIPO FRENTE</th>
                         <th style="background:#eaf2f8; color:#052c52;">EJE / INCL(°)</th>
                         <th style="background:#eaf2f8; color:#052c52;">DIR. TALUD / AVANCE(°)</th>
-                        
                         <th>COORD X</th><th>COORD Y</th><th>COORD Z</th><th>SECTOR</th><th>NIVEL</th><th>DESDE</th><th>HASTA</th>
                         <th>UCS(MPa)</th><th>RQD(%)</th>
                         ${subEncabezadoDatos}
@@ -1896,26 +1900,23 @@ function exportarConsolidado() {
                         for (let i = 0; i < maxJuntas; i++) {
                             const j = (f.juntas && f.juntas[i]) ? f.juntas[i] : null;
                             if (j) {
-                                celdasJuntas += `<td style="font-weight:600; background:#f9fafb;">${j.tipo || "DIACLASA"}</td><td style="background:#f9fafb;">${j.relleno || "NINGUNO"}</td><td>${j.dip}</td><td>${j.dir}</td><td>${j.p_espac}</td><td>${j.p_persist}</td><td>${j.p_apert}</td><td>${j.p_rugos}</td><td>${j.p_rellen}</td><td>${j.p_alter}</td>`;
+                                celdasJuntas += `<td style="font-weight:600; background:#f9fafb;">${j.tipo || "DIACLASA"}</td><td style="background:#f9fafb;">${j.relleno || "NINGUNO"}</td><td>${j.dip || "0"}</td><td>${j.dir || "0"}</td><td>${j.p_espac || "0"}</td><td>${j.p_persist || "0"}</td><td>${j.p_apert || "0"}</td><td>${j.p_rugos || "0"}</td><td>${j.p_rellen || "0"}</td><td>${j.p_alter || "0"}</td>`;
                             } else {
                                 celdasJuntas += `<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>`;
                             }
                         }
                         return `
                             <tr>
-                                <td style="font-weight:bold;">${f.id}</td><td>${f.fecha}</td><td>${f.tecnico}</td><td>${f.proyecto}</td>
-                                
-                                <!-- NUEVAS CELDAS DE FRENTE -->
+                                <td style="font-weight:bold;">${f.id || "-"}</td><td>${f.fecha || "-"}</td><td>${f.tecnico || "-"}</td><td>${f.proyecto || "-"}</td>
                                 <td style="background:#f4f6f8; font-weight:600;">${f.frente_tipo || "TALUD / MACIZO"}</td>
                                 <td style="background:#f4f6f8;">${f.frente_dip || "0"}°</td>
                                 <td style="background:#f4f6f8;">${f.frente_dir !== undefined ? f.frente_dir : "-"}</td>
-                                
-                                <td>${f.x}</td><td>${f.y}</td><td>${f.z}</td><td>${f.sector}</td><td>${f.nivel}</td><td>${f.desde}</td><td>${f.hasta}</td>
-                                <td>${f.ucs_val}</td><td>${f.rqd_val}</td>
+                                <td>${f.x || "-"}</td><td>${f.y || "-"}</td><td>${f.z || "-"}</td><td>${f.sector || "-"}</td><td>${f.nivel || "-"}</td><td>${f.desde || "-"}</td><td>${f.hasta || "-"}</td>
+                                <td>${f.ucs_val || "0"}</td><td>${f.rqd_val || "0"}</td>
                                 ${celdasJuntas}
-                                <td>${f.agua_tipo}</td>
-                                <td style="font-weight:bold;">${f.rmr_b}</td><td>${f.p6}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f}</td>
-                                <td style="font-weight:bold;">${f.clase}</td><td>${f.cohesion}</td><td>${f.friccion}</td><td>${f.modulo}</td>
+                                <td>${f.agua_tipo || "-"}</td>
+                                <td style="font-weight:bold;">${f.rmr_b || "0"}</td><td>${f.p6 || "0"}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f || "0"}</td>
+                                <td style="font-weight:bold;">${f.clase || "-"}</td><td>${f.cohesion || "-"}</td><td>${f.friccion || "-"}</td><td>${f.modulo || "-"}</td>
                             </tr>`;
                     }).join('')}
                 </tbody>
@@ -1929,7 +1930,6 @@ function exportarConsolidado() {
     const link = document.createElement("a");
     link.href = url;
     link.download = `Data_RMR_ByronBravo_${Date.now()}.xls`;
-    link.target = '_blank';
     
     document.body.appendChild(link);
     link.click();
@@ -1937,16 +1937,7 @@ function exportarConsolidado() {
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-    }, 500);
-
-    setTimeout(() => {
-        if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido generado?")) {
-            baseDeDatosFichas = [];
-            localStorage.removeItem('rmr_backup_geotecnia');
-            document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
-            alert("🧹 Memoria limpia para una nueva jornada.");
-        }
-    }, 1500);
+    }, 1000);
 }
 // ==========================================
 // 8. MÓDULO GESTOR, EDITOR Y BACKUP DE FICHAS

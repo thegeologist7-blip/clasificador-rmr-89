@@ -966,18 +966,22 @@ function irAFase2() {
 
     camposValidar.forEach(campo => {
         let el = document.getElementById(campo.id);
-        let valorLimpio = el.value.toString().replace('°', '').trim();
+        let valorLimpio = el ? el.value.toString().replace('°', '').trim() : "";
         if (!valorLimpio) {
             faltantes.push(campo.nombre);
-            el.style.border = "2px solid #e74c3c";
-            el.style.backgroundColor = "#fdf2f2";
+            if (el) {
+                el.style.border = "2px solid #e74c3c";
+                el.style.backgroundColor = "#fdf2f2";
+            }
         } else {
-            el.style.border = "1px solid #cbd5e1";
-            el.style.backgroundColor = "#ffffff";
+            if (el) {
+                el.style.border = "1px solid #cbd5e1";
+                el.style.backgroundColor = "#ffffff";
+            }
         }
     });
 
-    // Validación de la Junta #1 obligatoria
+    // 2. Validar obligatoriedad de la Junta #1 (Dip y Dir) y pintarlas de rojo si faltan
     const j1 = listaJuntas[0];
     const elJ1Dip = document.getElementById('ui-dip');
     const elJ1Dir = document.getElementById('ui-dir');
@@ -985,22 +989,38 @@ function irAFase2() {
     const valJ1Dip = (j1 ? j1.dip : "").toString().replace('°', '').trim();
     const valJ1Dir = (j1 ? j1.dir : "").toString().replace('°', '').trim();
     
-    if (!valJ1Dip || !valJ1Dir) {
-        faltantes.push("Medición Dip/Dir de la Junta #1 (Es obligatoria)");
-        if (idActivo !== 1) cambiarAJunta(1);
+    let juntaIncompleta = false;
 
-        // Pintar de rojo los campos físicos de la junta si están vacíos
-        if (!valJ1Dip && elJ1Dip) {
+    if (!valJ1Dip) {
+        faltantes.push("Buzamiento (Dip) de la Junta #1");
+        juntaIncompleta = true;
+        if (elJ1Dip) {
             elJ1Dip.style.border = "2px solid #e74c3c";
             elJ1Dip.style.backgroundColor = "#fdf2f2";
         }
-        if (!isT && !valJ1Dir && elJ1Dir) {
+    } else {
+        if (elJ1Dip) {
+            elJ1Dip.style.border = "1px solid #cbd5e1";
+            elJ1Dip.style.backgroundColor = "#ffffff";
+        }
+    }
+
+    if (!valJ1Dir) {
+        faltantes.push("Dirección de Buzamiento (DipDir) de la Junta #1");
+        juntaIncompleta = true;
+        if (elJ1Dir) {
             elJ1Dir.style.border = "2px solid #e74c3c";
             elJ1Dir.style.backgroundColor = "#fdf2f2";
         }
     } else {
-        if (elJ1Dip) { elJ1Dip.style.border = "1px solid #cbd5e1"; elJ1Dip.style.backgroundColor = "#ffffff"; }
-        if (elJ1Dir) { elJ1Dir.style.border = "1px solid #cbd5e1"; elJ1Dir.style.backgroundColor = "#ffffff"; }
+        if (elJ1Dir) {
+            elJ1Dir.style.border = "1px solid #cbd5e1";
+            elJ1Dir.style.backgroundColor = "#ffffff";
+        }
+    }
+
+    if (juntaIncompleta && idActivo !== 1) {
+        cambiarAJunta(1);
     }
 
     if (faltantes.length > 0) {

@@ -316,8 +316,25 @@ select.in-field {
     <div class="grid-main" id="main-container">
         <!-- 1. DATOS GENERALES -->
         <div class="geo-card" style="min-height: auto; padding: 10px 12px; overflow: hidden;">
-            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; width: calc(100% + 24px); line-height: 1.4; height: 32px; align-items: center;">
-                📋 1. DATOS E INFORMACIÓN GENERAL
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; width: calc(100% + 24px); line-height: 1.4; height: 32px;">
+                <span>📋 1. DATOS E INFORMACIÓN GENERAL</span>
+                
+                <!-- BOTÓN DE MENÚ FLOTANTE (3 LÍNEAS) A LA DERECHA -->
+                <div style="position: relative;">
+                    <button type="button" onclick="toggleMenuBloque1()" style="background: #052c52; border: none; color: white; width: 26px; height: 26px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                        ☰
+                    </button>
+
+                    <!-- SUBMENÚ DESPLEGABLE -->
+                    <div id="dropdown-menu-b1" style="display: none; position: absolute; right: 0; top: 30px; background: white; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); width: 170px; z-index: 1000; overflow: hidden; border: 1px solid #cbd5e1;">
+                        <div onclick="toggleMenuBloque1(); nuevaEstacion();" style="padding: 10px 12px; font-size: 10px; font-weight: 700; color: #052c52; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">
+                            <span>➕</span> Nueva Estación
+                        </div>
+                        <div onclick="toggleMenuBloque1(); abrirGestorFichas();" style="padding: 10px 12px; font-size: 10px; font-weight: 700; color: #052c52; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <span>📂</span> Revisar / Fichas
+                        </div>
+                    </div>
+                </div>
             </h4>
             
             <div style="display: flex; flex-direction: column; gap: 8px;">

@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "rmr-";
-const CACHE_NAME = "rmr-v11.8";
+const CACHE_NAME = "rmr-v11.9";
 
 const APP_SHELL = [
   "./",

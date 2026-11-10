@@ -848,6 +848,23 @@ let baseDeDatosFichas = [];
 let listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
 let idActivo = 1;
 
+// Abrir o cerrar el menú flotante del Bloque 1
+function toggleMenuBloque1() {
+    const menu = document.getElementById('dropdown-menu-b1');
+    if (menu) {
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+}
+
+// Cerrar el menú si el usuario toca fuera de él
+window.addEventListener('click', function(e) {
+    const menu = document.getElementById('dropdown-menu-b1');
+    const btn = document.querySelector('button[onclick="toggleMenuBloque1()"]');
+    if (menu && menu.style.display === 'block' && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});    
+    
 // ==========================================
 // 2. CONTROL DE INTERFAZ Y ESCENARIOS
 // ==========================================  

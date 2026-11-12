@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'rmr-v11.7';
+const CACHE_NAME = 'rmr-v12.0';
 const CACHE_PREFIX = 'rmr-';
 
 const STATIC_ASSETS = [

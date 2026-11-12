@@ -310,7 +310,7 @@ select.in-field {
                 <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
             </p>
         </div>
-        <div class="v-box">v11.7 PRO </div>
+        <div class="v-box">v12.0 PRO </div>
     </div>
 
     <div class="grid-main" id="main-container">
@@ -765,13 +765,41 @@ select.in-field {
                 </div>
             </div>
         </div>
+      
+      
+      <!-- 6. OBSERVACIONES / COMENTARIOS DE CAMPO -->
+        <div class="geo-card full-row" style="background: #ffffff; min-height: auto; padding: 10px 12px; overflow: hidden; border-left: 4px solid #e67e22;">
+            <h4 style="margin: -10px -12px 10px -12px !important; padding: 0 15px; background: #f1f5f9; border-bottom: 3px solid #e67e22; color: #052c52; font-size: 12px; font-weight: 800; display: flex; align-items: center; width: calc(100% + 24px); height: 32px; flex: none;">
+                📝 6. OBSERVACIONES / COMENTARIOS DE CAMPO
+            </h4>
 
-        <div id="controles-fase1" class="full-row" style="display: flex; justify-content: flex-end; padding: 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
-            <button type="button" onclick="prepararYIrAFase2()" style="width: 160px; height: 40px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #1e8449;">
+            <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="input-label" style="margin-bottom: 0;">NOTAS Y ANOMALÍAS</div>
+                    <span id="obs_contador" style="font-size: 8.5px; color: #64748b; font-weight: bold;">0 / 200</span>
+                </div>
+                <textarea id="est_obs" class="in-field" maxlength="200" placeholder="Anota detalles relevantes, litología local, filtraciones inusuales o condiciones del afloramiento (máx. 200 caracteres)..." oninput="actualizarContadorObs()" style="height: 60px; resize: none; font-size: 11px; padding: 6px;"></textarea>
+            </div>
+        </div>
+
+        <div id="controles-fase1" class="full-row" style="display: flex; justify-content: flex-end; gap: 8px; padding: 15px; background: #f8fafc; border-top: 1px solid #e1e8ed; margin-top: 10px;">
+            <!-- BOTÓN PARA LIMPIAR EL FORMULARIO EN LA FASE 1 -->
+            <button type="button" onclick="nuevaEstacion()" style="width: 150px; height: 40px; background: #95a5a6; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #7f8c8d;">
+                🧹 LIMPIAR FICHA
+            </button>
+
+            <!-- BOTÓN DE EXPORTACIÓN DIRECTA -->
+            <button type="button" onclick="exportarFichaActualDirecta()" style="width: 160px; height: 40px; background: #e67e22; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #d35400;">
+                📥 EXPORTAR ACTUAL
+            </button>
+            
+            <!-- BOTÓN DE VER REPORTE -->
+            <button type="button" onclick="prepararYIrAFase2()" style="width: 150px; height: 40px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 0 #1e8449;">
                 VER REPORTE >>
             </button>
-        </div>
-    </div> 
+        </div>  
+             
+    </div>
 
     <!-- FASE 2: REPORTE -->
     <div id="fase2-container" style="display: none; padding: 12px; background: #ebf2f7;">
@@ -827,13 +855,18 @@ select.in-field {
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="registrarFichaActual(false)" style="flex: 1; background: #2980b9; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">💾 GUARDAR / ACTUALIZAR</button>
-                    <button type="button" onclick="nuevaEstacion()" style="flex: 1; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">➕ NUEVA ESTACIÓN</button>
-                </div>
+                <!-- BOTÓN REEMPLAZADO PARA REGRESAR A EDITAR -->
+                <button type="button" onclick="volverAFase1()" style="width: 100%; background: #3498db; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px; box-shadow: 0 3px 0 #2980b9;">
+                    « ATRÁS / EDITAR ESTACIÓN
+                </button>
 
-                <button type="button" onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">📥 EXPORTAR EXCEL (0 FICHAS)</button>
-                <button type="button" onclick="volverAFase1()" style="width: 100%; background: #64748b; color: white; border: none; border-radius: 6px; padding: 10px; font-size: 9px; cursor: pointer; text-transform: uppercase;">« EDITAR DATOS DE ESTACIÓN</button>
+                <button type="button" onclick="nuevaEstacion()" style="width: 100%; background: #27ae60; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">
+                    ➕ NUEVA ESTACIÓN
+                </button>
+
+                <button type="button" onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">
+                    📥 EXPORTAR EXCEL CONSOLIDADO (0 FICHAS)
+                </button>
             </div>
         </div>
     </div>
@@ -1688,6 +1721,17 @@ function calcularClasificacionFinal() {
     document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
 }
 
+  function actualizarContadorObs() {
+    const txt = document.getElementById('est_obs');
+    const contador = document.getElementById('obs_contador');
+    if (txt && contador) {
+        const actual = txt.value.length;
+        contador.innerText = `${actual} / 200`;
+        contador.style.color = actual >= 190 ? "#e74c3c" : "#64748b";
+    }
+}
+  
+  
 // ==========================================
 // 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL (FIX iOS)
 // ==========================================
@@ -1739,7 +1783,7 @@ function registrarFichaActual(silencioso = false) {
         };
     });
 
-    // 3. Declaración de variables del escenario (CORRECCIÓN CRÍTICA)
+    // 3. Declaración de variables del escenario
     const escEl = document.getElementById('escenario');
     const escTexto = escEl ? escEl.options[escEl.selectedIndex].text : "TALUD / MACIZO";
     const escVal = escEl ? escEl.value : "talud";
@@ -1763,6 +1807,7 @@ function registrarFichaActual(silencioso = false) {
         rqd_val: document.querySelector('#out_rqd b')?.innerText || "0",
         agua_tipo: document.getElementById('p5_agua').options[document.getElementById('p5_agua').selectedIndex].text,
         juntas: datosJuntas, 
+        observaciones: document.getElementById('est_obs').value.trim(),
         rmr_b: document.getElementById('res_rmr_base').innerText,
         p6: document.getElementById('res_ajuste').innerText,
         rmr_f: document.getElementById('res_rmr_final').innerText,
@@ -1780,8 +1825,11 @@ function registrarFichaActual(silencioso = false) {
         baseDeDatosFichas.push(ficha);
     }
     
-    // 5. Persistencia y actualización del botón
+    // 5. Persistencia, control de límite de 1000 fichas y actualización del botón
     localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    
+    // 👉 Verificación automática de límite operativo (1000 fichas)
+    verificarLimiteFichas();
     
     const btnExp = document.getElementById('btn_exportar');
     if (btnExp) {
@@ -1804,7 +1852,8 @@ function nuevaEstacion() {
     document.getElementById('abs_hasta').value = "";
     document.getElementById('eje_dip').value = "";
     document.getElementById('eje_dir').value = "";
-
+	document.getElementById('est_obs').value = "";
+    actualizarContadorObs();
     listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
     idActivo = 1;
     
@@ -1816,6 +1865,69 @@ function nuevaEstacion() {
     alert("✨ Formulario listo para nueva estación.");
 }
 
+  function exportarFichaActualDirecta() {
+    const idEst = document.getElementById('est_id').value.trim();
+    if (!idEst) {
+        alert("⚠️ Por favor ingresa el ID de la estación antes de exportar.");
+        document.getElementById('est_id').focus();
+        document.getElementById('est_id').style.border = "2px solid #e74c3c";
+        return;
+    }
+
+    // 1. SINCRONIZAR MEMORIA LOCAL PRIMERO
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    let fichasGuardadas = backup ? JSON.parse(backup) : [];
+
+    // 2. 🛑 VALIDAR SI EL CÓDIGO YA EXISTE EN LOS REGISTROS PREVIOS
+    const yaRegistrado = fichasGuardadas.some(f => f.id.toUpperCase() === idEst.toUpperCase());
+    if (yaRegistrado) {
+        alert(`⚠️ ¡Estación ya exportada!\n\nEl código de estación "${idEst}" ya fue guardado y exportado previamente. No es posible volver a exportarlo con este mismo ID.`);
+        document.getElementById('est_id').focus();
+        document.getElementById('est_id').style.border = "2px solid #e74c3c";
+        return; // Detiene la ejecución para evitar duplicados
+    }
+
+    // 3. Si pasa la validación, continúa el proceso normal de guardado y exportación...
+    guardarDatosJunta();
+    runRmr();
+    const guardadoExitoso = registrarFichaActual(true);
+
+    if (!guardadoExitoso) return;
+
+    const fichaActual = baseDeDatosFichas.find(f => f.id === idEst);
+    if (fichaActual) {
+        exportarConsolidado([fichaActual], `Estacion_${fichaActual.id}`);
+        
+        // Limpiar el formulario automáticamente...
+        const camposLimpiar = ['est_id', 'coord_e', 'coord_n', 'coord_z', 'abs_desde', 'abs_hasta', 'eje_dip', 'eje_dir', 'loc_sector', 'ubi_val'];
+        camposLimpiar.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = "";
+                el.style.border = "1px solid #cbd5e1";
+                el.style.backgroundColor = "#ffffff";
+            }
+        });
+
+        const gpsInfo = document.getElementById('gps_info');
+        if (gpsInfo) gpsInfo.innerHTML = "";
+
+        document.getElementById('est_obs').value = "";
+        actualizarContadorObs();
+
+        listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+        idActivo = 1;
+        
+        renderizarTabs();
+        cambiarAJunta(1);
+        runRmr();
+        window.scrollTo(0,0);
+        
+        alert(`✅ Estación ${idEst} exportada y formulario listo para la siguiente.`);
+    } else {
+        alert("❌ Error al generar el archivo de la estación.");
+    }
+}
 /* EXPORTAR EXCEL EN IPHONE / SAFARI */
 function exportarConsolidado() {
     if (baseDeDatosFichas.length === 0) {
@@ -1857,6 +1969,7 @@ function exportarConsolidado() {
                         ${encabezadoSistemas}
                         <th style="background-color: #27ae60; color: white;">HIDRO.</th>
                         <th colspan="7" class="naranja">RESULTADOS GEOMECÁNICOS</th>
+                        <th style="background-color: #7f8c8d; color: white;">OBSERVACIONES</th>
                     </tr>
                     <tr>
                         <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th>
@@ -1898,6 +2011,7 @@ function exportarConsolidado() {
                                 <td>${f.agua_tipo}</td>
                                 <td style="font-weight:bold;">${f.rmr_b}</td><td>${f.p6}</td><td style="background:#eee; font-weight:bold;">${f.rmr_f}</td>
                                 <td style="font-weight:bold;">${f.clase}</td><td>${f.cohesion}</td><td>${f.friccion}</td><td>${f.modulo}</td>
+                                <td style="text-align: left; font-size: 7.5pt; background: #fffdf9;">${f.observaciones || ""}</td>
                             </tr>`;
                     }).join('')}
                 </tbody>
@@ -1920,15 +2034,25 @@ function exportarConsolidado() {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
     }, 500);
-
-    setTimeout(() => {
-        if (confirm("¿Desea limpiar la base de datos local ahora que el archivo ha sido generado?")) {
-            baseDeDatosFichas = [];
-            localStorage.removeItem('rmr_backup_geotecnia');
-            document.getElementById('btn_exportar').innerText = `📥 EXPORTAR EXCEL (0 FICHAS)`;
-            alert("🧹 Memoria limpia para una nueva jornada.");
+    
+}
+  
+  	function verificarLimiteFichas() {
+    if (baseDeDatosFichas.length >= 1000) {
+        alert("⚠️ ¡Límite operativo de 1,000 estaciones alcanzado!\n\nPara mantener la aplicación ligera y rápida en campo, el sistema descargará el consolidado final y limpiará la memoria local automáticamente para un nuevo ciclo.");
+        
+        exportarConsolidado(); 
+        
+        baseDeDatosFichas = [];
+        localStorage.removeItem('rmr_backup_geotecnia');
+        
+        const btnExp = document.getElementById('btn_exportar');
+        if (btnExp) {
+            btnExp.innerText = `📥 EXPORTAR EXCEL CONSOLIDADO (0 FICHAS)`;
         }
-    }, 1500);
+        
+        alert("🧹 Memoria local reseteada con éxito. ¡Lista para la siguiente fase de campo!");
+    }
 }
 
 // ==========================================

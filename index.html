@@ -1929,11 +1929,34 @@ function nuevaEstacion() {
     }
 }
 /* EXPORTAR EXCEL EN IPHONE / SAFARI */
-function exportarConsolidado() {
-    if (baseDeDatosFichas.length === 0) {
-        alert("No hay estaciones guardadas para exportar. Guarde al menos una ficha.");
+function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = null) {
+    const datosAExportar = fichasPersonalizadas || baseDeDatosFichas;
+    
+    if (datosAExportar.length === 0) {
+        alert("⚠️ No hay estaciones guardadas para exportar. Guarde al menos una ficha.");
         return;
     }
+
+    // 1. OBTENER EL TÉCNICO DESDE EL FORMULARIO
+    const inputTecnico = document.getElementById('est_tec');
+    const nombreTecnicoTexto = inputTecnico ? inputTecnico.value.trim() : "Tecnico";
+    const tecnicoLimpio = nombreTecnicoTexto 
+        ? nombreTecnicoTexto.replace(/[^a-zA-Z0-9_\-]/g, "_") 
+        : "Operador";
+
+    // 2. GENERAR FECHA Y HORA ACTUAL FORMATEADA (Ej: 20261112_1221)
+    const ahora = new Date();
+    const anio = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const hora = String(ahora.getHours()).padStart(2, '0');
+    const minuto = String(ahora.getMinutes()).padStart(2, '0');
+    const fechaHoraStr = `${anio}${mes}${dia}_${hora}${minuto}`;
+
+    // 3. Definir el nombre final del archivo
+    let nombreArchivo = nombrePersonalizado 
+        ? `${nombrePersonalizado}.xls` 
+        : `RMR_${tecnicoLimpio}_${fechaHoraStr}.xls`;
 
     const desarrollador = "Mgtr. Byron Bravo";
     const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
@@ -2024,7 +2047,7 @@ function exportarConsolidado() {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Data_RMR_ByronBravo_${Date.now()}.xls`;
+    link.download = nombreArchivo;
     link.target = '_blank';
     
     document.body.appendChild(link);

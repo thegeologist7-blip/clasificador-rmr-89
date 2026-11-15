@@ -1148,19 +1148,18 @@ function abrirProyecto(nombreProyecto) {
         html = `<div style="text-align:center; color:#888; padding:20px;">No hay estaciones registradas para este proyecto.</div>`;
     } else {
         fichasProyecto.forEach(f => {
-            // Manejo de respaldo si la ficha anterior no tenía hora guardada (evita el "SH")
             const horaMostrar = (f.hora && f.hora !== "undefined" && f.hora !== "NaN:NaN") ? f.hora : "00:00";
 
             html += `
-                <div style="background:white; border:1px solid #cbd5e1; border-radius:6px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 2px rgba(0,0,0,0.04); gap:10px;">
-                    <div style="overflow:hidden;">
-                        <div style="font-weight:bold; color:#052c52; font-size:10.5pt;">📍 ID: ${f.id}</div>
-                        <div style="font-size:8pt; color:#666; margin-top:2px;">📅 ${f.fecha || 'N/A'} ⏰ ${horaMostrar} | 👤 ${f.tecnico || 'Sin Técnico'}</div>
+                <div style="background:white; border:1px solid #cbd5e1; border-radius:6px; padding:8px 10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 2px rgba(0,0,0,0.04); gap:8px;">
+                    <div style="overflow:hidden; flex: 1; min-width: 0;">
+                        <div style="font-weight:bold; color:#052c52; font-size:10pt; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📍 ID: ${f.id}</div>
+                        <div style="font-size:7.5pt; color:#64748b; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📅 ${f.fecha || 'N/A'} ⏰ ${horaMostrar} | 👤 ${f.tecnico || 'N/A'}</div>
                     </div>
                     <div style="display:flex; gap:4px; flex-shrink:0;">
-                        <button onclick="exportarFichaIndividual('${f.id}')" style="background:#27ae60; color:white; border:none; padding:5px 7px; border-radius:4px; font-size:8pt; cursor:pointer;" title="Exportar esta ficha">📥 Exportar</button>
-                        <button onclick="cargarFichaParaEditar('${f.id}')" style="background:#2980b9; color:white; border:none; padding:5px 7px; border-radius:4px; font-size:8pt; cursor:pointer;" title="Cargar para modificar">✏️ Modificar</button>
-                        <button onclick="eliminarFicha('${f.id}')" style="background:#e74c3c; color:white; border:none; padding:5px 7px; border-radius:4px; font-size:8pt; cursor:pointer;" title="Eliminar esta ficha">🗑️ Eliminar</button>
+                        <button onclick="exportarFichaIndividual('${f.id}')" style="background:#27ae60; color:white; border:none; padding:6px 9px; border-radius:4px; font-size:9pt; cursor:pointer;" title="Exportar ficha">📥</button>
+                        <button onclick="cargarFichaParaEditar('${f.id}')" style="background:#2980b9; color:white; border:none; padding:6px 9px; border-radius:4px; font-size:9pt; cursor:pointer;" title="Modificar ficha">✏️</button>
+                        <button onclick="eliminarFicha('${f.id}')" style="background:#e74c3c; color:white; border:none; padding:6px 9px; border-radius:4px; font-size:9pt; cursor:pointer;" title="Eliminar ficha">🗑️</button>
                     </div>
                 </div>`;
         });

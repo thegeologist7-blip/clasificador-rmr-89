@@ -310,8 +310,82 @@ select.in-field {
                 <b>DESCARGO:</b> La veracidad de los datos ingresados es responsabilidad del usuario. Los resultados deben ser validados técnicamente antes de su inclusión en informes oficiales.
             </p>
         </div>
-        <div class="v-box">v12.0 PRO </div>
+        <div class="v-box">v12.8 PRO </div>
     </div>
+  
+ <!-- BARRA SUPERIOR DE ESTADO Y MENÚ DE PROYECTOS (Integrada y sin espacios muertos) -->
+<div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+    
+    <!-- Indicador a la izquierda: Almacenamiento y Proyecto Activo -->
+    <div style="display: flex; flex-direction: column; overflow: hidden; padding-right: 10px;">
+        <span style="font-size: 7pt; color: #2980b9; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">💾 Local Storage</span>
+        <span id="indicador-proyecto-activo" style="font-size: 9.5pt; font-weight: bold; color: #052c52; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px;">Proyecto: Sin Definir</span>
+    </div>
+
+    <!-- Menú de 3 Rayas a la derecha -->
+    <div style="position: relative; display: inline-block; flex-shrink: 0;">
+        <button type="button" onclick="toggleMenuProyectos()" style="background: #052c52; border: none; color: white; width: 30px; height: 30px; border-radius: 4px; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+            ☰
+        </button>
+
+        <!-- SUBMENÚ DESPLEGABLE SUPERIOR -->
+        <div id="dropdown-menu-proyectos" style="display: none; position: absolute; right: 0; top: 34px; background: white; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); width: 180px; z-index: 1000; overflow: hidden; border: 1px solid #cbd5e1;">
+            
+            <!-- Opción 1: Nuevo Proyecto -->
+            <div onclick="toggleMenuProyectos(); iniciarNuevoProyectoForm();" style="padding: 9px 12px; font-size: 9pt; font-weight: 700; color: #052c52; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">
+                <span>➕</span> Nuevo Proyecto
+            </div>
+
+            <!-- Opción 2: Abrir Proyecto Existente -->
+            <div onclick="toggleMenuProyectos(); abrirSelectorProyectoSimple();" style="padding: 9px 12px; font-size: 9pt; font-weight: 700; color: #052c52; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">
+                <span>📂</span> Abrir Proyecto
+            </div>
+
+            <!-- Opción 3: Gestionar Fichas -->
+            <div onclick="toggleMenuProyectos(); abrirGestorFichas();" style="padding: 9px 12px; font-size: 9pt; font-weight: 700; color: #052c52; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <span>⚙️</span> Gestionar Fichas
+            
+              
+              
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE GESTIÓN JERÁRQUICA POR PROYECTOS -->
+<div id="modal-gestion" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#ffffff; width:92%; max-width:650px; border-radius:8px; padding:20px; box-shadow:0 4px 20px rgba(0,0,0,0.3); font-family:Arial, sans-serif; max-height:85vh; display:flex; flex-direction:column;">
+        
+        <!-- ENCABEZADO DINÁMICO -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding-bottom:10px; margin-bottom:15px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button id="btn-volver-proyectos" onclick="mostrarVistaProyectos()" style="display:none; background:#e2e8f0; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-weight:bold; font-size:9pt;" title="Volver a la lista de proyectos">← Volver</button>
+                <h3 id="titulo-modal-gestion" style="margin:0; color:#052c52; font-size:15pt;">📂 Proyectos Registrados</h3>
+            </div>
+            <button onclick="cerrarModalGestion()" style="background:none; border:none; font-size:16pt; cursor:pointer; color:#666;">✖</button>
+        </div>
+
+        <!-- VISTA 1: LISTADO DE PROYECTOS -->
+        <div id="vista-proyectos" style="overflow-y:auto; flex-grow:1; max-height:55vh; padding-right:4px;">
+            <!-- Se llena dinámicamente con las tarjetas de proyectos -->
+        </div>
+
+        <!-- VISTA 2: LISTADO DE FICHAS DEL PROYECTO SELECCIONADO -->
+        <div id="vista-fichas-proyecto" style="display:none; flex-direction:column; flex-grow:1; overflow:hidden;">
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f4f6f8; padding:10px 12px; border-radius:6px; margin-bottom:12px;">
+                <span id="lbl-nombre-proyecto-activo" style="font-weight:bold; color:#052c52; font-size:10pt;">Proyecto</span>
+                <button onclick="exportarProyectoActivo()" style="background:#27ae60; color:white; border:none; padding:6px 12px; border-radius:4px; font-size:8.5pt; cursor:pointer; font-weight:bold;">📥 Exportar Consolidado Proyecto</button>
+            </div>
+            <div id="lista-fichas-por-proyecto" style="overflow-y:auto; flex-grow:1; max-height:45vh; border:1px solid #eee; border-radius:4px; padding:10px; background:#f9fafb;">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <div style="text-align:right; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+            <button onclick="cerrarModalGestion()" style="background:#7f8c8d; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:9pt;">Cerrar</button>
+        </div>
+    </div>
+</div>
 
     <div class="grid-main" id="main-container">
         <!-- 1. DATOS GENERALES -->
@@ -319,22 +393,7 @@ select.in-field {
             <h4 style="margin: -10px -12px 10px -12px !important; padding: 5px 15px; background: #f1f5f9; border-bottom: 3px solid #3498db; color: #052c52; font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; width: calc(100% + 24px); line-height: 1.4; height: 32px;">
                 <span>📋 1. DATOS E INFORMACIÓN GENERAL</span>
                 
-                <!-- BOTÓN DE MENÚ FLOTANTE (3 LÍNEAS) -->
-                <div style="position: relative;">
-                    <button type="button" onclick="toggleMenuBloque1()" style="background: #052c52; border: none; color: white; width: 26px; height: 26px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                        ☰
-                    </button>
-
-                    <!-- SUBMENÚ DESPLEGABLE -->
-                    <div id="dropdown-menu-b1" style="display: none; position: absolute; right: 0; top: 30px; background: white; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); width: 170px; z-index: 1000; overflow: hidden; border: 1px solid #cbd5e1;">
-                        <div onclick="toggleMenuBloque1(); nuevaEstacion();" style="padding: 10px 12px; font-size: 10px; font-weight: 700; color: #052c52; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">
-                            <span>➕</span> Nueva Estación
-                        </div>
-                        <div onclick="toggleMenuBloque1(); abrirGestorFichas();" style="padding: 10px 12px; font-size: 10px; font-weight: 700; color: #052c52; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                            <span>📂</span> Gestionar Fichas
-                        </div>
-                    </div>
-                </div>
+                                
             </h4>
             
             <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -352,7 +411,7 @@ select.in-field {
 
                 <div style="width:100%;">
                     <div class="input-label">PROYECTO / OBRA</div>
-                    <input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA">
+                    <input type="text" id="proy_nom" class="in-field" placeholder="NOMBRE DE LA OBRA" oninput="actualizarIndicadorProyecto(); actualizarTextoBotonExportar();">
                 </div>
 
                 <div style="display:flex; gap:6px;">
@@ -864,9 +923,9 @@ select.in-field {
                     ➕ NUEVA ESTACIÓN
                 </button>
 
-                <button type="button" onclick="exportarConsolidado()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">
-                    📥 EXPORTAR EXCEL CONSOLIDADO (0 FICHAS)
-                </button>
+                <button type="button" onclick="exportarProyectoActivoDesdeFase2()" id="btn_exportar" style="width: 100%; background: #e67e22; color: white; border: none; border-radius: 6px; padding: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px;">
+    📥 EXPORTAR EXCEL CONSOLIDADO PROYECTO
+</button>
             </div>
         </div>
     </div>
@@ -874,29 +933,411 @@ select.in-field {
 
 <script>
 // ==========================================
-// 1. ESTADO Y MEMORIA GLOBAL
+// 1. ESTADO Y MEMORIA GLOBAL Y MENÚ DE PROYECTOS
 // ==========================================  
 let sysCount = 1;
 let baseDeDatosFichas = [];
 let listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
 let idActivo = 1;
+let fichaYaExportada = false;
+let proyectoSeleccionadoActual = null;
 
-// Abrir o cerrar el menú flotante del Bloque 1
-function toggleMenuBloque1() {
-    const menu = document.getElementById('dropdown-menu-b1');
+// Control unificado del menú desplegable superior (3 rayas)
+function toggleMenuProyectos() {
+    const menu = document.getElementById('dropdown-menu-proyectos');
     if (menu) {
         menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
 }
 
-// Cerrar el menú si el usuario toca fuera de él
+// Cerrar el menú superior si se hace clic fuera de él
 window.addEventListener('click', function(e) {
-    const menu = document.getElementById('dropdown-menu-b1');
-    const btn = document.querySelector('button[onclick="toggleMenuBloque1()"]');
+    const menu = document.getElementById('dropdown-menu-proyectos');
+    const btn = document.querySelector('button[onclick="toggleMenuProyectos()"]');
     if (menu && menu.style.display === 'block' && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
         menu.style.display = 'none';
     }
-});    
+});
+
+// Actualizar el indicador superior izquierdo en tiempo real al escribir en el input
+function actualizarIndicadorProyecto() {
+    const inputProj = document.getElementById('proy_nom');
+    const indicador = document.getElementById('indicador-proyecto-activo');
+    if (inputProj && indicador) {
+        const val = inputProj.value.trim();
+        indicador.innerText = val ? `Proyecto: ${val}` : "Proyecto: Sin Definir";
+    }
+}
+
+// Opción: Nuevo Proyecto (Reinicia el formulario y limpia el ID de estación para empezar limpio)
+function iniciarNuevoProyectoForm() {
+    if (!confirm("⚠️ ¿Iniciar un nuevo proyecto?\n\nEsto limpiará el formulario actual para que ingreses un nuevo nombre de proyecto y comiences a registrar estaciones desde cero.")) return;
+
+    // Limpiar campos clave del formulario
+    document.getElementById('proy_nom').value = "";
+    document.getElementById('est_id').value = "";
+    
+    // Limpiar coordenadas y datos generales
+    const camposLimpiar = ['coord_e', 'coord_n', 'coord_z', 'abs_desde', 'abs_hasta', 'eje_dip', 'eje_dir', 'loc_sector', 'ubi_val', 'est_obs'];
+    camposLimpiar.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+
+    // Restablecer juntas
+    listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+    idActivo = 1;
+    if (typeof renderizarTabs === 'function') renderizarTabs();
+    if (typeof cambiarAJunta === 'function') cambiarAJunta(1);
+    if (typeof runRmr === 'function') runRmr();
+
+    actualizarIndicadorProyecto();
+  	actualizarTextoBotonExportar();
+  	
+  	if (typeof volverAFase1 === 'function') {
+        volverAFase1();
+    } else {
+        document.getElementById('main-container').style.display = 'grid';
+        document.getElementById('fase2-container').style.display = 'none';
+    }
+  
+    window.scrollTo(0, 0);
+  	alert("✅ Formulario listo. Escribe el nombre del nuevo proyecto en el campo correspondiente.");
+}
+
+// Opción: Abrir Proyecto (Muestra una lista simple de proyectos existentes para continuar llenando)
+function abrirSelectorProyectoSimple() {
+    // Cargar respaldo más reciente por seguridad
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    if (!baseDeDatosFichas || baseDeDatosFichas.length === 0) {
+        alert("⚠️ No hay proyectos ni estaciones guardadas en la memoria local.");
+        return;
+    }
+
+    // Obtener proyectos únicos
+    const proyectosUnicos = [...new Set(baseDeDatosFichas.map(f => f.proyecto ? f.proyecto.trim() : "Sin Proyecto"))].sort();
+
+    let mensaje = "📂 SELECCIONA UN PROYECTO PARA CONTINUAR:\n\n";
+    proyectosUnicos.forEach((p, idx) => {
+        const count = baseDeDatosFichas.filter(f => (f.proyecto ? f.proyecto.trim() : "Sin Proyecto") === p).length;
+        mensaje += `${idx + 1}. ${p} (${count} estaciones)\n`;
+    });
+
+    const seleccion = prompt(mensaje + "\nEscribe el número del proyecto que deseas abrir:");
+    if (!seleccion) return;
+
+    const index = parseInt(seleccion.trim()) - 1;
+    if (index >= 0 && index < proyectosUnicos.length) {
+        const proyectoElegido = proyectosUnicos[index];
+        
+      
+        // Asignar al input principal del formulario
+        document.getElementById('proy_nom').value = proyectoElegido;
+        actualizarIndicadorProyecto();
+      	actualizarTextoBotonExportar();
+      
+      	if (typeof volverAFase1 === 'function') {
+            volverAFase1();
+        } else {
+            document.getElementById('main-container').style.display = 'grid';
+            document.getElementById('fase2-container').style.display = 'none';
+        }
+
+        window.scrollTo(0, 0);
+        alert(`✅ Proyecto "${proyectoElegido}" seleccionado.\n\nPuedes continuar registrando nuevas estaciones asociadas a este frente.`);
+    } else {
+        alert("❌ Selección inválida.");
+    }
+}
+
+// Abrir el modal mostrando por defecto la lista de proyectos
+function abrirGestorFichas() {
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    const modal = document.getElementById('modal-gestion');
+    if (modal) {
+        modal.style.display = 'flex';
+        mostrarVistaProyectos();
+    }
+}
+
+function cerrarModalGestion() {
+    const modal = document.getElementById('modal-gestion');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Cambiar a la Vista 1: Listado de Proyectos
+function mostrarVistaProyectos() {
+    proyectoSeleccionadoActual = null;
+    document.getElementById('vista-proyectos').style.display = 'block';
+    document.getElementById('vista-fichas-proyecto').style.display = 'none';
+    document.getElementById('btn-volver-proyectos').style.display = 'none';
+    document.getElementById('titulo-modal-gestion').innerText = "📂 Proyectos Registrados";
+
+    const contenedor = document.getElementById('vista-proyectos');
+    
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    if (!baseDeDatosFichas || baseDeDatosFichas.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center; color:#888; padding:30px;">No hay estaciones registradas en la memoria local.</div>`;
+        return;
+    }
+
+    // Agrupar fichas por proyecto
+    const mapaProyectos = {};
+    baseDeDatosFichas.forEach(f => {
+        let p = f.proyecto ? f.proyecto.trim() : "Sin Proyecto";
+        if (!mapaProyectos[p]) mapaProyectos[p] = [];
+        mapaProyectos[p].push(f);
+    });
+
+    let html = '';
+    Object.keys(mapaProyectos).sort().forEach(proj => {
+        const cantidad = mapaProyectos[proj].length;
+        html += `
+            <div style="background:white; border:1px solid #cbd5e1; border-radius:6px; padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <div onclick="abrirProyecto('${proj.replace(/'/g, "\\'")}')" style="cursor:pointer; flex-grow:1;">
+                    <div style="font-weight:bold; color:#052c52; font-size:12pt;">📁 ${proj}</div>
+                    <div style="font-size:9pt; color:#666; margin-top:4px;">${cantidad} estación(es) geomecánica(s) registrada(s)</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button onclick="event.stopPropagation(); eliminarProyecto('${proj.replace(/'/g, "\\'")}')" style="background:#e74c3c; color:white; border:none; padding:6px 10px; border-radius:4px; font-size:8.5pt; cursor:pointer; font-weight:bold;" title="Eliminar proyecto completo">🗑️ Eliminar</button>
+                    <div onclick="abrirProyecto('${proj.replace(/'/g, "\\'")}')" style="font-size:14pt; color:#2980b9; font-weight:bold; cursor:pointer; padding-left: 5px;">➔</div>
+                </div>
+            </div>`;
+    });
+
+    contenedor.innerHTML = html;
+}
+
+// Cambiar a la Vista 2: Desplegar fichas del proyecto seleccionado
+function abrirProyecto(nombreProyecto) {
+    proyectoSeleccionadoActual = nombreProyecto;
+    document.getElementById('vista-proyectos').style.display = 'none';
+    document.getElementById('vista-fichas-proyecto').style.display = 'flex';
+    document.getElementById('btn-volver-proyectos').style.display = 'inline-block';
+    document.getElementById('titulo-modal-gestion').innerText = `📁 ${nombreProyecto}`;
+    document.getElementById('lbl-nombre-proyecto-activo').innerText = `Proyecto: ${nombreProyecto}`;
+
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    const fichasProyecto = baseDeDatosFichas.filter(f => {
+        let p = f.proyecto ? f.proyecto.trim() : "Sin Proyecto";
+        return p.toLowerCase() === nombreProyecto.toLowerCase();
+    });
+
+    const contenedor = document.getElementById('lista-fichas-por-proyecto');
+    let html = '';
+    
+    if (fichasProyecto.length === 0) {
+        html = `<div style="text-align:center; color:#888; padding:20px;">No hay estaciones registradas para este proyecto.</div>`;
+    } else {
+        fichasProyecto.forEach(f => {
+            // Manejo de respaldo si la ficha anterior no tenía hora guardada (evita el "SH")
+            const horaMostrar = (f.hora && f.hora !== "undefined" && f.hora !== "NaN:NaN") ? f.hora : "00:00";
+
+            html += `
+                <div style="background:white; border:1px solid #cbd5e1; border-radius:6px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 2px rgba(0,0,0,0.04); gap:10px;">
+                    <div style="overflow:hidden;">
+                        <div style="font-weight:bold; color:#052c52; font-size:10.5pt;">📍 ID: ${f.id}</div>
+                        <div style="font-size:8pt; color:#666; margin-top:2px;">📅 ${f.fecha || 'N/A'} ⏰ ${horaMostrar} | 👤 ${f.tecnico || 'Sin Técnico'}</div>
+                    </div>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button onclick="exportarFichaIndividual('${f.id}')" style="background:#27ae60; color:white; border:none; padding:5px 7px; border-radius:4px; font-size:8pt; cursor:pointer;" title="Exportar esta ficha">📥 Exportar</button>
+                        <button onclick="cargarFichaParaEditar('${f.id}')" style="background:#2980b9; color:white; border:none; padding:5px 7px; border-radius:4px; font-size:8pt; cursor:pointer;" title="Cargar para modificar">✏️ Modificar</button>
+                        <button onclick="eliminarFicha('${f.id}')" style="background:#e74c3c; color:white; border:none; padding:5px 7px; border-radius:4px; font-size:8pt; cursor:pointer;" title="Eliminar esta ficha">🗑️ Eliminar</button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    contenedor.innerHTML = html;
+}
+  
+  // Función lógica para eliminar una estación individual
+function eliminarFicha(idEst) {
+    if (!confirm(`⚠️ ¿Estás seguro de eliminar la estación "${idEst}"?\nEsta acción no se puede deshacer.`)) return;
+
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    baseDeDatosFichas = baseDeDatosFichas.filter(f => f.id.toUpperCase() !== idEst.toUpperCase());
+
+    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    actualizarTextoBotonExportar();
+
+    if (typeof proyectoSeleccionadoActual !== 'undefined' && proyectoSeleccionadoActual) {
+        abrirProyecto(proyectoSeleccionadoActual);
+    }
+
+    alert(`✅ Estación "${idEst}" eliminada con éxito.`);
+}
+
+// Función lógica para eliminar un proyecto completo
+function eliminarProyecto(nombreProyecto) {
+    if (!confirm(`⚠️ ADVERTENCIA CRÍTICA:\n\n¿Estás seguro de eliminar el proyecto "${nombreProyecto}" por completo?\n\nEsto borrará permanentemente todas las estaciones y datos asociados a esta obra.`)) return;
+
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    baseDeDatosFichas = baseDeDatosFichas.filter(f => {
+        let p = f.proyecto ? f.proyecto.trim() : "Sin Proyecto";
+        return p.toLowerCase() !== nombreProyecto.toLowerCase();
+    });
+
+    localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    actualizarTextoBotonExportar();
+
+    const inputProj = document.getElementById('proy_nom');
+    if (inputProj && inputProj.value.trim().toLowerCase() === nombreProyecto.toLowerCase()) {
+        inputProj.value = "";
+        if (typeof actualizarIndicadorProyecto === 'function') actualizarIndicadorProyecto();
+    }
+
+    mostrarVistaProyectos();
+    alert(`✅ Proyecto "${nombreProyecto}" y todas sus estaciones eliminados con éxito.`);
+}
+  
+// Exportar el consolidado completo únicamente del proyecto activo en el formulario
+function exportarProyectoActivo() {
+    // 1. Priorizar el proyecto seleccionado en el modal; si no, usar el del formulario principal
+    const proyectoActivo = (typeof proyectoSeleccionadoActual !== 'undefined' && proyectoSeleccionadoActual) 
+        ? proyectoSeleccionadoActual 
+        : (document.getElementById('proy_nom') && document.getElementById('proy_nom').value.trim() !== "" 
+            ? document.getElementById('proy_nom').value.trim() 
+            : "Sin Proyecto");
+
+    // Cargar respaldo más reciente de la memoria local
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    // 2. Filtrar estrictamente por el proyecto activo actual (normalizando a minúsculas para evitar errores de tipeo)
+    const fichasAExportar = baseDeDatosFichas.filter(f => {
+        let p = f.proyecto ? f.proyecto.trim() : "Sin Proyecto";
+        return p.toLowerCase() === proyectoActivo.toLowerCase();
+    });
+
+    if (fichasAExportar.length === 0) {
+        alert(`⚠️ No hay estaciones registradas para el proyecto "${proyectoActivo}" para exportar.`);
+        return;
+    }
+
+    // 3. Generar el Excel limpio solo con las fichas de este proyecto
+    const nombreLimpio = proyectoActivo.replace(/[^a-zA-Z0-9_\-]/g, "_");
+    exportarConsolidado(fichasAExportar, `Consolidado_${nombreLimpio}`);
+    
+    // Cerrar el modal si la función existe
+    if (typeof cerrarModalGestion === 'function') cerrarModalGestion();
+}
+// Cargar la ficha al formulario principal para modificarla
+function cargarFichaParaEditar(idEst) {
+    const ficha = baseDeDatosFichas.find(f => f.id.toUpperCase() === idEst.toUpperCase());
+    if (!ficha) {
+        alert("⚠️ Ficha no encontrada.");
+        return;
+    }
+
+    if (!confirm(`¿Deseas cargar la estación "${ficha.id}" para modificarla?\n\nAl ver el reporte o exportarla nuevamente, los cambios se actualizarán automáticamente.`)) return;
+
+    // Rellenar datos generales
+    document.getElementById('est_id').value = ficha.id;
+    document.getElementById('est_fecha').value = ficha.fecha || "";
+    document.getElementById('est_tec').value = ficha.tecnico || "";
+    document.getElementById('proy_nom').value = ficha.proyecto || "";
+  
+  	actualizarIndicadorProyecto();
+    actualizarTextoBotonExportar();
+  
+    document.getElementById('coord_e').value = ficha.x || "";
+    document.getElementById('coord_n').value = ficha.y || "";
+    document.getElementById('coord_z').value = ficha.z || "";
+    document.getElementById('loc_sector').value = ficha.sector || "";
+    document.getElementById('ubi_val').value = ficha.nivel || "";
+    document.getElementById('abs_desde').value = ficha.desde || "";
+    document.getElementById('abs_hasta').value = ficha.hasta || "";
+    document.getElementById('est_obs').value = ficha.observaciones || "";
+    if (typeof actualizarContadorObs === 'function') actualizarContadorObs();
+
+    // Rellenar escenario y frente
+    const escSelect = document.getElementById('escenario');
+    if (escSelect) {
+        if (ficha.frente_tipo && ficha.frente_tipo.toLowerCase().includes('túnel')) {
+            escSelect.value = 'tunel';
+        } else {
+            escSelect.value = 'talud';
+        }
+        updateEscenario();
+    }
+    
+    document.getElementById('eje_dip').value = ficha.frente_dip || "";
+    if (ficha.frente_dir && ficha.frente_dir !== "N/A") {
+        document.getElementById('eje_dir').value = ficha.frente_dir;
+    }
+
+    // Rellenar agua (P5)
+    const selAgua = document.getElementById('p5_agua');
+    if (selAgua && ficha.agua_tipo) {
+        for (let i = 0; i < selAgua.options.length; i++) {
+            if (selAgua.options[i].text === ficha.agua_tipo) {
+                selAgua.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    // Rellenar sistemas de juntas
+    if (ficha.juntas && ficha.juntas.length > 0) {
+        listaJuntas = ficha.juntas.map((j, idx) => ({
+            id: idx + 1,
+            dip: j.dip,
+            dir: j.dir,
+            tipo: j.tipo ? j.tipo.toLowerCase() : "diaclasa",
+            relleno: j.relleno ? j.relleno.toLowerCase() : "cuarzo",
+            vals: [j.p_espac, j.p_persist, j.p_apert, j.p_rugos, j.p_rellen, j.p_alter],
+            amp: 0,
+            len: 100,
+            usePeine: j.metodo_jrc === "PEINE"
+        }));
+        idActivo = 1;
+        renderizarTabs();
+        cambiarAJunta(1);
+    }
+
+    runRmr();
+    cerrarModalGestion();
+    
+    
+    if (typeof volverAFase1 === 'function') {
+        volverAFase1();
+    } else {
+        document.getElementById('main-container').style.display = 'grid';
+        document.getElementById('fase2-container').style.display = 'none';
+    }
+
+    window.scrollTo(0, 0);
+    alert(`✏️ Estación ${ficha.id} cargada con éxito. Modifica lo que necesites y guarda/exporta para actualizarla.`);
+}
     
 // ==========================================
 // 2. CONTROL DE INTERFAZ Y ESCENARIOS
@@ -1060,6 +1501,8 @@ function irAFase2() {
         alert("⚠️ ATENCIÓN: Faltan datos críticos para el reporte:\n\n- " + faltantes.join("\n- "));
         return;
     }
+  
+    fichaYaExportada = false;
 
     // 6. Procesamiento y Transición
     runRmr(); 
@@ -1069,15 +1512,53 @@ function irAFase2() {
 
     // 1° Calcular y asignar al DOM (Clase, Cohesión, Fricción, Em)
     calcularClasificacionFinal();
-
-    // 2° Guardar la ficha con los valores ya calculados
-    registrarFichaActual(true); 
+    
+    // 🛑 👉 GUARDAR AUTOMÁTICAMENTE EN EL LOTE ACTIVO AL ENTRAR AL REPORTE
+    registrarFichaActual(true);
+    
+    fichaYaExportada = false;
 
     window.scrollTo(0, 0);
 }
 function volverAFase1() {
+    // 🛑 👉 VERIFICAR SI LA FICHA YA FUE EXPORTADA OFICIALMENTE
+    if (typeof fichaYaExportada !== 'undefined' && fichaYaExportada) {
+        // Si ya se exportó, limpiamos el formulario automáticamente para proteger contra duplicados
+        document.getElementById('est_id').value = "";
+        document.getElementById('coord_e').value = "";
+        document.getElementById('coord_n').value = "";
+        document.getElementById('coord_z').value = "";
+        const gpsInfo = document.getElementById('gps_info');
+        if (gpsInfo) gpsInfo.innerHTML = "";
+        
+        document.getElementById('abs_desde').value = "";
+        document.getElementById('abs_hasta').value = "";
+        document.getElementById('eje_dip').value = "";
+        document.getElementById('eje_dir').value = "";
+        document.getElementById('est_obs').value = "";
+        if (typeof actualizarContadorObs === 'function') actualizarContadorObs();
+        
+        // Reiniciar sistemas de juntas a su estado base
+        listaJuntas = [{ id: 1, dip: "", dir: "", vals: [20, 6, 6, 6, 6, 6], amp: 0, len: 100, usePeine: false }];
+        idActivo = 1;
+        
+        if (typeof renderizarTabs === 'function') renderizarTabs();
+        if (typeof cambiarAJunta === 'function') cambiarAJunta(1);
+        if (typeof runRmr === 'function') runRmr();
+        
+        fichaYaExportada = false; // Reseteamos el estado para el nuevo ciclo
+    }
+
+    // Regresar visualmente a la Fase 1
     document.getElementById('main-container').style.display = 'grid';
     document.getElementById('fase2-container').style.display = 'none';
+    window.scrollTo(0, 0);
+}
+
+function validarLimites(input, maxVal) {
+    let valor = parseFloat(input.value);
+    if (valor > maxVal) input.value = maxVal;
+    else if (valor < 0) input.value = 0;
 }
 
 function validarLimites(input, maxVal) {
@@ -1529,6 +2010,9 @@ function setSchmidtAngle(angulo, elemento) {
     runRmr(); 
 }
 
+// ==========================================
+// FUNCIÓN DE CÁLCULO RMR89 (CON FILTRO DE ESCENARIO: TÚNEL VS TALUD)
+// ==========================================
 function runRmr() {
     let mRes = document.getElementById('m_res').value;
     let ucs = 0, p1 = 0;
@@ -1579,7 +2063,7 @@ function runRmr() {
     if(document.getElementById('out_rqd')) document.getElementById('out_rqd').querySelector('b').innerText = Math.round(rqd);
     document.getElementById('score_p2').innerText = "PTS: " + p2;
 
-    let puntosJuntaCritica = 35; 
+    let puntosJuntaCritica = 100; 
     if (listaJuntas.length > 0) {
         listaJuntas.forEach(j => {
             let sumaActual = j.vals.reduce((a, b) => a + b, 0);
@@ -1594,9 +2078,35 @@ function runRmr() {
     let p5 = parseInt(document.getElementById('p5_agua').value) || 0;
     document.getElementById('score_p5').innerText = "PTS: " + p5;
 
+    // 1. RMR Básico
     let rmrBasico = p1 + p2 + puntosJuntaCritica + p5;
     const lblRmrBase = document.getElementById('res_rmr_base');
     if(lblRmrBase) lblRmrBase.innerText = rmrBasico;
+
+    // 2. EVALUAR ESCENARIO (TÚNEL VS TALUD) PARA EL AJUSTE P6
+    const escEl = document.getElementById('escenario');
+    const escVal = escEl ? escEl.value : "talud"; // Por defecto talud o el valor seleccionado
+    
+    let p6Valor = 0;
+    if (escVal === 'tunel') {
+        // Si tienes tu función o lógica que calcula P6 para túneles, la llamas aquí:
+        // p6Valor = calcularP6Tunel(); (o lee el elemento de la UI correspondiente a P6)
+        // Si lo lees directamente de un elemento de la interfaz de P6 para túneles:
+        p6Valor = parseInt(document.getElementById('res_ajuste_tunel')?.value || document.getElementById('res_ajuste')?.innerText || 0);
+    } else {
+        // 🛑 PARA TALUD: Cero penalización de Bieniawski (mantiene RMRb puro)
+        p6Valor = 0;
+    }
+
+    // 3. RMR Final y visualización en interfaz
+    let rmrFinal = rmrBasico + p6Valor; // Como en talud p6Valor es 0, rmrFinal = rmrBasico
+    
+    const lblAjuste = document.getElementById('res_ajuste');
+    if(lblAjuste) lblAjuste.innerText = p6Valor;
+
+    const lblRmrFinal = document.getElementById('res_rmr_final');
+    if(lblRmrFinal) lblRmrFinal.innerText = rmrFinal;
+
     actualizarPuntosUI();
     return rmrBasico;
 }
@@ -1647,44 +2157,33 @@ function calcularClasificacionFinal() {
     let rmrBasicoTotal = p1 + p2 + minScoreEncontrado + p5;
 
     const esc = document.getElementById('escenario').value;
-    const oDip = parseFloat(document.getElementById('eje_dip').value) || 0; // En túnel es Azimut Eje; en talud es Inclinación
-    const oDir = parseFloat(document.getElementById('eje_dir').value) || 0; // En talud es Dirección; en túnel está deshabilitado
+    const oDip = parseFloat(document.getElementById('eje_dip').value) || 0; 
+    const oDir = parseFloat(document.getElementById('eje_dir').value) || 0; 
     let p6 = 0;
 
-    listaJuntas.forEach(j => {
-        let a = 0;
-        let jDp = parseFloat(j.dip) || 0;
-        let jDr = parseFloat(j.dir) || 0;
-        
-        if (esc === 'tunel') {
-            // EN TÚNEL: se compara el rumbo/dirección de la junta contra el Azimut del eje (oDip)
+    // 🛑 EVALUAR ESCENARIO: SI ES TÚNEL SE CALCULA P6, SI ES TALUD SE ANULA (P6 = 0)
+    if (esc === 'tunel') {
+        listaJuntas.forEach(j => {
+            let a = 0;
+            let jDp = parseFloat(j.dip) || 0;
+            let jDr = parseFloat(j.dir) || 0;
+            
             let d = Math.abs(oDip - jDr) % 180;
             if (d > 90) d = 180 - d;
             
-            // Criterio Bieniawski 1989 para túneles según ángulo relativo eje-discontinuidad
             if (d < 20) {
-                a = -12; // Paralelo al eje (Muy desfavorable)
+                a = -12; 
             } else if (d < 45) {
-                a = -5;  // Desfavorable
+                a = -5;  
             } else {
-                a = (jDp > 45) ? 0 : -2; // Perpendicular / favorable
+                a = (jDp > 45) ? 0 : -2; 
             }
-        } else {
-            // EN TALUD: se compara la dirección del talud (oDir) contra la dirección de buzamiento (jDr)
-            let dD = Math.abs(oDir - jDr);
-            if (dD > 180) dD = 360 - dD;
-            
-            if (dD < 20) {
-                a = (jDp > oDip) ? -5 : (Math.abs(oDip - jDp) < 10) ? -60 : -25;
-            } else if (Math.abs(dD - 180) < 20) {
-                a = -25;
-            } else {
-                a = -5;
-            }
-        }
-        
-        if (a < p6) p6 = a; // Se adopta el ajuste más crítico
-    });
+            if (a < p6) p6 = a; 
+        });
+    } else {
+        // 🛑 PARA TALUD: Cero corrección/penalización por orientación de Bieniawski (se respeta el RMRb puro)
+        p6 = 0; 
+    }
 
     let rmrFinal = Math.max(0, rmrBasicoTotal + p6);
     let modE = Math.pow(10, (rmrFinal - 10) / 40).toFixed(2);
@@ -1711,7 +2210,14 @@ function calcularClasificacionFinal() {
     document.getElementById('res_rmr_base').innerText = rmrBasicoTotal;
     document.getElementById('res_ajuste').innerText = p6;
     document.getElementById('res_rmr_final').innerText = rmrFinal;
-    document.getElementById('res_clase_tag').innerText = "CLASE: " + clase;
+    
+    // Cambiar etiqueta superior dinámicamente según sea túnel o talud
+    if (esc === 'tunel') {
+        document.getElementById('res_clase_tag').innerText = "CLASE: " + clase;
+    } else {
+        document.getElementById('res_clase_tag').innerText = "CLASE (RMRb): " + clase;
+    }
+
     document.getElementById('res_clase_tag').style.background = color;
     document.getElementById('res_cohesion').innerText = cohesion + " kPa";
     document.getElementById('res_friccion').innerHTML = friccion + "&deg;";
@@ -1720,7 +2226,6 @@ function calcularClasificacionFinal() {
     document.getElementById('res_peor_junta').innerHTML = listaHTML;
     document.getElementById('bloque_dinamico').innerHTML = `<div style="padding-top:5px;"><b>Orientación Técnica:</b><br>${soporte}</div>`;
 }
-
   function actualizarContadorObs() {
     const txt = document.getElementById('est_obs');
     const contador = document.getElementById('obs_contador');
@@ -1733,7 +2238,7 @@ function calcularClasificacionFinal() {
   
   
 // ==========================================
-// 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL (FIX iOS)
+// 7. PERSISTENCIA Y EXPORTACIÓN A EXCEL 
 // ==========================================
 function registrarFichaActual(silencioso = false) {
     const idActual = document.getElementById('est_id').value.trim();
@@ -1742,7 +2247,6 @@ function registrarFichaActual(silencioso = false) {
         return false;
     }
 
-    // 1. Sincronizar con el almacenamiento local previo para no sobreescribir
     const backup = localStorage.getItem('rmr_backup_geotecnia');
     if (backup) {
         try {
@@ -1752,7 +2256,6 @@ function registrarFichaActual(silencioso = false) {
         }
     }
 
-    // 2. Mapeo de sistemas de discontinuidades
     let datosJuntas = listaJuntas.map(j => {
         let amp = parseFloat(j.amp) || 0;
         let len = parseFloat(j.len) || 100;
@@ -1783,16 +2286,26 @@ function registrarFichaActual(silencioso = false) {
         };
     });
 
-    // 3. Declaración de variables del escenario
     const escEl = document.getElementById('escenario');
     const escTexto = escEl ? escEl.options[escEl.selectedIndex].text : "TALUD / MACIZO";
     const escVal = escEl ? escEl.value : "talud";
 
-    const ficha = {
+    const inputProj = document.getElementById('proy_nom');
+    const nombreProyectoActual = inputProj && inputProj.value.trim() !== "" ? inputProj.value.trim() : "Sin Proyecto";
+	const horaActualStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+   
+  	const indexExistente = baseDeDatosFichas.findIndex(f => f.id.toUpperCase() === idActual.toUpperCase());
+    let horaAsignada = horaActualStr;
+    if (indexExistente !== -1 && baseDeDatosFichas[indexExistente].hora) {
+        horaAsignada = baseDeDatosFichas[indexExistente].hora; 
+    }
+  
+  		const ficha = {
         id: idActual,
         fecha: document.getElementById('est_fecha').value,
+        hora: horaAsignada,
         tecnico: document.getElementById('est_tec').value,
-        proyecto: document.getElementById('proy_nom').value,
+        proyecto: nombreProyectoActual, // <-- Asegurado con el nombre limpio
         frente_tipo: escTexto,
         frente_dip: document.getElementById('eje_dip').value || "0",
         frente_dir: escVal === 'tunel' ? "N/A" : (document.getElementById('eje_dir').value || "0"),
@@ -1817,25 +2330,17 @@ function registrarFichaActual(silencioso = false) {
         modulo: document.getElementById('res_modulo_e').innerText
     };
 
-    // 4. Actualizar o insertar
-    const indexExistente = baseDeDatosFichas.findIndex(f => f.id === idActual);
     if (indexExistente !== -1) {
         baseDeDatosFichas[indexExistente] = ficha;
     } else {
         baseDeDatosFichas.push(ficha);
     }
     
-    // 5. Persistencia, control de límite de 1000 fichas y actualización del botón
     localStorage.setItem('rmr_backup_geotecnia', JSON.stringify(baseDeDatosFichas));
+    if (typeof verificarLimiteFichas === 'function') verificarLimiteFichas();
     
-    // 👉 Verificación automática de límite operativo (1000 fichas)
-    verificarLimiteFichas();
-    
-    const btnExp = document.getElementById('btn_exportar');
-    if (btnExp) {
-        btnExp.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
-    }
-    
+    actualizarTextoBotonExportar();
+  
     if (!silencioso) alert("✅ Estación registrada y guardada en memoria.");
     return true;
 }
@@ -1866,38 +2371,115 @@ function nuevaEstacion() {
 }
 
   function exportarFichaActualDirecta() {
-    const idEst = document.getElementById('est_id').value.trim();
-    if (!idEst) {
-        alert("⚠️ Por favor ingresa el ID de la estación antes de exportar.");
-        document.getElementById('est_id').focus();
-        document.getElementById('est_id').style.border = "2px solid #e74c3c";
+    // 1. VALIDACIÓN COMPLETA DE CAMPOS CRÍTICOS (Igual a irAFase2)
+    const esc = document.getElementById('escenario').value;
+    const isT = esc === 'tunel';
+    
+    const camposValidar = [
+        { id: 'est_id', nombre: 'ID de Estación' },
+        { id: 'est_tec', nombre: 'Técnico Responsable' },
+        { id: 'est_fecha', nombre: 'Fecha' },
+        { id: 'eje_dip', nombre: document.getElementById('lbl_dip').innerText }
+    ];
+
+    if (!isT) {
+        camposValidar.push({ id: 'eje_dir', nombre: 'DIRECCIÓN DEL TALUD' });
+    }
+
+    let faltantes = [];
+
+    camposValidar.forEach(campo => {
+        let el = document.getElementById(campo.id);
+        let valorLimpio = el ? el.value.toString().replace('°', '').trim() : "";
+        if (!valorLimpio) {
+            faltantes.push(campo.nombre);
+            if (el) {
+                el.style.border = "2px solid #e74c3c";
+                el.style.backgroundColor = "#fdf2f2";
+            }
+        } else {
+            if (el) {
+                el.style.border = "1px solid #cbd5e1";
+                el.style.backgroundColor = "#ffffff";
+            }
+        }
+    });
+
+    // Validar obligatoriedad de la Junta #1 (Dip y Dir)
+    const j1 = listaJuntas[0];
+    const elJ1Dip = document.getElementById('ui-dip');
+    const elJ1Dir = document.getElementById('ui-dir');
+    
+    const valJ1Dip = (j1 ? j1.dip : "").toString().replace('°', '').trim();
+    const valJ1Dir = (j1 ? j1.dir : "").toString().replace('°', '').trim();
+    
+    let juntaIncompleta = false;
+
+    if (!valJ1Dip) {
+        faltantes.push("Buzamiento (Dip) de la Junta #1");
+        juntaIncompleta = true;
+        if (elJ1Dip) {
+            elJ1Dip.style.border = "2px solid #e74c3c";
+            elJ1Dip.style.backgroundColor = "#fdf2f2";
+        }
+    } else {
+        if (elJ1Dip) {
+            elJ1Dip.style.border = "1px solid #cbd5e1";
+            elJ1Dip.style.backgroundColor = "#ffffff";
+        }
+    }
+
+    if (!valJ1Dir) {
+        faltantes.push("Dirección de Buzamiento (DipDir) de la Junta #1");
+        juntaIncompleta = true;
+        if (elJ1Dir) {
+            elJ1Dir.style.border = "2px solid #e74c3c";
+            elJ1Dir.style.backgroundColor = "#fdf2f2";
+        }
+    } else {
+        if (elJ1Dir) {
+            elJ1Dir.style.border = "1px solid #cbd5e1";
+            elJ1Dir.style.backgroundColor = "#ffffff";
+        }
+    }
+
+    if (juntaIncompleta && idActivo !== 1) {
+        cambiarAJunta(1);
+    }
+
+    if (faltantes.length > 0) {
+        alert("⚠️ ATENCIÓN: Faltan datos críticos para exportar:\n\n- " + faltantes.join("\n- "));
         return;
     }
 
-    // 1. SINCRONIZAR MEMORIA LOCAL PRIMERO
+    const idEst = document.getElementById('est_id').value.trim();
+
+    // 2. SINCRONIZAR MEMORIA LOCAL PRIMERO
     const backup = localStorage.getItem('rmr_backup_geotecnia');
     let fichasGuardadas = backup ? JSON.parse(backup) : [];
 
-    // 2. 🛑 VALIDAR SI EL CÓDIGO YA EXISTE EN LOS REGISTROS PREVIOS
+    // 3. 🛑 VALIDAR SI EL CÓDIGO YA EXISTE EN LOS REGISTROS PREVIOS
     const yaRegistrado = fichasGuardadas.some(f => f.id.toUpperCase() === idEst.toUpperCase());
     if (yaRegistrado) {
         alert(`⚠️ ¡Estación ya exportada!\n\nEl código de estación "${idEst}" ya fue guardado y exportado previamente. No es posible volver a exportarlo con este mismo ID.`);
         document.getElementById('est_id').focus();
         document.getElementById('est_id').style.border = "2px solid #e74c3c";
-        return; // Detiene la ejecución para evitar duplicados
+        return; 
     }
 
-    // 3. Si pasa la validación, continúa el proceso normal de guardado y exportación...
+    // 4. Si pasa todas las validaciones, continúa el proceso normal de guardado y exportación individual...
     guardarDatosJunta();
     runRmr();
     const guardadoExitoso = registrarFichaActual(true);
 
     if (!guardadoExitoso) return;
 
-    const fichaActual = baseDeDatosFichas.find(f => f.id === idEst);
+    const fichaActual = baseDeDatosFichas.find(f => f.id.toUpperCase() === idEst.toUpperCase());
     if (fichaActual) {
         exportarConsolidado([fichaActual], `Estacion_${fichaActual.id}`);
-        
+      
+        fichaYaExportada = true;
+      
         // Limpiar el formulario automáticamente...
         const camposLimpiar = ['est_id', 'coord_e', 'coord_n', 'coord_z', 'abs_desde', 'abs_hasta', 'eje_dip', 'eje_dir', 'loc_sector', 'ubi_val'];
         camposLimpiar.forEach(id => {
@@ -1928,23 +2510,92 @@ function nuevaEstacion() {
         alert("❌ Error al generar el archivo de la estación.");
     }
 }
-/* EXPORTAR EXCEL EN IPHONE / SAFARI */
-function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = null) {
-    const datosAExportar = fichasPersonalizadas || baseDeDatosFichas;
-    
-    if (datosAExportar.length === 0) {
-        alert("⚠️ No hay estaciones guardadas para exportar. Guarde al menos una ficha.");
+  
+  // Puente seguro para exportar el consolidado estricto del proyecto desde la Fase 2
+function exportarProyectoActivoDesdeFase2() {
+    const inputProj = document.getElementById('proy_nom');
+    const proyectoActivo = inputProj && inputProj.value.trim() !== "" ? inputProj.value.trim() : "Sin Proyecto";
+
+    // Cargar respaldo más reciente
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    // Filtrar estrictamente solo las fichas de este proyecto
+    const fichasProyecto = baseDeDatosFichas.filter(f => {
+        let p = f.proyecto ? f.proyecto.trim() : "Sin Proyecto";
+        return p.toLowerCase() === proyectoActivo.toLowerCase();
+    });
+
+    if (fichasProyecto.length === 0) {
+        alert(`⚠️ No hay estaciones registradas para el proyecto "${proyectoActivo}".`);
         return;
     }
 
-    // 1. OBTENER EL TÉCNICO DESDE EL FORMULARIO
+    const nombreLimpio = proyectoActivo.replace(/[^a-zA-Z0-9_\-]/g, "_");
+    exportarConsolidado(fichasProyecto, `Consolidado_${nombreLimpio}`);
+}
+  
+  
+  // Actualiza el texto del botón de exportación para mostrar SOLO el conteo del proyecto activo
+function actualizarTextoBotonExportar() {
+    const inputProj = document.getElementById('proy_nom');
+    const proyectoActivo = inputProj && inputProj.value.trim() !== "" ? inputProj.value.trim() : "Sin Proyecto";
+
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    let listaFichas = [];
+    if (backup) {
+        try { listaFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    // Filtrar estrictamente por el proyecto activo
+    const fichasProyecto = listaFichas.filter(f => {
+        let p = f.proyecto ? f.proyecto.trim() : "Sin Proyecto";
+        return p.toLowerCase() === proyectoActivo.toLowerCase();
+    });
+
+    const btnExp = document.getElementById('btn_exportar');
+    if (btnExp) {
+        btnExp.innerText = `📥 EXPORTAR EXCEL CONSOLIDADO (${fichasProyecto.length} FICHAS)`;
+    }
+}
+  
+  
+/* EXPORTAR EXCEL */
+function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = null) {
+    // 1. Obtener y asegurar la lectura más reciente del respaldo local
+    const backup = localStorage.getItem('rmr_backup_geotecnia');
+    if (backup) {
+        try { baseDeDatosFichas = JSON.parse(backup); } catch(e) {}
+    }
+
+    // 2. Determinar el proyecto activo actual si no se pasan fichas personalizadas
+    const inputProj = document.getElementById('proy_nom');
+    const proyectoActivo = inputProj && inputProj.value.trim() !== "" ? inputProj.value.trim() : "Sin Proyecto";
+
+    // 3. Filtrar estrictamente por el proyecto activo o usar el arreglo recibido
+    let datosAExportar = fichasPersonalizadas;
+    if (!datosAExportar) {
+        datosAExportar = baseDeDatosFichas.filter(f => {
+            let p = f.proyecto ? f.proyecto.trim() : "Sin Proyecto";
+            return p.toLowerCase() === proyectoActivo.toLowerCase();
+        });
+    }
+    
+    if (datosAExportar.length === 0) {
+        alert(`⚠️ No hay estaciones registradas para el proyecto "${proyectoActivo}" para exportar.`);
+        return;
+    }
+
+    // 4. OBTENER EL TÉCNICO DESDE EL FORMULARIO
     const inputTecnico = document.getElementById('est_tec');
     const nombreTecnicoTexto = inputTecnico ? inputTecnico.value.trim() : "Tecnico";
     const tecnicoLimpio = nombreTecnicoTexto 
         ? nombreTecnicoTexto.replace(/[^a-zA-Z0-9_\-]/g, "_") 
         : "Operador";
 
-    // 2. GENERAR FECHA Y HORA ACTUAL FORMATEADA (Ej: 20261112_1221)
+    // 5. GENERAR FECHA Y HORA ACTUAL FORMATEADA 
     const ahora = new Date();
     const anio = ahora.getFullYear();
     const mes = String(ahora.getMonth() + 1).padStart(2, '0');
@@ -1953,15 +2604,16 @@ function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = 
     const minuto = String(ahora.getMinutes()).padStart(2, '0');
     const fechaHoraStr = `${anio}${mes}${dia}_${hora}${minuto}`;
 
-    // 3. Definir el nombre final del archivo
+    // 6. Definir el nombre final del archivo
     let nombreArchivo = nombrePersonalizado 
         ? `${nombrePersonalizado}.xls` 
         : `RMR_${tecnicoLimpio}_${fechaHoraStr}.xls`;
 
-    const desarrollador = "Mgtr. Byron Bravo";
-    const maxJuntas = Math.max(...baseDeDatosFichas.map(f => f.juntas ? f.juntas.length : 0));
+    const desarrollador = "Mgs. Byron Bravo";
     
-    // 10 columnas dinámicas por cada familia registrada
+    // 7. Calcular las columnas de juntas basadas estrictamente en este proyecto
+    const maxJuntas = Math.max(...datosAExportar.map(f => f.juntas ? f.juntas.length : 0));
+    
     let encabezadoSistemas = "";
     let subEncabezadoDatos = "";
     for (let i = 1; i <= maxJuntas; i++) {
@@ -1986,7 +2638,6 @@ function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = 
             <table border="1">
                 <thead>
                     <tr>
-                        <!-- Se cambia colspan de 11 a 14 por los 3 nuevos campos -->
                         <th colspan="14" class="azul">INFORMACIÓN GENERAL Y GEOMETRÍA DEL FRENTE</th>
                         <th colspan="2" class="azul">PROPIEDADES MATRIZ</th>
                         ${encabezadoSistemas}
@@ -1996,7 +2647,6 @@ function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = 
                     </tr>
                     <tr>
                         <th>ID</th><th>FECHA</th><th>TECNICO</th><th>PROYECTO</th>
-                        <!-- NUEVAS COLUMNAS -->
                         <th style="background:#eaf2f8; color:#052c52;">TIPO FRENTE</th>
                         <th style="background:#eaf2f8; color:#052c52;">EJE / INCL(°)</th>
                         <th style="background:#eaf2f8; color:#052c52;">DIR. TALUD / AVANCE(°)</th>
@@ -2009,7 +2659,7 @@ function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = 
                     </tr>
                 </thead>
                 <tbody>
-                    ${baseDeDatosFichas.map(f => {
+                    ${datosAExportar.map(f => {
                         let celdasJuntas = "";
                         for (let i = 0; i < maxJuntas; i++) {
                             const j = (f.juntas && f.juntas[i]) ? f.juntas[i] : null;
@@ -2023,7 +2673,6 @@ function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = 
                             <tr>
                                 <td style="font-weight:bold;">${f.id}</td><td>${f.fecha}</td><td>${f.tecnico}</td><td>${f.proyecto}</td>
                                 
-                                <!-- NUEVAS CELDAS DE FRENTE -->
                                 <td style="background:#f4f6f8; font-weight:600;">${f.frente_tipo || "TALUD / MACIZO"}</td>
                                 <td style="background:#f4f6f8;">${f.frente_dip || "0"}°</td>
                                 <td style="background:#f4f6f8;">${f.frente_dir !== undefined ? f.frente_dir : "-"}</td>
@@ -2057,7 +2706,15 @@ function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = 
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
     }, 500);
-    
+
+    fichaYaExportada = true;
+  
+    const btnExp = document.getElementById('btn_exportar');
+    if (btnExp) {
+        btnExp.innerText = `📥 EXPORTAR EXCEL CONSOLIDADO`;
+    }
+
+    alert(`✅ ¡Consolidado del proyecto "${proyectoActivo}" exportado con éxito!\n\nEl archivo Excel se ha descargado correctamente y los datos del proyecto se mantienen seguros en la memoria local.`);
 }
   
   	function verificarLimiteFichas() {
@@ -2081,21 +2738,23 @@ function exportarConsolidado(fichasPersonalizadas = null, nombrePersonalizado = 
 // ==========================================
 // 8. CICLO DE VIDA E INICIALIZACIÓN
 // ==========================================
-window.onload = function() { 
+window.onload = function() {    
     const backup = localStorage.getItem('rmr_backup_geotecnia');
     if (backup) {
         baseDeDatosFichas = JSON.parse(backup);
-        const btn = document.getElementById('btn_exportar');
-        if (btn) btn.innerText = `📥 EXPORTAR EXCEL (${baseDeDatosFichas.length} FICHAS)`;
     }
 
-    updateLitologia(); 
-    updateEscenario(); 
-    toggleRes(); 
+    updateLitologia();    
+    updateEscenario();    
+    toggleRes();    
     toggleRqd();
-    renderizarTabs(); 
-    cambiarAJunta(1); 
-    runRmr(); 
+    renderizarTabs();    
+    cambiarAJunta(1);    
+    runRmr();    
+
+    // Sicializar indicadores y conteo del proyecto al iniciar
+    actualizarIndicadorProyecto();
+    actualizarTextoBotonExportar();
 
     const inputID = document.getElementById('est_id');
     if (inputID) {
